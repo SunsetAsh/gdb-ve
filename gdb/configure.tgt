@@ -94,7 +94,7 @@ ve*-*-linux*)
 			linux-procfs.o linux-osdata.o linux-fork.o \
 			linux-waitpid.o linux-namespaces.o \
 			linux-personality.o linux-thread-db.o \
-			proc-service.o solib-svr4.o" 
+			proc-service.o solib-svr4.o ve-linux-procfs.o" 
         ;;
 arm*-wince-pe | arm*-*-mingw32ce*)
 	# Target: ARM based machine running Windows CE (win32)

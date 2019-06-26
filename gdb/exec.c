@@ -49,7 +49,11 @@ void (*deprecated_file_changed_hook) (char *);
 
 /* Prototypes for local functions */
 
+#ifdef VE_CUSTOMIZATION
+void file_command (char *, int);
+#else
 static void file_command (char *, int);
+#endif
 
 #ifndef VE_CUSTOMIZATION
 static void set_section_command (char *, int);
@@ -389,7 +393,11 @@ exec_file_command (char *args, int from_tty)
    What a novelty.  Why did GDB go through four major releases before this
    command was added?  */
 
+#ifdef	VE_CUSTOMIZATION
+void
+#else
 static void
+#endif
 file_command (char *arg, int from_tty)
 {
   /* FIXME, if we lose on reading the symbol file, we should revert

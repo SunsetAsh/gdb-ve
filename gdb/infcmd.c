@@ -59,6 +59,7 @@
 #include "thread-fsm.h"
 #ifdef VE_CUSTOMIZATION
 #include "ve-tdep.h"
+#include "nat/ve-linux-procfs.h"
 #endif
 
 /* Local functions: */
@@ -79,6 +80,9 @@ static void unset_command (char *, int);
 static void float_info (char *, int);
 
 static void disconnect_command (char *, int);
+
+#else
+extern void file_command(char *, int );
 #endif
 
 static void unset_environment_command (char *, int);
@@ -143,14 +147,10 @@ int stopped_by_random_signal;
 
 /* See inferior.h.  */
 
-#ifdef VE_CUSTOMIZATION
-/* On VE, ve_exec doesn't send SIGTRAP twice.
- * "ve_exec" is executed directly, not through "exec".
- * default value 1 => 0
- */
-int startup_with_shell = 0;
-#else
 int startup_with_shell = 1;
+
+#ifdef VE_CUSTOMIZATION
+char *ve_wrapper_and_args;
 #endif
 
 
@@ -558,44 +558,35 @@ prepare_execution_command (struct target_ops *target, int background)
 
 #ifdef VE_CUSTOMIZATION
 static char *
-build_allargs(void)
+build_ve_wrapper_and_ve_args(void)
 {
-  char *args, *ve_args,*allargs;
-  size_t args_len, ve_args_len, allargs_len;
-  char *exec_file;
+  char *ve_args,*allargs;
+  size_t ve_args_len, allargs_len;
+  char *wrapper_file;
 
-  args = get_inferior_args();
   ve_args = get_inferior_ve_args();
-  exec_file = (char *) get_exec_file (0);
-
-  if (exec_file == NULL)
-    {
-      allargs = xstrdup("");
-      return allargs;
-    }
-
-  if (args == NULL || args[0] == '\0')
-    args_len = 0;
-  else
-    args_len = strlen(args);
+  wrapper_file = ve_exec_file;
 
   if (ve_args == NULL || ve_args[0] == '\0') 
     ve_args_len = 0;
   else 
     ve_args_len = strlen(ve_args);
   /* 1:space or '\0' 2:"--" */
-  allargs_len = sizeof(VE_OPT_TRACEME) + 1 + ve_args_len + 1 + 2 + 1 +
-	strlen(exec_file) + 1 + args_len + 1;
+  /*
+   * :xxx/ve_exec --traceme ??????? -- :
+   *             1         1       1 21
+   */
+  allargs_len = strlen(wrapper_file) + 1 +sizeof(VE_OPT_TRACEME) + 1 + ve_args_len + 1 + 2 + 1;
   allargs = xmalloc(allargs_len); 
-  snprintf(allargs, allargs_len, "%s %s -- %s %s",
-	VE_OPT_TRACEME, 
-	(ve_args == NULL) ? "" : ve_args,
-	 exec_file,
-	(args == NULL) ? "" : args);
+  snprintf(allargs, allargs_len, "%s %s %s -- ",
+	   wrapper_file,
+	   VE_OPT_TRACEME, 
+	   (ve_args == NULL) ? "" : ve_args);
 
   return allargs;
 }
 #endif
+
 
 /* Implement the "run" command.  If TBREAK_AT_MAIN is set, then insert
    a temporary breakpoint at the begining of the main program before
@@ -611,9 +602,6 @@ run_command_1 (char *args, int from_tty, int tbreak_at_main)
   struct target_ops *run_target;
   int async_exec;
   struct cleanup *args_chain;
-#ifdef VE_CUSTOMIZATION
-  char *allargs;
-#endif
 
   dont_repeat ();
 
@@ -670,29 +658,20 @@ run_command_1 (char *args, int from_tty, int tbreak_at_main)
     set_inferior_args (args);
 
 #ifdef VE_CUSTOMIZATION
-  allargs = build_allargs();
+  ve_wrapper_and_args = build_ve_wrapper_and_ve_args();
 #endif
   if (from_tty)
     {
       ui_out_field_string (uiout, NULL, "Starting program");
       ui_out_text (uiout, ": ");
-#ifdef VE_CUSTOMIZATION
-      if (exec_file == NULL)
-	ve_exec_file = NULL;
-      if (ve_exec_file)
-	ui_out_field_string (uiout, "execfile", ve_exec_file);
-#else
+
       if (exec_file)
 	ui_out_field_string (uiout, "execfile", exec_file);
-#endif
+
       ui_out_spaces (uiout, 1);
       /* We call get_inferior_args() because we might need to compute
 	 the value now.  */
-#ifdef VE_CUSTOMIZATION
-      ui_out_field_string (uiout, "infargs", allargs);
-#else
       ui_out_field_string (uiout, "infargs", get_inferior_args ());
-#endif
       ui_out_text (uiout, "\n");
       ui_out_flush (uiout);
     }
@@ -702,16 +681,9 @@ run_command_1 (char *args, int from_tty, int tbreak_at_main)
 
   /* We call get_inferior_args() because we might need to compute
      the value now.  */
-#ifdef VE_CUSTOMIZATION
-  run_target->to_create_inferior (run_target, exec_file, allargs,
-				  environ_vector (current_inferior ()->environment),
-				  from_tty);
-  xfree (allargs);
-#else
   run_target->to_create_inferior (run_target, exec_file, get_inferior_args (),
 				  environ_vector (current_inferior ()->environment),
 				  from_tty);
-#endif
   /* to_create_inferior should push the target, so after this point we
      shouldn't refer to run_target again.  */
   run_target = NULL;
@@ -2883,6 +2855,10 @@ attach_command (char *args, int from_tty)
   struct target_ops *attach_target;
   struct inferior *inferior = current_inferior ();
   enum attach_post_wait_mode mode;
+#ifdef	VE_CUSTOMIZATION
+  pid_t pid;
+  char *cmd_path;
+#endif
 
   dont_repeat ();		/* Not for the faint of heart */
 
@@ -2904,6 +2880,14 @@ attach_command (char *args, int from_tty)
 
   args = strip_bg_char (args, &async_exec);
   args_chain = make_cleanup (xfree, args);
+
+#ifdef	VE_CUSTOMIZATION
+  pid = strtoul(args,NULL, 10);
+  cmd_path = ve_linux_proc_pid_to_exec_file(pid);
+  if (cmd_path == NULL)
+    error (_("unkown command file path"));
+  file_command(cmd_path, from_tty);
+#endif
 
   attach_target = find_attach_target ();
 

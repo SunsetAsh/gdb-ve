@@ -71,6 +71,7 @@
 #ifdef VE_CUSTOMIZATION
 #include "ve-ptrace.h"
 #include "ve-tdep.h"	/* for ve_gdb_waitpid() */
+#include "nat/ve-linux-procfs.h"
 #endif
 
 #ifndef SPUFS_MAGIC
@@ -1039,20 +1040,7 @@ linux_nat_create_inferior (struct target_ops *ops,
   /* Make sure we report all signals during startup.  */
   linux_nat_pass_signals (ops, 0, NULL);
 
-#ifdef VE_CUSTOMIZATION
-  /*
-   * Ex)
-   ve_exec_file = "/opt/nec/ve/bin/ve_exe"
-   allargs = "--traceme /home/yamaguchi/build/ve/ve_test5"
-  */
-  if (debug_linux_nat)
-    fprintf_unfiltered(gdb_stdlog,
-			"to_create_inferior(ops, \"%s\", \"%s\"\n",
-			ve_exec_file, allargs);
-  linux_ops->to_create_inferior (ops, ve_exec_file, allargs, env, from_tty);
-#else
   linux_ops->to_create_inferior (ops, exec_file, allargs, env, from_tty);
-#endif
 
   do_cleanups (restore_personality);
 }
@@ -3105,9 +3093,16 @@ linux_nat_filter_event (int lwpid, int status)
       /* When using hardware single-step, we need to report every signal.
 	 Otherwise, signals in pass_mask may be short-circuited
 	 except signals that might be caused by a breakpoint.  */
+#ifdef VE_CUSTOMIZATION
+      if (!lp->step
+	  && WSTOPSIG (status) && sigismember (&pass_mask, WSTOPSIG (status))
+	  && !linux_wstatus_maybe_breakpoint (status) 
+	  && !( lp->last_resume_kind == resume_stop && WSTOPSIG (status) == SIGSTOP ))
+#else
       if (!lp->step
 	  && WSTOPSIG (status) && sigismember (&pass_mask, WSTOPSIG (status))
 	  && !linux_wstatus_maybe_breakpoint (status))
+#endif
 	{
 	  linux_resume_one_lwp (lp, lp->step, signo);
 	  if (debug_linux_nat)

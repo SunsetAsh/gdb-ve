@@ -45,6 +45,7 @@ static char *exec_wrapper;
 #ifdef VE_CUSTOMIZATION
 /* chlld process debugging */
 static int fork_child_debug;
+extern char *ve_wrapper_and_args;
 #endif
 
 /* Break up SCRATCH into an argument vector suitable for passing to
@@ -147,9 +148,6 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
   struct inferior *inf;
   int i;
   int save_errno;
-#ifdef VE_CUSTOMIZATION
-  char *args = NULL;
-#endif
 
   /* If no exec file handed to us, get it from the exec-file command
      -- with a good, common error message if none is specified.  */
@@ -181,13 +179,8 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
 
       argv = XALLOCAVEC (char *, argc);
       argv[0] = exec_file;
-#ifdef VE_CUSTOMIZATION
-      /* create temporary allargs to avold crushing allargs */
-      args = xstrdup (allargs);
-      breakup_args (args, &argv[1]);
-#else
       breakup_args (allargs, &argv[1]);
-#endif
+
     }
   else
     {
@@ -197,6 +190,10 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
       char *p;
       int need_to_quote;
       const int escape_bang = escape_bang_in_quoted_argument (shell_file);
+
+#ifdef VE_CUSTOMIZATION
+      exec_wrapper = ve_wrapper_and_args;
+#endif
 
       /* Multiplying the length of exec_file by 4 is to account for the
          fact that it may expand when quoted; it is a worst-case number
@@ -390,11 +387,6 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
       _exit (0177);
     }
 
-#ifdef VE_CUSTOMIZATION
-  /* free temporary allargs */
-  if (args)
-    xfree (args);
-#endif
   /* Restore our environment in case a vforked child clob'd it.  */
   environ = save_our_env;
 
@@ -445,12 +437,13 @@ startup_inferior (int ntraps)
 
   if (startup_with_shell)
     {
-      /* One trap extra for exec'ing the shell.  */
-      pending_execs++;
 #ifdef VE_CUSTOMIZATION
       if (fork_child_debug)
 	printf_unfiltered(_("startup_with_shell set pending_exec = %d\n"),
 	pending_execs);
+#else
+      /* One trap extra for exec'ing the shell.  */
+      pending_execs++;
 #endif
     }
 
@@ -466,7 +459,6 @@ startup_inferior (int ntraps)
   if (exec_wrapper)
 #ifdef VE_CUSTOMIZATION
     {
-      pending_execs++;
       if (fork_child_debug)
 	printf_unfiltered(_("exec_wrapper set pending_exec = %d\n"),
 	pending_execs);
@@ -603,7 +595,7 @@ set_dummy_func (char *args, int from_tty,
   if (exec_wrapper)
     xfree (exec_wrapper);
   exec_wrapper = NULL;
-  startup_with_shell = 0;
+  startup_with_shell = 1;
 }
 
 #define VE_SET_FUNC set_dummy_func

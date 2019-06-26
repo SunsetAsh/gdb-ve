@@ -293,7 +293,7 @@ case "${targ}" in
 	ve*-*-linux*)
 cat >>confdefs.h <<_ACEOF
 #define	VE_CUSTOMIZATION	1
-#define	LIBTHREAD_DB_SEARCH_PATH	"/opt/nec/ve/lib64"
+#define	LIBTHREAD_DB_SEARCH_PATH	"/opt/nec/ve/share/gdb/auto-load/lib64"
 _ACEOF
 	;;
 esac

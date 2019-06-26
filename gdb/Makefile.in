@@ -2378,6 +2378,10 @@ aarch64-linux.o: ${srcdir}/nat/aarch64-linux.c
 	$(COMPILE) $(srcdir)/nat/aarch64-linux.c
 	$(POSTCOMPILE)
 
+ve-linux-procfs.o: $(srcdir)/nat/ve-linux-procfs.c
+	$(COMPILE) $(srcdir)/nat/ve-linux-procfs.c
+	$(POSTCOMPILE)
+
 # gdb/arch/ dependencies
 #
 # Need to explicitly specify the compile rule as make will do nothing

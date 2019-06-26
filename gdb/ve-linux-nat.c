@@ -35,6 +35,9 @@
 /* Prototypes for ptrace_func.  */
 #include "ve-ptrace.h"
 
+/* ve_proc_pid_to_exec_file() */
+#include "nat/ve-linux-procfs.h"
+
 /* Get the whole floating point state of the process and store it
    into regcache.  */
 
@@ -583,6 +586,14 @@ setup_ptrace(void)
 	ptrace_func = ve_gdb_ptrace;
 }
 
+char * ve_child_pid_to_exec_file (struct target_ops *, int );
+
+char *
+ve_linux_child_pid_to_exec_file (struct target_ops *self, int pid)
+{
+  return ve_linux_proc_pid_to_exec_file (pid);
+}
+
 void _initialize_ve_linux_nat(void);
 
 void
@@ -598,6 +609,8 @@ _initialize_ve_linux_nat(void)
   /* Add our register access methods.  */
   t->to_fetch_registers = ve_linux_fetch_inferior_registers;
   t->to_store_registers = ve_linux_store_inferior_registers;
+  /* to get a path of VE program from /proc */
+  t->to_pid_to_exec_file = ve_linux_child_pid_to_exec_file;
 
   /* Add our hardware breakpoint and watchpoint implementation.  */
   /* unnecessary */

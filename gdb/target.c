@@ -87,9 +87,7 @@ static int return_zero (struct target_ops *);
 
 static int return_zero_has_execution (struct target_ops *, ptid_t);
 
-#ifndef VE_CUSTOMIZATION
 static void target_command (char *, int);
-#endif
 
 static struct target_ops *find_default_run_target (char *);
 
@@ -184,7 +182,6 @@ show_targetdebug (struct ui_file *file, int from_tty,
 
 static void setup_target_debug (void);
 
-#ifndef VE_CUSTOMIZATION
 /* The user just typed 'target' without the name of a target.  */
 
 static void
@@ -193,7 +190,6 @@ target_command (char *arg, int from_tty)
   fputs_filtered ("Argument required (target name).  Try `help target'\n",
 		  gdb_stdout);
 }
-#endif
 
 /* Default target_has_* methods for process_stratum targets.  */
 
@@ -379,7 +375,6 @@ add_target_with_completer (struct target_ops *t,
 
   VEC_safe_push (target_ops_p, target_structs, t);
 
-#ifndef VE_CUSTOMIZATION
   if (targetlist == NULL)
     add_prefix_cmd ("target", class_run, target_command, _("\
 Connect to a target machine or process.\n\
@@ -388,9 +383,9 @@ Remaining arguments are interpreted by the target protocol.  For more\n\
 information on the arguments for a particular protocol, type\n\
 `help target ' followed by the protocol name."),
 		    &targetlist, "target ", 0, &cmdlist);
-#else
-  if ((strcmp (t->to_shortname, "core") == 0)
-      || (strcmp (t->to_shortname, "exec") == 0)
+#ifdef VE_CUSTOMIZATION
+  if (
+      (strcmp (t->to_shortname, "exec") == 0)
       || (strcmp (t->to_shortname, "extended-remote") == 0)
       || (strcmp (t->to_shortname, "native") == 0)
       || (strcmp (t->to_shortname, "record-btrace") == 0)
@@ -399,8 +394,8 @@ information on the arguments for a particular protocol, type\n\
       || (strcmp (t->to_shortname, "remote") == 0)
       || (strcmp (t->to_shortname, "tfile") == 0))
     return;
-
 #endif
+
   c = add_cmd (t->to_shortname, no_class, NULL, t->to_doc, &targetlist);
   set_cmd_sfunc (c, open_target);
   set_cmd_context (c, t);
