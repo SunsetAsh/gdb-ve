@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -58,6 +59,10 @@
 #include "thread-fsm.h"
 #include "top.h"
 #include "interps.h"
+#ifdef VE_CUSTOMIZATION
+#include "ve-tdep.h"
+#include "nat/ve-linux-procfs.h"
+#endif
 
 /* Local functions: */
 
@@ -73,9 +78,14 @@ static void path_command (char *, int);
 
 static void unset_command (char *, int);
 
+#ifndef VE_CUSTOMIZATION
 static void float_info (char *, int);
 
 static void disconnect_command (char *, int);
+
+#else
+extern void file_command(char *, int );
+#endif
 
 static void unset_environment_command (char *, int);
 
@@ -140,6 +150,10 @@ int stopped_by_random_signal;
 /* See inferior.h.  */
 
 int startup_with_shell = 1;
+
+#ifdef VE_CUSTOMIZATION
+char *ve_wrapper_and_args;
+#endif
 
 
 /* Accessor routines.  */
@@ -246,6 +260,35 @@ show_args_command (struct ui_file *file, int from_tty,
      directly.  */
   deprecated_show_value_hack (file, from_tty, c, get_inferior_args ());
 }
+
+#ifdef VE_CUSTOMIZATION
+static char *
+get_inferior_ve_args (void)
+{
+  if (current_inferior ()->ve_args == NULL)
+    current_inferior ()->ve_args = xstrdup ("");
+
+  return current_inferior ()->ve_args;
+}
+
+static void
+set_ve_args_command (char *args, int from_tty, struct cmd_list_element *c)
+{
+  char *newargs = inferior_args_scratch;
+
+  xfree (current_inferior()->ve_args);
+  current_inferior()->ve_args = newargs ? xstrdup(newargs) : NULL;
+}
+
+static void
+show_ve_args_command (struct ui_file *file, int from_tty,
+		   struct cmd_list_element *c, const char *value)
+{
+  /* Note that we ignore the passed-in value in favor of computing it
+     directly.  */
+  deprecated_show_value_hack (file, from_tty, c, get_inferior_ve_args());
+}
+#endif
 
 
 /* Compute command-line string given argument vector.  This does the
@@ -519,6 +562,38 @@ prepare_execution_command (struct target_ops *target, int background)
     }
 }
 
+#ifdef VE_CUSTOMIZATION
+static char *
+build_ve_wrapper_and_ve_args(void)
+{
+  char *ve_args,*allargs;
+  size_t ve_args_len, allargs_len;
+  char *wrapper_file;
+
+  ve_args = get_inferior_ve_args();
+  wrapper_file = ve_exec_file;
+
+  if (ve_args == NULL || ve_args[0] == '\0') 
+    ve_args_len = 0;
+  else 
+    ve_args_len = strlen(ve_args);
+  /* 1:space or '\0' 2:"--" */
+  /*
+   * :xxx/ve_exec --traceme ??????? -- :
+   *             1         1       1 21
+   */
+  allargs_len = strlen(wrapper_file) + 1 +sizeof(VE_OPT_TRACEME) + 1 + ve_args_len + 1 + 2 + 1;
+  allargs = xmalloc(allargs_len); 
+  snprintf(allargs, allargs_len, "%s %s %s -- ",
+	   wrapper_file,
+	   VE_OPT_TRACEME, 
+	   (ve_args == NULL) ? "" : ve_args);
+
+  return allargs;
+}
+#endif
+
+
 /* Implement the "run" command.  If TBREAK_AT_MAIN is set, then insert
    a temporary breakpoint at the begining of the main program before
    running the program.  */
@@ -588,12 +663,17 @@ run_command_1 (char *args, int from_tty, int tbreak_at_main)
   if (args != NULL)
     set_inferior_args (args);
 
+#ifdef VE_CUSTOMIZATION
+  ve_wrapper_and_args = build_ve_wrapper_and_ve_args();
+#endif
   if (from_tty)
     {
       ui_out_field_string (uiout, NULL, "Starting program");
       ui_out_text (uiout, ": ");
+
       if (exec_file)
 	ui_out_field_string (uiout, "execfile", exec_file);
+
       ui_out_spaces (uiout, 1);
       /* We call get_inferior_args() because we might need to compute
 	 the value now.  */
@@ -2808,6 +2888,10 @@ attach_command (char *args, int from_tty)
   struct target_ops *attach_target;
   struct inferior *inferior = current_inferior ();
   enum attach_post_wait_mode mode;
+#ifdef	VE_CUSTOMIZATION
+  pid_t pid;
+  char *cmd_path;
+#endif
 
   dont_repeat ();		/* Not for the faint of heart */
 
@@ -2829,6 +2913,14 @@ attach_command (char *args, int from_tty)
 
   args = strip_bg_char (args, &async_exec);
   args_chain = make_cleanup (xfree, args);
+
+#ifdef	VE_CUSTOMIZATION
+  pid = strtoul(args,NULL, 10);
+  cmd_path = ve_linux_proc_pid_to_exec_file(pid);
+  if (cmd_path == NULL)
+    error (_("unkown command file path"));
+  file_command(cmd_path, from_tty);
+#endif
 
   attach_target = find_attach_target ();
 
@@ -3023,6 +3115,7 @@ detach_command (char *args, int from_tty)
     deprecated_detach_hook ();
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Disconnect from the current target without resuming it (leaving it
    waiting for a debugger).
 
@@ -3043,6 +3136,7 @@ disconnect_command (char *args, int from_tty)
   if (deprecated_detach_hook)
     deprecated_detach_hook ();
 }
+#endif
 
 void 
 interrupt_target_1 (int all_threads)
@@ -3069,6 +3163,7 @@ interrupt_target_1 (int all_threads)
     set_stop_requested (ptid, 1);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* interrupt [-a]
    Stop the execution of the target while running in async mode, in
    the backgound.  In all-stop, stop the whole process.  In non-stop
@@ -3094,6 +3189,7 @@ interrupt_command (char *args, int from_tty)
       interrupt_target_1 (all_threads);
     }
 }
+#endif
 
 /* See inferior.h.  */
 
@@ -3120,6 +3216,7 @@ default_print_float_info (struct gdbarch *gdbarch, struct ui_file *file,
 		      "available for this processor.\n");
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 float_info (char *args, int from_tty)
 {
@@ -3131,6 +3228,7 @@ float_info (char *args, int from_tty)
   frame = get_selected_frame (NULL);
   gdbarch_print_float_info (get_frame_arch (frame), gdb_stdout, frame, args);
 }
+#endif
 
 static void
 unset_command (char *args, int from_tty)
@@ -3253,6 +3351,21 @@ Follow this command with any number of args, to be passed to the program."),
   gdb_assert (c != NULL);
   set_cmd_completer (c, filename_completer);
 
+#ifdef VE_CUSTOMIZATION
+  cmd_name = "ve_args";
+  add_setshow_string_noescape_cmd (cmd_name, class_run,
+				   &inferior_args_scratch, _("\
+Set argument list to ve_exec being debugged when it is started."), _("\
+Show argument list to ve_exec being debugged when it is started."), _("\
+Follow this command with any number of args, to be passed to the program."),
+				   set_ve_args_command,
+				   show_ve_args_command,
+				   &setlist, &showlist);
+  c = lookup_cmd (&cmd_name, setlist, "", -1, 1);
+  gdb_assert (c != NULL);
+  set_cmd_completer (c, filename_completer);
+#endif
+
   c = add_cmd ("environment", no_class, environment_info, _("\
 The environment to give the program, or one variable's value.\n\
 With an argument VAR, prints the value of environment variable VAR to\n\
@@ -3320,10 +3433,12 @@ If a process, it is no longer traced, and it continues its execution.  If\n\
 you were debugging a file, the file is closed and gdb no longer accesses it."),
 		  &detachlist, "detach ", 0, &cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   add_com ("disconnect", class_run, disconnect_command, _("\
 Disconnect from a target.\n\
 The target will wait for another debugger to connect.  Not available for\n\
 all targets."));
+#endif
 
   c = add_com ("signal", class_run, signal_command, _("\
 Continue program with the specified signal.\n\
@@ -3440,11 +3555,13 @@ You may specify arguments to give to your program, just as with the\n\
 \"run\" command."));
   set_cmd_completer (c, filename_completer);
 
+#ifndef VE_CUSTOMIZATION
   add_com ("interrupt", class_run, interrupt_command,
 	   _("Interrupt the execution of the debugged program.\n\
 If non-stop mode is enabled, interrupt only the current thread,\n\
 otherwise all the threads in the program are stopped.  To \n\
 interrupt all running threads in non-stop mode, use the -a option."));
+#endif
 
   c = add_info ("registers", nofp_registers_info, _("\
 List of integer registers and their contents, for selected stack frame.\n\
@@ -3460,8 +3577,10 @@ Register name as argument means describe only that register."));
   add_info ("program", program_info,
 	    _("Execution status of the program."));
 
+#ifndef VE_CUSTOMIZATION
   add_info ("float", float_info,
 	    _("Print the status of the floating point unit\n"));
+#endif
 
   add_info ("vector", vector_info,
 	    _("Print the status of the vector unit\n"));

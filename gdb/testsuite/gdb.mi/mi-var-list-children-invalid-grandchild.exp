@@ -39,6 +39,10 @@ set line_invalid_pointer_value [gdb_get_line_number "p_outer set to invalid valu
 set line_valid_pointer_value [gdb_get_line_number "p_outer set to valid value"]
 
 # set print object on
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "set print object on is unsupported command"
+    return
+}
 mi_gdb_test "-interpreter-exec console \"set print object on\"" \
     "(.*=cmd-param-changed,param=\"print object\",value=\"on\".*|)\\^done" \
     "set print object on"

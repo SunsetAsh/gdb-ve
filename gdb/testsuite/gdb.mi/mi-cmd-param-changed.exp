@@ -30,6 +30,9 @@ proc test_command_param_changed { } {
 	}
 	mi_run_to_main
 
+        if {[istarget "ve-nec-linux*"]} {
+            unsupported "unsupport command or default Only"
+        } else {
 	foreach opt { "on" "off" "step" } {
 	    mi_gdb_test "set scheduler-locking ${opt}" \
 		".*=cmd-param-changed,param=\"scheduler-locking\",value=\"${opt}\".*\\^done" \
@@ -53,7 +56,6 @@ proc test_command_param_changed { } {
 	mi_gdb_test "set scheduler-locking step" \
 	    "\\&\"set scheduler-locking step\\\\n\"\r\n\\^done" \
 	    "\"set scheduler-locking stepr\" no event"
-
 
 	foreach command { "remotecache" "check type" } {
 
@@ -82,7 +84,7 @@ proc test_command_param_changed { } {
 		"\\&\"set ${command} bar\\\\n\"\r\n(\\&\"warning.*|)\\^done" \
 		"\"set ${command} bar\" no event"
 	}
-
+}
 	# No notification is emitted for 'maint set' commands.
 	foreach boolean_opt { "on" "off" } {
 	    mi_gdb_test "maint set dwarf always-disassemble ${boolean_opt}" \
@@ -92,10 +94,19 @@ proc test_command_param_changed { } {
 
 	# Full command parameters are included in the notification when a
 	# abbreviated one is typed.
-	mi_gdb_test "set ch type on" \
-	    ".*=cmd-param-changed,param=\"check type\",value=\"on\".*\\^done" \
-	    "\"set ch type on\""
+        if {[istarget "ve-nec-linux*"]} {
+            mi_gdb_test "set ch type on" \
+            ".*done.*" \
+            "\"set ch type on\""
+             mi_gdb_test "show ch type" \
+             ".*Strict type checking is on.*" \
+             "\"set ch type on\""
+        } else {
 
+	    mi_gdb_test "set ch type on" \
+	        ".*=cmd-param-changed,param=\"check type\",value=\"on\".*\\^done" \
+	        "\"set ch type on\""
+        }
 	mi_gdb_exit
     }
 }

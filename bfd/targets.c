@@ -888,6 +888,7 @@ extern const bfd_target vax_aout_1knbsd_vec;
 extern const bfd_target vax_aout_bsd_vec;
 extern const bfd_target vax_aout_nbsd_vec;
 extern const bfd_target vax_elf32_vec;
+extern const bfd_target ve_elf64_vec;
 extern const bfd_target visium_elf32_vec;
 extern const bfd_target w65_coff_vec;
 extern const bfd_target we32k_coff_vec;
@@ -1408,6 +1409,9 @@ static const bfd_target * const _bfd_target_vector[] =
 	&vax_aout_nbsd_vec,
 	&vax_elf32_vec,
 
+#ifdef BFD64
+	&ve_elf64_vec,
+#endif
 	&visium_elf32_vec,
 
 	&w65_coff_vec,

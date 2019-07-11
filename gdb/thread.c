@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "symtab.h"
@@ -1970,6 +1971,7 @@ thread_command (char *tidstr, int from_tty)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Implementation of `thread name'.  */
 
 static void
@@ -1986,6 +1988,7 @@ thread_name_command (char *arg, int from_tty)
   xfree (info->name);
   info->name = arg ? xstrdup (arg) : NULL;
 }
+#endif
 
 /* Find thread ids with a name, target pid, or extra info matching ARG.  */
 
@@ -2256,10 +2259,12 @@ Usage: thread apply all [-ascending] <command>\n\
 "),
 	   &thread_apply_list);
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("name", class_run, thread_name_command,
 	   _("Set the current thread's name.\n\
 Usage: thread name [NAME]\n\
 If NAME is not given, then any existing name is removed."), &thread_cmd_list);
+#endif
 
   add_cmd ("find", class_run, thread_find_command, _("\
 Find threads that match a regular expression.\n\

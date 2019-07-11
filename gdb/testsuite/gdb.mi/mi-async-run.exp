@@ -42,6 +42,12 @@ proc test_async_run {} {
 
 	mi_gdb_load ${binfile}
 	mi_run_cmd
+
+        if {[istarget "ve-nec-linux*"]} {
+            unsupported "-exec-interrupt is unsupported command"
+            return
+        }
+
 	mi_gdb_test "123-exec-interrupt --all" "123\\^done" "send interrupt command"
 	mi_expect_interrupt "expect interrupt"
     }

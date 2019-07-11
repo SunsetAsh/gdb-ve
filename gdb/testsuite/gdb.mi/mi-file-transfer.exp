@@ -21,6 +21,9 @@ load_lib mi-support.exp
 set MIFLAGS "-i=mi"
 
 if { [skip_gdbserver_tests] } {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "gdbserver is unsupported"
+    }
     return 0
 }
 

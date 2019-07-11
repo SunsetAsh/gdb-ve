@@ -19,7 +19,9 @@
 # This test only works on Linux
 if { ![isnative] || [is_remote host] || [target_info exists use_gdb_stub]
      || ![istarget *-linux*] } {
-    continue
+     unsupported "remote debugge is unsupported"
+     return
+#    continue
 }
 
 standard_testfile

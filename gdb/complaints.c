@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "complaints.h"
@@ -319,6 +320,19 @@ complaints_show_value (struct ui_file *file, int from_tty,
 		    value);
 }
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  stop_whining = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_complaints (void)
 {
@@ -326,6 +340,6 @@ _initialize_complaints (void)
 			    &stop_whining, _("\
 Set max number of complaints about incorrect symbols."), _("\
 Show max number of complaints about incorrect symbols."), NULL,
-			    NULL, complaints_show_value,
+			    VE_SET_FUNC, complaints_show_value,
 			    &setlist, &showlist);
 }

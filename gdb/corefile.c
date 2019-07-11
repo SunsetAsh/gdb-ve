@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include <signal.h>
@@ -474,6 +475,13 @@ set_gnutarget_command (char *ignore, int from_tty,
 {
   char *gend = gnutarget_string + strlen (gnutarget_string);
 
+#ifdef VE_CUSTOMIZATION
+  if (gnutarget_string != NULL)
+    xfree (gnutarget_string);
+  gnutarget_string = xstrdup ("auto");
+  gend = gnutarget_string + strlen (gnutarget_string);
+
+#endif
   gend = remove_trailing_whitespace (gnutarget_string, gend);
   *gend = '\0';
 
@@ -513,7 +521,11 @@ set_gnutarget (char *newtarget)
 {
   if (gnutarget_string != NULL)
     xfree (gnutarget_string);
+#ifdef VE_CUSTOMIZATION
+  gnutarget_string = xstrdup ("auto");
+#else
   gnutarget_string = xstrdup (newtarget);
+#endif
   set_gnutarget_command (NULL, 0, NULL);
 }
 

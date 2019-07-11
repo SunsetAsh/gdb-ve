@@ -14,6 +14,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #ifndef COMMON_LINUX_PTRACE_H
 #define COMMON_LINUX_PTRACE_H
@@ -114,7 +115,11 @@ struct buffer;
    way to go.  That said, some architecture may get the si_code wrong,
    and as such we're leaving fallback code in place.  We'll remove
    this after a while if no problem is reported.  */
+#ifdef VE_CUSTOMIZATION
+#define USE_SIGTRAP_SIGINFO 0
+#else
 #define USE_SIGTRAP_SIGINFO 1
+#endif
 
 /* The x86 kernel gets some of the si_code values backwards, like
    this:

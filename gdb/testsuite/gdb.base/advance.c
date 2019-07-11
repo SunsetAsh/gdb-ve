@@ -16,6 +16,9 @@ int bar (int y)
 int func2 ()
 {
   x = 6;
+#ifdef VEOS
+  return 0;
+#endif
 }
 
 void func()
@@ -27,6 +30,9 @@ void func()
 int func3 ()
 {
   x = 4;
+#ifdef VEOS
+  return 0;
+#endif
 }
 
 void marker1 ()
@@ -41,7 +47,11 @@ main ()
   c = 5;
   b = 3;    /* advance this location */
     
+#ifdef VEOS
+  func (); /* stop here after leaving current frame */
+#else
   func (c); /* stop here after leaving current frame */
+#endif
   marker1 (); /* stop here after leaving current frame */
   func3 (); /* break here */
   result = bar (b + foo (c));

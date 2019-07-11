@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "dcache.h"
@@ -125,10 +126,13 @@ static int dcache_read_line (DCACHE *dcache, struct dcache_block *db);
 
 static struct dcache_block *dcache_alloc (DCACHE *dcache, CORE_ADDR addr);
 
+#ifndef VE_CUSTOMIZATION
 static void dcache_info (char *exp, int tty);
+#endif
 
 void _initialize_dcache (void);
 
+#ifndef VE_CUSTOMIZATION
 static int dcache_enabled_p = 0; /* OBSOLETE */
 
 static void
@@ -137,6 +141,7 @@ show_dcache_enabled_p (struct ui_file *file, int from_tty,
 {
   fprintf_filtered (file, _("Deprecated remotecache flag is %s.\n"), value);
 }
+#endif
 
 /* Add BLOCK to circular block list BLIST, behind the block at *BLIST.
    *BLIST is not updated (unless it was previously NULL of course).
@@ -538,6 +543,7 @@ dcache_update (DCACHE *dcache, enum target_xfer_status status,
       }
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Print DCACHE line INDEX.  */
 
 static void
@@ -646,16 +652,21 @@ dcache_info (char *exp, int tty)
 {
   dcache_info_1 (target_dcache_get (), exp);
 }
+#endif
 
 static void
 set_dcache_size (char *args, int from_tty,
 		 struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  dcache_size = DCACHE_DEFAULT_SIZE;
+#else
   if (dcache_size == 0)
     {
       dcache_size = DCACHE_DEFAULT_SIZE;
       error (_("Dcache size must be greater than 0."));
     }
+#endif
   target_dcache_invalidate ();
 }
 
@@ -663,6 +674,9 @@ static void
 set_dcache_line_size (char *args, int from_tty,
 		      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  dcache_line_size = DCACHE_DEFAULT_LINE_SIZE;
+#else
   if (dcache_line_size < 2
       || (dcache_line_size & (dcache_line_size - 1)) != 0)
     {
@@ -670,6 +684,7 @@ set_dcache_line_size (char *args, int from_tty,
       dcache_line_size = DCACHE_DEFAULT_LINE_SIZE;
       error (_("Invalid dcache line size: %u (must be power of 2)."), d);
     }
+#endif
   target_dcache_invalidate ();
 }
 
@@ -690,6 +705,7 @@ show_dcache_command (char *args, int from_tty)
 void
 _initialize_dcache (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_setshow_boolean_cmd ("remotecache", class_support,
 			   &dcache_enabled_p, _("\
 Set cache use for remote targets."), _("\
@@ -708,6 +724,7 @@ Print information on the dcache performance.\n\
 With no arguments, this command prints the cache configuration and a\n\
 summary of each line in the cache.  Use \"info dcache <lineno> to dump\"\n\
 the contents of a given line."));
+#endif
 
   add_prefix_cmd ("dcache", class_obscure, set_dcache_command, _("\
 Use this command to set number of lines in dcache and line-size."),

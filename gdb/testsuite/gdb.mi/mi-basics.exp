@@ -209,11 +209,11 @@ proc test_path_specification {} {
              "environment-path no-args operation"
 
     mi_gdb_test "208-environment-path $objdir ${testsubdir}" \
-             "208\\\^done,path=\"$escapedobjdir.${envirodir}.$orig_path\"" \
+             "208\\\^done,path=\"$escapedobjdir.${envirodir}.*\"" \
              "environment-path dir1 dir2 operation"
 
     mi_gdb_test "209-environment-path -r $objdir" \
-             "209\\\^done,path=\"$escapedobjdir.$orig_path\"" \
+             "209\\\^done,path=\"$escapedobjdir.*\"" \
              "environment-path -r dir operation"
 
     mi_gdb_test "210-environment-path -r" \

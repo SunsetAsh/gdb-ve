@@ -28,6 +28,7 @@
 #  *running,thread-id="all"
 #  *running,thread-id="all"
 #  ...
+set timeout 200
 
 load_lib mi-support.exp
 set MIFLAGS "-i=mi"

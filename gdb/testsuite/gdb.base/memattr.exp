@@ -98,11 +98,19 @@ gdb_test_multiple "print &mem5\[64\]" "get end of mem5" {
     }
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "mem $mem1start $mem1end wo"
+    unsupported "mem $mem2start $mem2end ro"
+    unsupported "mem $mem3start $mem3end rw"
+    unsupported "mem $mem4start $mem4end rw"
+    unsupported "mem $mem5start $mem5end rw"
+} else {
 gdb_test_no_output "mem $mem1start $mem1end wo" "create mem region 1"
 gdb_test_no_output "mem $mem2start $mem2end ro" "create mem region 2"
 gdb_test_no_output "mem $mem3start $mem3end rw" "create mem region 3"
 gdb_test_no_output "mem $mem4start $mem4end rw" "create mem region 4"
 gdb_test_no_output "mem $mem5start $mem5end rw" "create mem region 5"
+}
 
 set see1 0
 set see2 0
@@ -502,13 +510,21 @@ proc delete_memory {} {
 # Create a region that doesn't overlap (a PASS in the table).
 
 proc region_pass { region } {
+  if { [istarget ve-nec-linux*] } {
+    unsupported "mem $region ro"
+  } else {
     gdb_test_no_output "mem $region ro" "$region: no-overlap"
+  }
 }
 
 # Try to create a region that overlaps (a FAIL in the table).
 
 proc region_fail { region } {
+  if { [istarget ve-nec-linux*] } {
+    unsupported "mem $region ro"
+  } else {
     gdb_test "mem $region ro" "overlapping memory region" "$region: overlap"
+  }
 }
 
 # Test normal case (upper != 0)
@@ -531,7 +547,11 @@ proc region_fail { region } {
 #                        |--- PASS
 
 delete_memory
+if { [istarget ve-nec-linux*] } {
+    unsupported "mem 0x30 0x60 ro"
+} else {
 gdb_test_no_output "mem 0x30 0x60 ro"
+}
 with_test_prefix "0x30 0x60" {
     region_fail "0x20 0x40"
     region_fail "0x30 0x40"
@@ -563,7 +583,11 @@ with_test_prefix "0x30 0x60" {
 #   |--|                      PASS
 
 delete_memory
+if { [istarget ve-nec-linux*] } {
+    unsupported "mem 0x30 0x0 ro"
+} else {
 gdb_test_no_output "mem 0x30 0x0 ro"
+}
 with_test_prefix "0x30 0x0" {
     region_fail "0x20 0x50"
     region_fail "0x30 0x50"

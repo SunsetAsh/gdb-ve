@@ -114,6 +114,9 @@ if [istarget "sparc-*-*"] then {
     mi_run_to_main
     sparc_register_tests
 } else {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "parc register is unsupported"
+    }
     verbose "mi-regs.exp tests ignored for this target"
 }
 

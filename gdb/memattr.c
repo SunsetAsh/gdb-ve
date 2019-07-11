@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "command.h"
@@ -82,6 +83,7 @@ show_inaccessible_by_default (struct ui_file *file, int from_tty,
 }
 
 
+#ifndef VE_CUSTOMIZATION
 /* Predicate function which returns true if LHS should sort before RHS
    in a list of memory regions, useful for VEC_lower_bound.  */
 
@@ -91,6 +93,7 @@ mem_region_lessthan (const struct mem_region *lhs,
 {
   return lhs->lo < rhs->lo;
 }
+#endif
 
 /* A helper function suitable for qsort, used to sort a
    VEC(mem_region_s) by starting address.  */
@@ -119,6 +122,7 @@ mem_region_init (struct mem_region *newobj)
   newobj->attrib = default_mem_attrib;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* This function should be called before any command which would
    modify the memory region list.  It will handle switching from
    a target-provided list to a local list, if necessary.  */
@@ -153,6 +157,7 @@ require_user_regions (int from_tty)
   for (ix = 0; VEC_iterate (mem_region_s, target_mem_region_list, ix, m); ix++)
     VEC_quick_push (mem_region_s, mem_region_list, m);
 }
+#endif
 
 /* This function should be called before any command which would
    read the memory region list, other than those which call
@@ -170,6 +175,7 @@ require_target_regions (void)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 create_mem_region (CORE_ADDR lo, CORE_ADDR hi,
 		   const struct mem_attrib *attrib)
@@ -218,6 +224,7 @@ create_mem_region (CORE_ADDR lo, CORE_ADDR hi,
   newobj.attrib = *attrib;
   VEC_safe_insert (mem_region_s, mem_region_list, ix, &newobj);
 }
+#endif
 
 /*
  * Look up the memory region cooresponding to ADDR.
@@ -303,6 +310,7 @@ invalidate_target_mem_regions (void)
     mem_region_list = NULL;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Clear memory region list.  */
 
 static void
@@ -690,6 +698,7 @@ mem_delete_command (char *args, int from_tty)
 
   dont_repeat ();
 }
+#endif
 
 static void
 dummy_cmd (char *args, int from_tty)
@@ -704,6 +713,7 @@ static struct cmd_list_element *mem_show_cmdlist;
 void
 _initialize_mem (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_com ("mem", class_vars, mem_command, _("\
 Define attributes for memory region or reset memory region handling to\n\
 target-based.\n\
@@ -733,6 +743,7 @@ Do \"info mem\" to see current list of code numbers."), &deletelist);
 
   add_info ("mem", mem_info_command,
 	    _("Memory region attributes"));
+#endif
 
   add_prefix_cmd ("mem", class_vars, dummy_cmd, _("\
 Memory regions settings"),

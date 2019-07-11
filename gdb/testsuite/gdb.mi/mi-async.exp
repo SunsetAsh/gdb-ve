@@ -21,8 +21,10 @@
 # mi_run_cmd, it ignores whatever target the rest of GDB testsuite is
 # using, and always tries to run natively.  So, don't do anything unless
 # we're actually testing native.
-if { !([isnative] && [istarget *-linux*]) } then {
-  return
+if { ![istarget "ve-nec-linux*"] } {
+    if { !([isnative] && [istarget *-linux*]) } then {
+        return
+    }
 }
 
 # The plan is for async mode to become the default but toggle for now.

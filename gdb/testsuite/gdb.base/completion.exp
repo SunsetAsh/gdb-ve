@@ -98,6 +98,9 @@ set targets [list "core" "tfile" "exec"]
 # Test that completion of command 'target ctf' if GDB supports ctf
 # target.
 gdb_test_multiple "target ctf" "" {
+    -re "Undefined command: \"target\"\.  Try \"help\"\.\r\n$gdb_prompt $" {
+	unsupported "target ctf"
+    }
     -re "Undefined target command: \"ctf\"\.  Try \"help target\"\.\r\n$gdb_prompt $" {
     }
     -re "No CTF directory specified.*\r\n$gdb_prompt $" {

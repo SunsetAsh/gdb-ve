@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "symtab.h"
@@ -742,6 +743,119 @@ create_demangled_names_hash (struct objfile *objfile)
    then set the language appropriately.  The returned name is allocated
    by the demangler and should be xfree'd.  */
 
+#ifdef VE_CUSTOMIZATION
+static char *
+symbol_find_demangled_name (struct general_symbol_info *gsymbol,
+			    const char *mangled)
+{
+  char *demangled = NULL;
+
+  if (gsymbol->language == language_unknown)
+    gsymbol->language = language_auto;
+
+  if (gsymbol->language == language_objc
+      || gsymbol->language == language_auto)
+    {
+      demangled =
+	objc_demangle (mangled, 0);
+      if (demangled != NULL)
+	{
+	  gsymbol->language = language_objc;
+	  return demangled;
+	}
+    }
+  if (gsymbol->language == language_cplus
+      || gsymbol->language == language_auto)
+    {
+      demangled =
+        gdb_demangle (mangled, DMGL_PARAMS | DMGL_ANSI);
+      if (demangled != NULL)
+	{
+	  gsymbol->language = language_cplus;
+	  return demangled;
+	}
+    }
+  if (gsymbol->language == language_java)
+    {
+      demangled =
+        gdb_demangle (mangled,
+		      DMGL_PARAMS | DMGL_ANSI | DMGL_JAVA);
+      if (demangled != NULL)
+	{
+	  gsymbol->language = language_java;
+	  return demangled;
+	}
+    }
+  if (gsymbol->language == language_d
+      || gsymbol->language == language_auto)
+    {
+      demangled = d_demangle(mangled, 0);
+      if (demangled != NULL)
+	{
+	  gsymbol->language = language_d;
+	  return demangled;
+	}
+    }
+  /* FIXME(dje): Continually adding languages here is clumsy.
+     Better to just call la_demangle if !auto, and if auto then call
+     a utility routine that tries successive languages in turn and reports
+     which one it finds.  I realize the la_demangle options may be different
+     for different languages but there's already a FIXME for that.  */
+  if (gsymbol->language == language_go
+      || gsymbol->language == language_auto)
+    {
+      demangled = go_demangle (mangled, 0);
+      if (demangled != NULL)
+	{
+	  gsymbol->language = language_go;
+	  return demangled;
+	}
+    }
+
+  /* We could support `gsymbol->language == language_fortran' here to provide
+     module namespaces also for inferiors with only minimal symbol table (ELF
+     symbols).  Just the mangling standard is not standardized across compilers
+     and there is no DW_AT_producer available for inferiors with only the ELF
+     symbols to check the mangling kind.  */
+
+  /* Check for Ada symbols last.  See comment below explaining why.  */
+
+  if (gsymbol->language == language_auto)
+   {
+     const char *demangled = ada_decode (mangled);
+
+     if (demangled != mangled && demangled != NULL && demangled[0] != '<')
+       {
+	 /* Set the gsymbol language to Ada, but still return NULL.
+	    Two reasons for that:
+
+	      1. For Ada, we prefer computing the symbol's decoded name
+		 on the fly rather than pre-compute it, in order to save
+		 memory (Ada projects are typically very large).
+
+	      2. There are some areas in the definition of the GNAT
+		 encoding where, with a bit of bad luck, we might be able
+		 to decode a non-Ada symbol, generating an incorrect
+		 demangled name (Eg: names ending with "TB" for instance
+		 are identified as task bodies and so stripped from
+		 the decoded name returned).
+
+		 Returning NULL, here, helps us get a little bit of
+		 the best of both worlds.  Because we're last, we should
+		 not affect any of the other languages that were able to
+		 demangle the symbol before us; we get to correctly tag
+		 Ada symbols as such; and even if we incorrectly tagged
+		 a non-Ada symbol, which should be rare, any routing
+		 through the Ada language should be transparent (Ada
+		 tries to behave much like C/C++ with non-Ada symbols).  */
+	 gsymbol->language = language_ada;
+	 return NULL;
+       }
+   }
+
+  return NULL;
+}
+#else
 static char *
 symbol_find_demangled_name (struct general_symbol_info *gsymbol,
 			    const char *mangled)
@@ -775,6 +889,7 @@ symbol_find_demangled_name (struct general_symbol_info *gsymbol,
 
   return NULL;
 }
+#endif
 
 /* Set both the mangled and demangled (if any) names for GSYMBOL based
    on LINKAGE_NAME and LEN.  Ordinarily, NAME is copied onto the
@@ -6240,6 +6355,19 @@ symbol_set_symtab (struct symbol *symbol, struct symtab *symtab)
 
 
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  multiple_symbols_mode = multiple_symbols_all;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_symtab (void)
 {
@@ -6284,7 +6412,7 @@ Set the debugger behavior when more than one symbol are possible matches\n\
 in an expression."), _("\
 Show how the debugger handles ambiguities in expressions."), _("\
 Valid values are \"ask\", \"all\", \"cancel\", and the default is \"all\"."),
-                        NULL, NULL, &setlist, &showlist);
+                        VE_SET_FUNC, NULL, &setlist, &showlist);
 
   add_setshow_boolean_cmd ("basenames-may-differ", class_obscure,
 			   &basenames_may_differ, _("\

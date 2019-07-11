@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -83,7 +84,9 @@ int readnow_symbol_files;	/* Read full symbols immediately.  */
 
 /* Functions this file defines.  */
 
+#ifndef VE_CUSTOMIZATION
 static void load_command (char *, int);
+#endif
 
 static void symbol_file_add_main_1 (const char *args, int from_tty, int flags);
 
@@ -95,6 +98,7 @@ static void decrement_reading_symtab (void *);
 
 static void overlay_invalidate_all (void);
 
+#ifndef VE_CUSTOMIZATION
 static void overlay_auto_command (char *, int);
 
 static void overlay_manual_command (char *, int);
@@ -104,6 +108,7 @@ static void overlay_off_command (char *, int);
 static void overlay_load_command (char *, int);
 
 static void overlay_command (char *, int);
+#endif
 
 static void simple_free_overlay_table (void);
 
@@ -1826,6 +1831,7 @@ find_sym_fns (bfd *abfd)
 }
 
 
+#ifndef VE_CUSTOMIZATION
 /* This function runs the load command of our current target.  */
 
 static void
@@ -1885,6 +1891,7 @@ load_command (char *arg, int from_tty)
 
   do_cleanups (cleanup);
 }
+#endif
 
 /* This version of "load" should be usable for any target.  Currently
    it is just used for remote targets, not inftarg.c or core files,
@@ -2742,6 +2749,11 @@ show_ext_args (struct ui_file *file, int from_tty,
 static void
 set_ext_lang_command (char *args, int from_tty, struct cmd_list_element *e)
 {
+#ifdef VE_CUSTOMIZATION
+  if (ext_args)
+    xfree (ext_args);
+  ext_args = NULL;
+#else
   int i;
   char *cp = ext_args;
   enum language lang;
@@ -2800,6 +2812,7 @@ set_ext_lang_command (char *args, int from_tty, struct cmd_list_element *e)
       entry->ext = xstrdup (ext_args);
       entry->lang = lang;
     }
+#endif
 }
 
 static void
@@ -3145,6 +3158,7 @@ pc_in_mapped_range (CORE_ADDR pc, struct obj_section *section)
   return 0;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Return true if the mapped ranges of sections A and B overlap, false
    otherwise.  */
 
@@ -3158,6 +3172,7 @@ sections_overlap (struct obj_section *a, struct obj_section *b)
 
   return (a_start < b_end && b_start < a_end);
 }
+#endif
 
 /* Function: overlay_unmapped_address (PC, SECTION)
    Returns the address corresponding to PC in the unmapped (load) range.
@@ -3276,6 +3291,7 @@ find_pc_mapped_section (CORE_ADDR pc)
   return NULL;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Function: list_overlays_command
    Print a list of mapped sections and their PC ranges.  */
 
@@ -3441,6 +3457,7 @@ overlay_load_command (char *args, int from_tty)
   else
     error (_("This target does not know how to read its overlay state."));
 }
+#endif
 
 /* Function: overlay_command
    A place-holder for a mis-typed command.  */
@@ -3448,6 +3465,7 @@ overlay_load_command (char *args, int from_tty)
 /* Command list chain containing all defined "overlay" subcommands.  */
 static struct cmd_list_element *overlaylist;
 
+#ifndef VE_CUSTOMIZATION
 static void
 overlay_command (char *args, int from_tty)
 {
@@ -3455,6 +3473,7 @@ overlay_command (char *args, int from_tty)
     ("\"overlay\" must be followed by the name of an overlay command.\n");
   help_list (overlaylist, "overlay ", all_commands, gdb_stdout);
 }
+#endif
 
 /* Target Overlays for the "Simplest" overlay manager:
 
@@ -3931,6 +3950,7 @@ The file to remove can be identified by its filename or by an address\n\
 that lies within the boundaries of this symbol file in memory."),
 	       &cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   c = add_cmd ("load", class_files, load_command, _("\
 Dynamically load FILE into the running program, and record its symbols\n\
 for access from GDB.\n\
@@ -3961,6 +3981,7 @@ A load OFFSET may also be given."), &cmdlist);
 	   _("Enable automatic overlay debugging."), &overlaylist);
   add_cmd ("load-target", class_support, overlay_load_command,
 	   _("Read the overlay mapping state from the target."), &overlaylist);
+#endif
 
   /* Filename extension to source language lookup table: */
   add_setshow_string_noescape_cmd ("extension-language", class_files,

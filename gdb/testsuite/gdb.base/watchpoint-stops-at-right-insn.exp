@@ -68,6 +68,11 @@
 # watchpoint will keep re-triggering, with the program never making
 # any progress.
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+    return -1
+}
+
 standard_testfile
 
 # No use testing this if we can't use hardware watchpoints.

@@ -33,9 +33,15 @@ gdb_breakpoint $srcfile:[gdb_get_line_number "break-here"]
 gdb_continue_to_breakpoint "break-here" ".* break-here .*"
 
 # Resume only the second thread
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_test_no_output "set scheduler-locking on" \
     "enable scheduler-locking, for thread 2"
-
 # Continue.  Thread 2 exits, and the main thread was already stopped.
 gdb_test "continue" \
     "No unwaited-for children left." \

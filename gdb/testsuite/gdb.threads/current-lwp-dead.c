@@ -31,6 +31,10 @@
 #include <stdlib.h>
 
 #include <features.h>
+#ifdef VEOS
+#include <sys/mman.h>
+#endif
+
 #ifdef __UCLIBC__
 #if !(defined(__UCLIBC_HAS_MMU__) || defined(__ARCH_HAS_MMU__))
 #define HAS_NOMMU
@@ -38,6 +42,12 @@
 #endif
 
 #define STACK_SIZE 0x1000
+#ifdef VEOS
+#define CLONE_FLAGS (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND  \
+                     | CLONE_THREAD | CLONE_SYSVSEM | CLONE_SETTLS      \
+                     | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID       \
+                     | CLONE_DETACHED)
+#endif
 
 static int
 fn_return (void *unused)
@@ -51,18 +61,33 @@ fn (void *unused)
   int i;
   unsigned char *stack;
   int new_pid;
+#ifdef VEOS
+  unsigned char *tls;
+  unsigned long tid;
+  unsigned long ctid;
+#endif
 
   i = sleep (1);
   assert (i == 0);
 
   stack = malloc (STACK_SIZE);
+#ifdef VEOS
+  tls = mmap(NULL, 2 * 1024 * 1024, PROT_READ | PROT_WRITE,
+	     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
   assert (stack != NULL);
 
+#ifndef VEOS
   new_pid = clone (fn_return, stack + STACK_SIZE, CLONE_FILES
 #if defined(__UCLIBC__) && defined(HAS_NOMMU)
 		   | CLONE_VM
 #endif /* defined(__UCLIBC__) && defined(HAS_NOMMU) */
 		   , NULL, NULL, NULL, NULL);
+#else
+  new_pid = clone (fn_return, stack + STACK_SIZE, CLONE_FLAGS, NULL,
+ 		     &tid, tls, &ctid, NULL);
+#endif
+  sleep (10);
   assert (new_pid > 0);
 
   return 0;
@@ -73,15 +98,30 @@ main (int argc, char **argv)
 {
   unsigned char *stack;
   int new_pid;
+#ifdef VEOS
+  unsigned char *tls;
+  unsigned long tid;
+  unsigned long ctid;
+#endif
 
   stack = malloc (STACK_SIZE);
+#ifdef VEOS
+  tls = mmap(NULL, 2 * 1024 * 1024, PROT_READ | PROT_WRITE,
+	     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
   assert (stack != NULL);
 
+#ifndef VEOS
   new_pid = clone (fn, stack + STACK_SIZE, CLONE_FILES
 #if defined(__UCLIBC__) && defined(HAS_NOMMU)
 		   | CLONE_VM
 #endif /* defined(__UCLIBC__) && defined(HAS_NOMMU) */
 		   , NULL, NULL, NULL, NULL);
+#else
+  new_pid = clone (fn, stack + STACK_SIZE, CLONE_FLAGS, NULL,
+ 		     &tid, tls, &ctid, NULL);
+#endif
+  sleep (10);
   assert (new_pid > 0);
 
   return 0;

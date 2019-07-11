@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "elf-bfd.h"
@@ -134,6 +135,7 @@ write_gcore_file (bfd *obfd)
     throw_exception (except);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 do_bfd_delete_cleanup (void *arg)
 {
@@ -188,6 +190,7 @@ gcore_command (char *args, int from_tty)
   fprintf_filtered (gdb_stdout, "Saved corefile %s\n", corefilename);
   do_cleanups (filename_chain);
 }
+#endif
 
 static unsigned long
 default_gcore_mach (void)
@@ -631,9 +634,11 @@ extern initialize_file_ftype _initialize_gcore;
 void
 _initialize_gcore (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_com ("generate-core-file", class_files, gcore_command, _("\
 Save a core file with the current state of the debugged process.\n\
 Argument is optional filename.  Default filename is 'core.<process_id>'."));
 
   add_com_alias ("gcore", "generate-core-file", class_files, 1);
+#endif
 }

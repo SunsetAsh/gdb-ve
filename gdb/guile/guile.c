@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* See README file in this directory for implementation notes, coding
    conventions, et.al.  */
@@ -158,6 +159,7 @@ const struct extension_language_ops guile_extension_ops =
   NULL, /* gdbscm_set_quit_flag, */
 };
 
+#ifndef VE_CUSTOMIZATION
 /* Implementation of the gdb "guile-repl" command.  */
 
 static void
@@ -223,6 +225,7 @@ guile_command (char *arg, int from_tty)
 
   do_cleanups (cleanup);
 }
+#endif
 
 /* Given a command_line, return a command string suitable for passing
    to Guile.  Lines in the string are separated by newlines.  The return
@@ -405,6 +408,7 @@ gdbscm_target_config (void)
 
 #else /* ! HAVE_GUILE */
 
+#ifndef VE_CUSTOMIZATION
 /* Dummy implementation of the gdb "guile-repl" and "guile"
    commands. */
 
@@ -434,6 +438,7 @@ guile_command (char *arg, int from_tty)
       do_cleanups (cleanups);
     }
 }
+#endif
 
 #endif /* ! HAVE_GUILE */
 
@@ -443,6 +448,7 @@ static struct cmd_list_element *set_guile_list;
 static struct cmd_list_element *show_guile_list;
 static struct cmd_list_element *info_guile_list;
 
+#ifndef VE_CUSTOMIZATION
 /* Function for use by 'set guile' prefix command.  */
 
 static void
@@ -470,6 +476,7 @@ info_guile_command (char *args, int from_tty)
 		       " by the name of an info command.\n"));
   help_list (info_guile_list, "info guile ", all_commands, gdb_stdout);
 }
+#endif
 
 /* Initialization.  */
 
@@ -751,6 +758,7 @@ gdbscm_set_backtrace (int enable)
 static void
 install_gdb_commands (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_com ("guile-repl", class_obscure,
 	   guile_repl_command,
 #ifdef HAVE_GUILE
@@ -834,6 +842,7 @@ full == a message and a stack will be printed.\n\
 message == an error message without a stack will be printed."),
 			NULL, NULL,
 			&set_guile_list, &show_guile_list);
+#endif
 }
 
 /* Provide a prototype to silence -Wmissing-prototypes.  */

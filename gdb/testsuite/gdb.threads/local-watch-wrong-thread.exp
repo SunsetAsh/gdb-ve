@@ -20,6 +20,7 @@
 # for a breakpoint.
 
 if {[skip_hw_watchpoint_multi_tests]} {
+    unsupported "HW watchpoint is unsupported"
     return 0
 }
 

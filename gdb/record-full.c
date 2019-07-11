@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "gdbcmd.h"
@@ -2536,6 +2537,7 @@ bfdcore_write (bfd *obfd, asection *osec, void *buf, int len, int *offset)
 	   bfd_errmsg (bfd_get_error ()));
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Restore the execution log from a file.  We use a modified elf
    corefile format, with an extra section for our data.  */
 
@@ -2545,6 +2547,7 @@ cmd_record_full_restore (char *args, int from_tty)
   core_file_command (args, from_tty);
   record_full_open (args, from_tty);
 }
+#endif
 
 static void
 record_full_save_cleanups (void *data)
@@ -2792,6 +2795,7 @@ record_full_goto_insn (struct record_full_entry *entry,
   do_cleanups (set_cleanups);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Alias for "target record-full".  */
 
 static void
@@ -2799,11 +2803,15 @@ cmd_record_full_start (char *args, int from_tty)
 {
   execute_command ("target record-full", from_tty);
 }
+#endif
 
 static void
 set_record_full_insn_max_num (char *args, int from_tty,
 			      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  record_full_insn_max_num = DEFAULT_RECORD_FULL_INSN_MAX_NUM;
+#endif
   if (record_full_insn_num > record_full_insn_max_num)
     {
       /* Count down record_full_insn_num while releasing records from list.  */
@@ -2834,6 +2842,23 @@ show_record_full_command (char *args, int from_tty)
   cmd_show_list (show_record_full_cmdlist, from_tty, "");
 }
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (!strcmp (c->name, "memory-query"))
+    record_full_memory_query = 0;
+  if (!strcmp (c->name, "stop-at-limit"))
+    record_full_stop_at_limit = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 extern initialize_file_ftype _initialize_record_full;
 
@@ -2849,10 +2874,13 @@ _initialize_record_full (void)
 
   init_record_full_ops ();
   add_target (&record_full_ops);
+#ifndef VE_CUSTOMIZATION
   add_deprecated_target_alias (&record_full_ops, "record");
+#endif
   init_record_full_core_ops ();
   add_target (&record_full_core_ops);
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("full", class_obscure, cmd_record_full_start,
 		  _("Start full execution recording."), &record_full_cmdlist,
 		  "record full ", 0, &record_cmdlist);
@@ -2868,6 +2896,7 @@ Argument is filename.  File must be created with 'record save'."),
 		     &record_cmdlist);
   set_cmd_completer (c, filename_completer);
   deprecate_cmd (c, "record full restore");
+#endif
 
   add_prefix_cmd ("full", class_support, set_record_full_command,
 		  _("Set record options"), &set_record_full_cmdlist,
@@ -2886,7 +2915,7 @@ Show whether record/replay stops when record/replay buffer becomes full."),
 When ON, if the record/replay buffer becomes full, ask user what to do.\n\
 When OFF, if the record/replay buffer becomes full,\n\
 delete the oldest recorded instruction to make room for each new one."),
-			   NULL, NULL,
+			   VE_SET_FUNC, NULL,
 			   &set_record_full_cmdlist, &show_record_full_cmdlist);
 
   c = add_alias_cmd ("stop-at-limit", "full stop-at-limit", no_class, 1,
@@ -2924,7 +2953,7 @@ Show whether query if PREC cannot record memory change of next instruction."),
                            _("\
 Default is OFF.\n\
 When ON, query if PREC cannot record memory change of next instruction."),
-			   NULL, NULL,
+			   VE_SET_FUNC, NULL,
 			   &set_record_full_cmdlist,
 			   &show_record_full_cmdlist);
 

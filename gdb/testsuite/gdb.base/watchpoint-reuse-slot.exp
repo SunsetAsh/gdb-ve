@@ -99,6 +99,9 @@ set cmds {}
 
 foreach cmd {"watch" "awatch" "rwatch"} {
     set test $cmd
+  if { [istarget ve-nec-linux*] } {
+    unsupported $test
+  } else {
     gdb_test_multiple "$cmd buf.byte\[0\]" $test {
 	-re "You may have requested too many.*$gdb_prompt $" {
 	    unsupported $test
@@ -111,11 +114,15 @@ foreach cmd {"watch" "awatch" "rwatch"} {
 	    lappend cmds $cmd
 	}
     }
+  }
 
    delete_breakpoints
 }
 
 set test "hbreak"
+if { [istarget ve-nec-linux*] } {
+    unsupported $test
+} else {
 gdb_test_multiple "hbreak main" $test {
     -re "You may have requested too many.*$gdb_prompt $" {
 	unsupported $test
@@ -127,6 +134,7 @@ gdb_test_multiple "hbreak main" $test {
 	pass $test
 	lappend cmds "hbreak"
     }
+}
 }
 
 delete_breakpoints

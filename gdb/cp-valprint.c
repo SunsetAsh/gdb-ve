@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "gdb_obstack.h"
@@ -812,6 +813,23 @@ cp_print_class_member (const gdb_byte *valaddr, struct type *type,
     fprintf_filtered (stream, "%ld", (long) val);
 }
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (!strcmp (c->name, "object"))
+    user_print_options.objectprint = 0;
+  if (!strcmp (c->name, "object"))
+  if (!strcmp (c->name, "static-members"))
+  user_print_options.static_field_print = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
 
 void
 _initialize_cp_valprint (void)
@@ -820,7 +838,7 @@ _initialize_cp_valprint (void)
 			   &user_print_options.static_field_print, _("\
 Set printing of C++ static members."), _("\
 Show printing of C++ static members."), NULL,
-			   NULL,
+			   VE_SET_FUNC,
 			   show_static_field_print,
 			   &setprintlist, &showprintlist);
 
@@ -836,7 +854,7 @@ Show printing of C++ virtual function tables."), NULL,
 			   &user_print_options.objectprint, _("\
 Set printing of object's derived type based on vtable info."), _("\
 Show printing of object's derived type based on vtable info."), NULL,
-			   NULL,
+			   VE_SET_FUNC,
 			   show_objectprint,
 			   &setprintlist, &showprintlist);
 

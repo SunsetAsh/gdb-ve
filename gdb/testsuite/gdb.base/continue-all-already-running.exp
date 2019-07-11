@@ -31,7 +31,11 @@ if ![runto_main] {
 set linenum [gdb_get_line_number "set break here"]
 gdb_breakpoint "$linenum"
 
+if { [istarget ve-nec-linux*] } {
+    gdb_test "c -a&" "\`-a\' is meaningless in all-stop mode\\."
+} else {
 gdb_test "c -a&" "Continuing\\."
+}
 
 set test "no stop"
 gdb_test_multiple "" $test {
@@ -49,6 +53,10 @@ gdb_test "print 1" " = 1"
 # the program stops), this issues a fail.
 set saw_continuing 0
 set test "c -a"
+if { [istarget ve-nec-linux*] } {
+    gdb_test "c -a" "\`-a\' is meaningless in all-stop mode\\."
+    send_gdb "c\n"
+} else {
 gdb_test_multiple "c -a" $test {
     -timeout 1
     -re "Continuing\\." {
@@ -58,6 +66,7 @@ gdb_test_multiple "c -a" $test {
     timeout {
 	gdb_assert $saw_continuing $test
     }
+}
 }
 
 # Type something while the inferior is running in the foreground.

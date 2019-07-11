@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -34,6 +35,9 @@
 #include "gdb_wait.h"
 #include <dirent.h>
 #include <ctype.h>
+#ifdef VE_CUSTOMIZATION
+#include "ve-ptrace.h"
+#endif
 
 struct fork_info *fork_list;
 static int highest_fork_num;
@@ -172,6 +176,7 @@ delete_fork (ptid_t ptid)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Find a fork_info by matching PTID.  */
 static struct fork_info *
 find_fork_ptid (ptid_t ptid)
@@ -197,6 +202,7 @@ find_fork_id (int num)
 
   return NULL;
 }
+#endif
 
 /* Find a fork_info by matching pid.  */
 extern struct fork_info *
@@ -211,6 +217,7 @@ find_fork_pid (pid_t pid)
   return NULL;
 }
 
+#ifndef VE_CUSTOMIZATION
 static ptid_t
 fork_id_to_ptid (int num)
 {
@@ -220,6 +227,7 @@ fork_id_to_ptid (int num)
   else
     return pid_to_ptid (-1);
 }
+#endif
 
 static void
 init_fork_list (void)
@@ -284,6 +292,7 @@ fork_load_infrun_state (struct fork_info *fp)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Save infrun state for the fork PTID.
    Exported for use by linux child_follow_fork.  */
 
@@ -338,6 +347,7 @@ fork_save_infrun_state (struct fork_info *fp, int clobber_regs)
 	}
     }
 }
+#endif
 
 /* Kill 'em all, let God sort 'em out...  */
 
@@ -416,7 +426,7 @@ linux_fork_detach (const char *args, int from_tty)
      delete it from the fork_list, and switch to the next available
      fork.  */
 
-  if (ptrace (PTRACE_DETACH, ptid_get_pid (inferior_ptid), 0, 0))
+  if (ptrace_func (PTRACE_DETACH, ptid_get_pid (inferior_ptid), 0, 0))
     error (_("Unable to detach %s"), target_pid_to_str (inferior_ptid));
 
   delete_fork (inferior_ptid);
@@ -437,6 +447,7 @@ linux_fork_detach (const char *args, int from_tty)
     delete_fork (inferior_ptid);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 inferior_call_waitpid_cleanup (void *fp)
 {
@@ -522,7 +533,7 @@ delete_checkpoint_command (char *args, int from_tty)
     error (_("\
 Please switch to another checkpoint before deleting the current one"));
 
-  if (ptrace (PTRACE_KILL, ptid_get_pid (ptid), 0, 0))
+  if (ptrace_func (PTRACE_KILL, ptid_get_pid (ptid), 0, 0))
     error (_("Unable to kill pid %s"), target_pid_to_str (ptid));
 
   fi = find_fork_ptid (ptid);
@@ -562,7 +573,7 @@ detach_checkpoint_command (char *args, int from_tty)
     error (_("\
 Please switch to another checkpoint before detaching the current one"));
 
-  if (ptrace (PTRACE_DETACH, ptid_get_pid (ptid), 0, 0))
+  if (ptrace_func (PTRACE_DETACH, ptid_get_pid (ptid), 0, 0))
     error (_("Unable to detach %s"), target_pid_to_str (ptid));
 
   if (from_tty)
@@ -633,6 +644,7 @@ info_checkpoints_command (char *arg, int from_tty)
 	printf_filtered (_("No checkpoints.\n"));
     }
 }
+#endif
 
 /* The PID of the process we're checkpointing.  */
 static int checkpointing_pid = 0;
@@ -643,6 +655,7 @@ linux_fork_checkpointing_p (int pid)
   return (checkpointing_pid == pid);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Callback for iterate over threads.  Used to check whether
    the current inferior is multi-threaded.  Returns true as soon
    as it sees the second thread of the current inferior.  */
@@ -775,12 +788,14 @@ restart_command (char *args, int from_tty)
 
   linux_fork_context (fp, from_tty);
 }
+#endif
 
 void
 _initialize_linux_fork (void)
 {
   init_fork_list ();
 
+#ifndef VE_CUSTOMIZATION
   /* Checkpoint command: create a fork of the inferior process
      and set it aside for later debugging.  */
 
@@ -813,4 +828,5 @@ Detach from a checkpoint (experimental)."),
 
   add_info ("checkpoints", info_checkpoints_command,
 	    _("IDs of currently known checkpoints."));
+#endif
 }

@@ -23,9 +23,11 @@ set srcfile2 ${testfile2}.c
 set binfile1 [standard_output_file ${testfile1}]
 set binfile2 [standard_output_file ${testfile2}]
 set opts [list debug]
+if { ![istarget ve-nec-linux*] } {
 lappend opts "additional_flags=-ffunction-sections"
 lappend opts "additional_flags=-fdata-sections"
 lappend opts "additional_flags=-Wl,-gc-sections"
+}
 lappend opts "additional_flags=-Wl,-e,main"
 
 remote_exec build "rm -f ${binfile1}"

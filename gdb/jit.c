@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 
@@ -163,6 +164,7 @@ static struct jit_reader
 typedef struct gdb_reader_funcs * (reader_init_fn_type) (void);
 static const char *reader_init_fn_sym = "gdb_init_reader";
 
+#ifndef VE_CUSTOMIZATION
 /* Try to load FILE_NAME as a JIT debug info reader.  */
 
 static struct jit_reader *
@@ -246,6 +248,7 @@ jit_reader_unload_command (char *args, int from_tty)
   xfree (loaded_jit_reader);
   loaded_jit_reader = NULL;
 }
+#endif
 
 /* Per-program space structure recording which objfile has the JIT
    symbols.  */
@@ -1533,6 +1536,7 @@ _initialize_jit (void)
     register_program_space_data_with_cleanup (NULL,
 					      jit_program_space_data_cleanup);
   jit_gdbarch_data = gdbarch_data_register_pre_init (jit_gdbarch_data_init);
+#ifndef VE_CUSTOMIZATION
   if (is_dl_available ())
     {
       struct cmd_list_element *c;
@@ -1552,4 +1556,5 @@ Usage: jit-reader-unload\n\n\
 Do \"help jit-reader-load\" for info on loading debug info readers."));
       set_cmd_completer (c, noop_completer);
     }
+#endif
 }

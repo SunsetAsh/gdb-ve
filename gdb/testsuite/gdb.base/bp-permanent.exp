@@ -53,7 +53,11 @@ proc test {always_inserted sw_watchpoint} {
     if {$sw_watchpoint} {
 	# Watching a convenience variable forces a software
 	# watchpoint.
+      if { [istarget ve-nec-linux*] } {
+	unsupported "unsupported watch command."
+      } else {
 	gdb_test "watch \$dummy_convenience" "Watchpoint .*"
+      }
     }
 
     set address_bp ""

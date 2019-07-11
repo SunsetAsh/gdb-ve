@@ -68,7 +68,11 @@ gdb_test "cont"     ".*Breakpoint 2, do_loops.*" "get to do_loops"
 
 # Create stopping points.
 #
+if { [istarget ve-nec-linux*] } {
+    unsupported "watch sum"
+} else {
 gdb_test "watch sum"    ".*\[Ww\]atchpoint 3: sum.*" "set watch"
+}
 set bp_location2 [gdb_get_line_number "set breakpoint 2 here"]
 gdb_test "break $bp_location2"     ".*Breakpoint 4.*" "break loop end"
 

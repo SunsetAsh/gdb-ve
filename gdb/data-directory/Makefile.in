@@ -15,6 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Changes by NEC Corporation for the VE port, 2017-2018
+#
 
 srcdir = @srcdir@
 SYSCALLS_SRCDIR = $(srcdir)/../syscalls
@@ -50,7 +53,7 @@ GEN_SYSCALLS_FILES = arm-linux.xml aarch64-linux.xml \
 	i386-linux.xml amd64-linux.xml \
 	sparc-linux.xml sparc64-linux.xml \
 	mips-o32-linux.xml mips-n32-linux.xml mips-n64-linux.xml \
-	s390-linux.xml s390x-linux.xml
+	s390-linux.xml s390x-linux.xml ve-linux.xml
 
 SYSCALLS_FILES = gdb-syscalls.dtd freebsd.xml $(GEN_SYSCALLS_FILES)
 

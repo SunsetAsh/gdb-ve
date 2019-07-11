@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include <ctype.h>
@@ -624,6 +625,7 @@ serial_pipe (struct serial *scbs[2])
   return 0;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Serial set/show framework.  */
 
 static struct cmd_list_element *serial_set_cmdlist;
@@ -642,6 +644,7 @@ serial_show_cmd (char *args, int from_tty)
 {
   cmd_show_list (serial_show_cmdlist, from_tty, "");
 }
+#endif
 
 /* Baud rate specified for talking to serial target systems.  Default
    is left as -1, so targets can choose their own defaults.  */
@@ -650,6 +653,7 @@ serial_show_cmd (char *args, int from_tty)
 
 int baud_rate = -1;
 
+#ifndef VE_CUSTOMIZATION
 static void
 serial_baud_show_cmd (struct ui_file *file, int from_tty,
 		      struct cmd_list_element *c, const char *value)
@@ -657,11 +661,13 @@ serial_baud_show_cmd (struct ui_file *file, int from_tty,
   fprintf_filtered (file, _("Baud rate for remote serial I/O is %s.\n"),
 		    value);
 }
+#endif
 
 /* Parity for serial port.  */
 
 int serial_parity = GDBPARITY_NONE;
 
+#ifndef VE_CUSTOMIZATION
 static const char parity_none[] = "none";
 static const char parity_odd[] = "odd";
 static const char parity_even[] = "even";
@@ -681,6 +687,20 @@ set_parity (char *ignore_args, int from_tty, struct cmd_list_element *c)
   else
     serial_parity = GDBPARITY_NONE;
 }
+#endif
+
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  global_serial_debug_p = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
 
 void
 _initialize_serial (void)
@@ -691,6 +711,7 @@ Connect the terminal directly up to the command monitor.\n\
 Use <CR>~. or <CR>~^D to break out."));
 #endif /* 0 */
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("serial", class_maintenance, serial_set_cmd, _("\
 Set default serial/parallel port configuration."),
 		  &serial_set_cmdlist, "set serial ",
@@ -738,13 +759,14 @@ Show numerical base for remote session logging"), NULL,
 			NULL,
 			NULL, /* FIXME: i18n: */
 			&setlist, &showlist);
+#endif
 
   add_setshow_zuinteger_cmd ("serial", class_maintenance,
 			     &global_serial_debug_p, _("\
 Set serial debugging."), _("\
 Show serial debugging."), _("\
 When non-zero, serial port debugging is enabled."),
-			     NULL,
+			     VE_SET_FUNC,
 			     NULL, /* FIXME: i18n: */
 			     &setdebuglist, &showdebuglist);
 }

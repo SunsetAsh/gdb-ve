@@ -23,6 +23,7 @@ set executable ${testfile}
 # program so the test is only meaningful on a system with hardware
 # watchpoints.
 if {[skip_hw_watchpoint_tests]} {
+    unsupported "HW watchpoint is unsupported"
     return 0
 }
 

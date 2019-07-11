@@ -36,6 +36,11 @@ if { [gdb_compile_shlib $libsrc $lib_sl $lib_opts] != ""
     return -1
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "dprintf pending"
+    return 0
+}
+
 with_test_prefix "without format" {
     gdb_exit
     gdb_start

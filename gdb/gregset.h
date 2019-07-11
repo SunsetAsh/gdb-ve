@@ -19,6 +19,10 @@
 #ifndef GREGSET_H
 #define GREGSET_H
 
+#ifdef VE_CUSTOMIZATION
+#include "arch/ve.h"
+#endif
+
 #ifdef HAVE_SYS_PROCFS_H
 #include <sys/procfs.h>
 #endif

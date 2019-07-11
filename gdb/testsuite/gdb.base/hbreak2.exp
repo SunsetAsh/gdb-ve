@@ -32,6 +32,10 @@ delete_breakpoints
 # Test whether the target supports hardware breakpoints at all.
 #
 gdb_test_multiple "hbreak main" "hardware breakpoint support" {
+    -re "Undefined command: \"hbreak\".  Try \"help\".*$gdb_prompt $" {
+	unsupported "hardware breakpoints"
+	return
+    }
     -re "No hardware breakpoint support in the target.*$gdb_prompt $" {
 	unsupported "hardware breakpoints"
 	return

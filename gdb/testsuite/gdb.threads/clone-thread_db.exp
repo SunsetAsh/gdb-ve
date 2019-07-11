@@ -30,7 +30,7 @@ if ![runto_main] {
     untested "could not run to main"
     return -1
 }
-
+set timeout 20
 gdb_test "break clone_fn" "Breakpoint.*at.*file.*$srcfile.*line.*"
 gdb_test "continue" "clone_fn .* at .*" "continue to clone_fn"
 

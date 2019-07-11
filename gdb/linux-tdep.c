@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "gdbtypes.h"
@@ -90,7 +91,11 @@ struct smaps_vmflags
 /* Whether to take the /proc/PID/coredump_filter into account when
    generating a corefile.  */
 
+#ifdef VE_CUSTOMIZATION
+static int use_coredump_filter = 0;
+#else
 static int use_coredump_filter = 1;
+#endif
 
 /* This enum represents the signals' numbers on a generic architecture
    running the Linux kernel.  The definition of "generic" comes from
@@ -2535,6 +2540,20 @@ linux_init_abi (struct gdbarch_info info, struct gdbarch *gdbarch)
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 extern initialize_file_ftype _initialize_linux_tdep;
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  use_coredump_filter = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_linux_tdep (void)
 {
@@ -2557,6 +2576,6 @@ Show whether gcore should consider /proc/PID/coredump_filter."),
 Use this command to set whether gcore should consider the contents\n\
 of /proc/PID/coredump_filter when generating the corefile.  For more information\n\
 about this file, refer to the manpage of core(5)."),
-			   NULL, show_use_coredump_filter,
+			   VE_SET_FUNC, show_use_coredump_filter,
 			   &setlist, &showlist);
 }

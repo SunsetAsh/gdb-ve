@@ -10,6 +10,7 @@ typedef struct _foo Foo;
 int
 main (int argc, char *argv[])
 {
+  Foo dumy;
   Foo *foo = 0;
   return 0;
 }

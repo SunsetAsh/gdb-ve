@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# We consider the below cases.
+#
+# case 1:
+#   The original "gdb" is renamed to "gdb-default".
+#   "gdb" is the symbolic link to this script.
+#   The upper layer executes "gdb".
+#
+# case 2:
+#   This script and "gdb-ve.bin" is installed
+#   "gdb" in the same directory is for x86.
+#   The upper layer execute this script.
+#
+# case 3:
+#   This script is installed into "/opt/nec/ve/libexec".
+#   The upper layer execute this scripts.
+#
+
+DIR=`readlink -f "$0"`
+DIR=`dirname "${DIR}"`
+SCRIPT=`basename "$0"`
+
+if [ "${DIR}" == "/opt/nec/ve/libexec" ]; then
+	# case 3
+	GDB_VE="/opt/nec/ve/bin/gdb"
+	if [ -n "${ALLINEA_FORGE_PATH}" ]; then
+		GDB_X86="${ALLINEA_FORGE_PATH}/libexec/gdb"
+	else
+		GDB_X86="/usr/bin/gdb"
+	fi
+elif [ "${SCRIPT}" != "gdb" ]; then
+	# case 2
+	GDB_VE="${DIR}/gdb-ve.bin"
+	GDB_X86="${DIR}/gdb"
+else
+	# case 1
+	GDB_VE="/opt/nec/ve/bin/gdb"
+	GDB_X86="${DIR}/gdb-default"
+fi
+
+GDB="${GDB_X86}"
+
+check_ve()
+{
+	if [ -z "${MPIRANK}" ]; then
+		# We assume a VE program to be debugged when it is
+		# executed without mpirun.
+		return 0
+	fi
+	if [ "${VE_NODE_NUMBER}" -ge 0 ] 2> /dev/null; then
+		# a VE program is debugged because VE_NODE_NUMBER is
+		# specified by mpirun.
+		return 0
+	fi
+	# a VH program is debugged because VE_NODE_NUMBER is not
+	# specified by mpirun.
+	return 1
+}
+
+if check_ve; then
+	GDB="${GDB_VE}"
+fi
+
+exec "${GDB}" "$@"

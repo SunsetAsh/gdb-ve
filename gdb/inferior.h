@@ -17,6 +17,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #if !defined (INFERIOR_H)
 #define INFERIOR_H 1
@@ -334,6 +335,11 @@ struct inferior
      This is always coming from main's argv and therefore
      should never be freed.  */
   char **argv;
+
+#ifdef VE_CUSTOMIZATION
+  /* The argument string to use when running for "ve_exec" */
+  char *ve_args;
+#endif
 
   /* The name of terminal device to use for I/O.  */
   char *terminal;

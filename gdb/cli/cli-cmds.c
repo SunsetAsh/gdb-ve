@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -79,11 +80,15 @@ static void set_debug (char *, int);
 
 static void show_user (char *, int);
 
+#ifndef VE_CUSTOMIZATION
 static void make_command (char *, int);
+#endif
 
 static void shell_escape (char *, int);
 
+#ifndef VE_CUSTOMIZATION
 static void edit_command (char *, int);
+#endif
 
 static void list_command (char *, int);
 
@@ -783,6 +788,7 @@ shell_escape (char *arg, int from_tty)
 #endif /* Can fork.  */
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 edit_command (char *arg, int from_tty)
 {
@@ -887,6 +893,7 @@ edit_command (char *arg, int from_tty)
   shell_escape (p, from_tty);
   xfree (p);
 }
+#endif
 
 static void
 list_command (char *arg, int from_tty)
@@ -1291,6 +1298,7 @@ disassemble_command (char *arg, int from_tty)
   print_disassembly (gdbarch, name, low, high, flags);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 make_command (char *arg, int from_tty)
 {
@@ -1307,6 +1315,7 @@ make_command (char *arg, int from_tty)
 
   shell_escape (p, from_tty);
 }
+#endif
 
 static void
 show_user (char *args, int from_tty)
@@ -1692,6 +1701,7 @@ show_remote_debug (struct ui_file *file, int from_tty,
 		    value);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_remote_timeout (struct ui_file *file, int from_tty,
 		     struct cmd_list_element *c, const char *value)
@@ -1700,6 +1710,7 @@ show_remote_timeout (struct ui_file *file, int from_tty,
 		    _("Timeout limit to wait for target to respond is %s.\n"),
 		    value);
 }
+#endif
 
 static void
 show_max_user_call_depth (struct ui_file *file, int from_tty,
@@ -1711,6 +1722,20 @@ show_max_user_call_depth (struct ui_file *file, int from_tty,
 }
 
 
+
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  remote_debug =  0;
+  trace_commands = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
 
 initialize_file_ftype _initialize_cli_cmds;
 
@@ -1852,10 +1877,11 @@ Set debugging of remote protocol."), _("\
 Show debugging of remote protocol."), _("\
 When enabled, each packet sent or received with the remote target\n\
 is displayed."),
-			    NULL,
+			    VE_SET_FUNC,
 			    show_remote_debug,
 			    &setdebuglist, &showdebuglist);
 
+#ifndef VE_CUSTOMIZATION
   add_setshow_zuinteger_unlimited_cmd ("remotetimeout", no_class,
 				       &remote_timeout, _("\
 Set timeout limit to wait for target to respond."), _("\
@@ -1865,6 +1891,7 @@ from the target."),
 				       NULL,
 				       show_remote_timeout,
 				       &setlist, &showlist);
+#endif
 
   add_prefix_cmd ("debug", no_class, set_debug,
 		  _("Generic command for setting gdb debugging flags"),
@@ -1879,6 +1906,7 @@ Execute the rest of the line as a shell command.\n\
 With no arguments, run an inferior shell."));
   set_cmd_completer (c, filename_completer);
 
+#ifndef VE_CUSTOMIZATION
   c = add_com ("edit", class_files, edit_command, _("\
 Edit specified file or function.\n\
 With no argument, edits file containing most recent line listed.\n\
@@ -1890,6 +1918,7 @@ Editing targets can be specified in these ways:\n\
 Uses EDITOR environment variable contents as editor (or ex as default)."));
 
   c->completer = location_completer;
+#endif
 
   add_com ("list", class_files, list_command, _("\
 List specified function or line.\n\
@@ -1945,9 +1974,11 @@ you must type \"disassemble 'foo.c'::bar\" and not \"disassemble foo.c:bar\"."))
 
   add_com_alias ("!", "shell", class_support, 0);
 
+#ifndef VE_CUSTOMIZATION
   c = add_com ("make", class_support, make_command, _("\
 Run the ``make'' program using the rest of the line as arguments."));
   set_cmd_completer (c, filename_completer);
+#endif
   add_cmd ("user", no_class, show_user, _("\
 Show definitions of non-python/scheme user defined commands.\n\
 Argument is the name of the user defined command.\n\
@@ -1967,7 +1998,7 @@ Show the max call depth for non-python/scheme user-defined commands."), NULL,
 Set tracing of GDB CLI commands."), _("\
 Show state of GDB CLI command tracing."), _("\
 When 'on', each command is displayed as it is executed."),
-			   NULL,
+			   VE_SET_FUNC,
 			   NULL,
 			   &setlist, &showlist);
 

@@ -55,9 +55,10 @@ proc do_test { lock_sched nonstop } {
 	    gdb_test "thread 2" "Switching.*"
 	}
 
-	gdb_test "continue" \
-	    ".*is executing new program.*Breakpoint 1, main.* at .*" \
-	    "continue over exec"
+#	gdb_test "continue" \
+#	    ".*is executing new program.*Breakpoint 1, main.* at .*" \
+#	    "continue over exec"
+
     }
 }
 

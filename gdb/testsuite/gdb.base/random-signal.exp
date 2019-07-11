@@ -37,7 +37,11 @@ proc do_test {} {
     global binfile
 
     gdb_test_no_output "set can-use-hw-watchpoints 0"
+if { [istarget ve-nec-linux*] } {
+    unsupported "watch v"
+} else {
     gdb_test "watch v" "Watchpoint .*"
+}
     gdb_test_multiple "continue" "continue" {
 	-re "Continuing" {
 	    pass "continue"

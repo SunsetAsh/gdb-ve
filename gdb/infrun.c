@@ -17,6 +17,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "infrun.h"
@@ -64,6 +65,10 @@
 #include "event-loop.h"
 #include "thread-fsm.h"
 #include "common/enum-flags.h"
+
+#ifdef VE_CUSTOMIZATION
+#include "ve-tdep.h"	/* for VE_INSN_SIZE */
+#endif
 
 /* Prototypes for local functions */
 
@@ -205,10 +210,14 @@ static void
 set_disable_randomization (char *args, int from_tty,
 			   struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  disable_randomization = 1;
+#else
   if (!target_supports_disable_randomization ())
     error (_("Disabling randomization of debuggee's "
 	     "virtual address space is unsupported on\n"
 	     "this platform."));
+#endif
 }
 
 /* User interface for non-stop mode.  */
@@ -220,11 +229,15 @@ static void
 set_non_stop (char *args, int from_tty,
 	      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  non_stop_1 = 0;
+#else
   if (target_has_execution)
     {
       non_stop_1 = non_stop;
       error (_("Cannot change this setting while the inferior is running."));
     }
+#endif
 
   non_stop = non_stop_1;
 }
@@ -249,11 +262,15 @@ static void
 set_observer_mode (char *args, int from_tty,
 		   struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  observer_mode_1 = 0;
+#else
   if (target_has_execution)
     {
       observer_mode_1 = observer_mode;
       error (_("Cannot change this setting while the inferior is running."));
     }
+#endif
 
   observer_mode = observer_mode_1;
 
@@ -2232,11 +2249,15 @@ show_scheduler_mode (struct ui_file *file, int from_tty,
 static void
 set_schedlock_func (char *args, int from_tty, struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  scheduler_mode = schedlock_replay;
+#else
   if (!target_can_lock_scheduler)
     {
       scheduler_mode = schedlock_off;
       error (_("Target '%s' cannot support this command."), target_shortname);
     }
+#endif
 }
 
 /* True if execution commands resume all threads of all processes by
@@ -9196,6 +9217,9 @@ static void
 set_exec_direction_func (char *args, int from_tty,
 			 struct cmd_list_element *cmd)
 {
+#ifdef VE_CUSTOMIZATION
+  exec_direction = exec_forward;
+#else
   if (target_can_execute_reverse)
     {
       if (!strcmp (exec_direction, exec_forward))
@@ -9208,6 +9232,7 @@ set_exec_direction_func (char *args, int from_tty,
       exec_direction = exec_forward;
       error (_("Target does not support this operation."));
     }
+#endif
 }
 
 static void
@@ -9253,6 +9278,24 @@ infrun_async_inferior_event_handler (gdb_client_data data)
 {
   inferior_event_handler (INF_REG_EVENT, NULL);
 }
+
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  detach_fork = 1;
+  can_use_displaced_stepping = AUTO_BOOLEAN_AUTO;
+  follow_exec_mode_string = follow_exec_mode_same;
+  follow_fork_mode_string = follow_fork_mode_parent;
+  sched_multi = 0;
+  step_stop_if_no_debug = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
 
 void
 _initialize_infrun (void)
@@ -9427,7 +9470,7 @@ A fork or vfork creates a new process.  follow-fork-mode can be:\n\
   child   - the new process is debugged after a fork\n\
 The unfollowed process will continue to run.\n\
 By default, the debugger will follow the parent process."),
-			NULL,
+			VE_SET_FUNC,
 			show_follow_fork_mode_string,
 			&setlist, &showlist);
 
@@ -9451,7 +9494,7 @@ the inferior.  Restarting the inferior after the exec call restarts\n\
 the executable the process was running after the exec call.\n\
 \n\
 By default, the debugger will use the same inferior."),
-			NULL,
+			VE_SET_FUNC,
 			show_follow_exec_mode_string,
 			&setlist, &showlist);
 
@@ -9478,7 +9521,7 @@ threads of all processes.  When off (which is the default), execution\n\
 commands only resume the threads of the current process.  The set of\n\
 threads that are resumed is further refined by the scheduler-locking\n\
 mode (see help set scheduler-locking)."),
-			   NULL,
+			   VE_SET_FUNC,
 			   show_schedule_multiple,
 			   &setlist, &showlist);
 
@@ -9488,7 +9531,7 @@ Show mode of the step operation."), _("\
 When set, doing a step over a function without debug line information\n\
 will stop at the first instruction of that function. Otherwise, the\n\
 function is skipped and the step command stops at a different source line."),
-			   NULL,
+			   VE_SET_FUNC,
 			   show_step_stop_if_no_debug,
 			   &setlist, &showlist);
 
@@ -9502,7 +9545,7 @@ stepping to step over breakpoints, even if such is supported by the target\n\
 architecture.  If auto (which is the default), gdb will use displaced stepping\n\
 if the target architecture supports it and non-stop mode is active, but will not\n\
 use it in all-stop mode (see help set non-stop)."),
-				NULL,
+				VE_SET_FUNC,
 				show_can_use_displaced_stepping,
 				&setlist, &showlist);
 
@@ -9520,7 +9563,7 @@ Options are 'forward' or 'reverse'."),
 Set whether gdb will detach the child of a fork."), _("\
 Show whether gdb will detach the child of a fork."), _("\
 Tells gdb whether to detach the child of a fork."),
-			   NULL, NULL, &setlist, &showlist);
+			   VE_SET_FUNC, NULL, &setlist, &showlist);
 
   /* Set/show disable address space randomization mode.  */
 

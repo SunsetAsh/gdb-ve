@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+
+CC=/opt/nec/ve/bin/nc++
+OPT="-Wno-unused -DVEOS"
+# OPT="$OPT -O0 -mno-vector -mno-vector-memcpy"
+
+cat /sys/class/ve/ve?/model | grep -i '254' > /dev/null 2>&1
+if [ $? == 0 ]; then
+	OPT="$OPT -Wl,-z,max-page-size=0x200000"
+fi
+
+for opt in $*
+do
+	case $opt in
+	"--print-multi-lib"|"-g3")
+#		echo "$opt is ignored"
+		;;
+	-O[0-9] )
+		;;
+	-g )
+		OPT="$OPT $opt -O0"
+		;;
+	*)
+		OPT="$OPT $opt"
+		;;
+	esac
+done
+
+$CC $OPT 2>&1 | grep -v '^ncc: vec('
+if [ ${PIPESTATUS[0]} != 0 ]; then
+	echo "target_compile_failed"
+fi
+exit ${PIPESTATUS[0]}
+#echo "compile result:$?"

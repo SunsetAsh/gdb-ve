@@ -165,6 +165,7 @@ ALL_MACHINES = \
 	cpu-v850.lo \
 	cpu-v850_rh850.lo \
 	cpu-vax.lo \
+	cpu-ve.lo \
 	cpu-visium.lo \
 	cpu-w65.lo \
 	cpu-we32k.lo \
@@ -252,6 +253,7 @@ ALL_MACHINES_CFILES = \
 	cpu-v850.c \
 	cpu-v850_rh850.c \
 	cpu-vax.c \
+	cpu-ve.c \
 	cpu-visium.c \
 	cpu-w65.c \
 	cpu-we32k.c \
@@ -678,6 +680,7 @@ BFD64_BACKENDS = \
 	elf64-sh64.lo \
 	elf64-sparc.lo \
 	elf64-tilegx.lo \
+	elf64-ve.lo \
 	elf64-x86-64.lo \
 	elf64.lo \
 	elfn32-mips.lo \
@@ -716,6 +719,7 @@ BFD64_BACKENDS_CFILES = \
 	elf64-sh64.c \
 	elf64-sparc.c \
 	elf64-tilegx.c \
+	elf64-ve.c \
 	elf64-x86-64.c \
 	elf64.c \
 	elfn32-mips.c \

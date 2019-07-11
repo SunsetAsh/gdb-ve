@@ -476,6 +476,7 @@ enum elf_target_id
   XGATE_ELF_DATA,
   TILEGX_ELF_DATA,
   TILEPRO_ELF_DATA,
+  VE_ELF_DATA,
   GENERIC_ELF_DATA
 };
 

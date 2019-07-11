@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "value.h"
@@ -352,8 +353,12 @@ set_cp_abi_cmd (char *args, int from_tty)
       return;
     }
 
+#ifdef VE_CUSTOMIZATION
+  switch_to_cp_abi ("auto");
+#else
   if (!switch_to_cp_abi (args))
     error (_("Could not find \"%s\" in ABI list"), args);
+#endif
 }
 
 /* A completion function for "set cp-abi".  */

@@ -31,6 +31,13 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executab
     return -1
 }
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 proc do_test { lock_sched nonstop } {
     with_test_prefix "lock-sched=$lock_sched,non-stop=$nonstop" {
 	global executable

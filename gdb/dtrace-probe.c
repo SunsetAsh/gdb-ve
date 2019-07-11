@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "probe.h"
@@ -900,6 +901,7 @@ const struct probe_ops dtrace_probe_ops =
   dtrace_disable_probe
 };
 
+#ifndef VE_CUSTOMIZATION
 /* Implementation of the `info probes dtrace' command.  */
 
 static void
@@ -907,6 +909,7 @@ info_probes_dtrace_command (char *arg, int from_tty)
 {
   info_probes_for_ops (arg, from_tty, &dtrace_probe_ops);
 }
+#endif
 
 void _initialize_dtrace_probe (void);
 
@@ -915,6 +918,7 @@ _initialize_dtrace_probe (void)
 {
   VEC_safe_push (probe_ops_cp, all_probe_ops, &dtrace_probe_ops);
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("dtrace", class_info, info_probes_dtrace_command,
 	   _("\
 Show information about DTrace static probes.\n\
@@ -924,4 +928,5 @@ PROVIDER matches probe provider names.\n\
 NAME matches the probe names.\n\
 OBJECT matches the executable or shared library name."),
 	   info_probes_cmdlist_get ());
+#endif
 }

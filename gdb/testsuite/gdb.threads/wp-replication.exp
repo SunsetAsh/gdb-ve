@@ -28,6 +28,7 @@ set NR_TRIGGERS_PER_THREAD 2
 # every existing thread and is detected properly.  This test is
 # only meaningful on a target with hardware watchpoint support.
 if {[skip_hw_watchpoint_tests]} {
+    unsupported "HW watchpoint is unsupported"
     return 0
 }
 

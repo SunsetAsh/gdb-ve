@@ -139,11 +139,16 @@ make_dump_file "dump srec val [set intarr1.srec] intarray" \
 make_dump_file "dump srec val [set intstr1.srec] intstruct" \
 	"dump struct as value, srec"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "dump array as value, intel hex"
+    unsupported	"dump struct as value, intel hex"
+} else {
 make_dump_file "dump ihex val [set intarr1.ihex] intarray" \
 	"dump array as value, intel hex"
 
 make_dump_file "dump ihex val [set intstr1.ihex] intstruct" \
 	"dump struct as value, intel hex"
+}
 
 make_dump_file "dump tekhex val [set intarr1.tekhex] intarray" \
 	"dump array as value, tekhex"
@@ -240,11 +245,16 @@ make_dump_file "dump srec mem [set intarr2.srec] $array_start $array_end" \
 make_dump_file "dump srec mem [set intstr2.srec] $struct_start $struct_end" \
 	"dump struct as memory, srec"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "dump array as memory, ihex"
+    unsupported "dump struct as memory, ihex"
+} else {
 make_dump_file "dump ihex mem [set intarr2.ihex] $array_start $array_end" \
 	"dump array as memory, ihex"
 
 make_dump_file "dump ihex mem [set intstr2.ihex] $struct_start $struct_end" \
 	"dump struct as memory, ihex"
+}
 
 make_dump_file "dump tekhex mem [set intarr2.tekhex] $array_start $array_end" \
 	"dump array as memory, tekhex"
@@ -266,6 +276,10 @@ make_dump_file \
 proc test_restore_saved_value { restore_args msg oldval newval } {
     global gdb_prompt
     
+  if { [istarget ve-nec-linux*] } {
+    unsupported "restore $restore_args"
+    unsupported "$msg; value restored ok"
+  } else {
     gdb_test "restore $restore_args" \
 	"Restoring .*" \
 	"$msg; file restored ok"
@@ -275,6 +289,7 @@ proc test_restore_saved_value { restore_args msg oldval newval } {
     } else {
 	fail "$msg; value restored ok"
     }
+  }
 }
 
 if ![string compare $is64bitonly "no"] then {
@@ -297,19 +312,29 @@ if ![string compare $is64bitonly "no"] then {
 
   gdb_test "print zero_all ()" ".*"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "array as value, ihex"
+    unsupported "struct as value, ihex"
+} else {
   test_restore_saved_value "[set intarr1.ihex]" "array as value, ihex" \
 	$array_val "intarray"
 
   test_restore_saved_value "[set intstr1.ihex]" "struct as value, ihex" \
 	$struct_val "intstruct"
+}
 
   gdb_test "print zero_all ()" ".*"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "array as memory, ihex"
+    unsupported "struct as memory, ihex"
+} else {
   test_restore_saved_value "[set intarr2.ihex]" "array as memory, ihex" \
 	$array_val "intarray"
 
   test_restore_saved_value "[set intstr2.ihex]" "struct as memory, ihex" \
 	$struct_val "intstruct"
+}
 
   gdb_test "print zero_all ()" ".*"
 
@@ -371,6 +396,10 @@ if ![string compare $is64bitonly "no"] then {
 
   gdb_test "print zero_all ()" ".*"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "array copy, ihex"
+    unsupported "struct copy, ihex"
+} else {
   test_restore_saved_value "[set intarr1.ihex] $array2_offset" \
 	"array copy, ihex" \
 	$array_val "intarray2"
@@ -378,6 +407,7 @@ if ![string compare $is64bitonly "no"] then {
   test_restore_saved_value "[set intstr1.ihex] $struct2_offset" \
 	"struct copy, ihex" \
 	$struct_val "intstruct2"
+}
 
   gdb_test "print zero_all ()" ".*"
 
@@ -427,8 +457,12 @@ if ![string compare $is64bitonly "no"] then {
 
   gdb_test "print zero_all ()" ".*"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "array partial, ihex"
+} else {
   test_restore_saved_value "[set intarr1.ihex] 0 $element3_start $element4_start" \
 	"array partial, ihex" 4 "intarray\[3\]"
+}
 
   gdb_test "print intarray\[2\] == 0" " = 1" "element 2 not changed - 2"
   gdb_test "print intarray\[4\] == 0" " = 1" "element 4 not changed - 2"

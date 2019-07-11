@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 
 /*  This file contains support code for C++ demangling that is common
@@ -111,6 +112,9 @@ set_demangling_command (char *ignore, int from_tty, struct cmd_list_element *c)
   const struct demangler_engine *dem;
   int i;
 
+#ifdef VE_CUSTOMIZATION
+  current_demangling_style_string = DEFAULT_DEMANGLING_STYLE;
+#endif
   /*  First just try to match whatever style name the user supplied with
      one of the known ones.  Don't bother special casing for an empty
      name, we just treat it as any other style name that doesn't match.
@@ -229,6 +233,23 @@ demangle_command (char *args, int from_tty)
 
 extern initialize_file_ftype _initialize_demangler; /* -Wmissing-prototypes */
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (!strcmp (c->name, "demangle"))
+    demangle = 1;
+  if (!strcmp (c->name, "asm-demangle"))
+    asm_demangle = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_demangler (void)
 {
@@ -256,14 +277,14 @@ _initialize_demangler (void)
   add_setshow_boolean_cmd ("demangle", class_support, &demangle, _("\
 Set demangling of encoded C++/ObjC names when displaying symbols."), _("\
 Show demangling of encoded C++/ObjC names when displaying symbols."), NULL,
-			   NULL,
+			   VE_SET_FUNC,
 			   show_demangle,
 			   &setprintlist, &showprintlist);
 
   add_setshow_boolean_cmd ("asm-demangle", class_support, &asm_demangle, _("\
 Set demangling of C++/ObjC names in disassembly listings."), _("\
 Show demangling of C++/ObjC names in disassembly listings."), NULL,
-			   NULL,
+			   VE_SET_FUNC,
 			   show_asm_demangle,
 			   &setprintlist, &showprintlist);
 

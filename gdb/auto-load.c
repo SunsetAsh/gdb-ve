@@ -1753,4 +1753,7 @@ When non-zero, debugging output for files of 'set auto-load ...'\n\
 is displayed."),
 			    NULL, show_debug_auto_load,
 			    &setdebuglist, &showdebuglist);
+#ifdef VE_CUSTOMIZATION
+add_auto_load_safe_path (LIBTHREAD_DB_SEARCH_PATH, 0);
+#endif
 }

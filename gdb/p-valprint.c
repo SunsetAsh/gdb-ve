@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* This file is derived from c-valprint.c */
 
@@ -453,6 +454,7 @@ pascal_value_print (struct value *val, struct ui_file *stream,
 }
 
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_pascal_static_field_print (struct ui_file *file, int from_tty,
 				struct cmd_list_element *c, const char *value)
@@ -460,6 +462,7 @@ show_pascal_static_field_print (struct ui_file *file, int from_tty,
   fprintf_filtered (file, _("Printing of pascal static members is %s.\n"),
 		    value);
 }
+#endif
 
 static struct obstack dont_print_vb_obstack;
 static struct obstack dont_print_statmem_obstack;
@@ -896,6 +899,7 @@ extern initialize_file_ftype _initialize_pascal_valprint;
 void
 _initialize_pascal_valprint (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_setshow_boolean_cmd ("pascal_static-members", class_support,
 			   &user_print_options.pascal_static_field_print, _("\
 Set printing of pascal static members."), _("\
@@ -903,4 +907,5 @@ Show printing of pascal static members."), NULL,
 			   NULL,
 			   show_pascal_static_field_print,
 			   &setprintlist, &showprintlist);
+#endif
 }

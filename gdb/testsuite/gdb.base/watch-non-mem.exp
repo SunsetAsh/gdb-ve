@@ -29,9 +29,13 @@ if ![runto_main] then {
     return
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+} else {
 gdb_test "watch \$pc" \
     "Watchpoint .*: .pc" \
     "set write watchpoint on \$pc"
+}
 
 gdb_test "continue" \
     "Watchpoint 2: .pc.*Old value = .*New value = .*" \

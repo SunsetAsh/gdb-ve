@@ -32,7 +32,12 @@ if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {deb
      return -1
 }
 
-proc test_watchpoint_creation_and_listing {} {
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "watch piont is unsupported"
+    return
+}
+
+proc test_watchpoint_creation_and_listing {type} {
     global mi_gdb_prompt
     global srcfile
     global hex

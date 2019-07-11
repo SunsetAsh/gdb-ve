@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -114,6 +115,9 @@ static void
 set_mi_async_command (char *args, int from_tty,
 		      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  mi_async_1 = 0;
+#endif
   if (have_live_inferiors ())
     {
       mi_async_1 = mi_async;

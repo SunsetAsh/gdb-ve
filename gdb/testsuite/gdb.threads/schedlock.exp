@@ -179,6 +179,13 @@ gdb_test_multiple "set scheduler-locking off" "scheduler locking set to none" {
     }
 }
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_breakpoint [gdb_get_line_number "schedlock.exp: last thread start"]
 gdb_continue_to_breakpoint "all threads started"
 

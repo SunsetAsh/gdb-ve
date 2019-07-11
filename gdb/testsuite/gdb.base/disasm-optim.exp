@@ -16,19 +16,28 @@
 # This test exercises disassemble /s with optimized and inlined code.
 
 if { ![istarget "x86_64-*-linux*"] } {
-    continue
+    if { ![istarget "ve-*-linux*"] } {
+	continue
+    }
 }
 
 standard_testfile .S
 
+if { ![istarget "ve-*-linux*"] } {
 if { [prepare_for_testing ${testfile}.exp $testfile ${testfile}.S {nodebug}] } {
     return -1
+}
+} else {
+if { [prepare_for_testing ${testfile}.exp $testfile ${testfile}-ve.S {nodebug}] } {
+    return -1
+}
 }
 
 if ![runto_main] {
     return -1
 }
 
+if { ![istarget "ve-*-linux*"] } {
 gdb_test_sequence "disassemble /s main" \
     "Disassemble main with source" {
 	"Dump of assembler code for function main:"
@@ -38,3 +47,13 @@ gdb_test_sequence "disassemble /s main" \
 	"disasm-optim\\.h:\r\n22"
 	"End of assembler dump\\."
     }
+} else {
+gdb_test_sequence "disassemble /s main" \
+    "Disassemble main with source" {
+	"Dump of assembler code for function main:"
+	"disasm-optim\\.c:\r\n24"
+	"\r\n25"
+	"\r\n26"
+	"End of assembler dump\\."
+    }
+}

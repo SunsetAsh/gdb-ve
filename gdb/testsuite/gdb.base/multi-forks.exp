@@ -150,14 +150,24 @@ gdb_test_no_output "set detach off" "set detach off"
 
 for {set i 1} {$i <= 15} {incr i} {
   gdb_test "continue" "Breakpoint .* main .*exit.*" "Run to exit $i"
+if { [istarget ve-nec-linux*] } {
+  unsupported "info inferior"
+  unsupported "inferior $i + 1"
+} else {
   gdb_test "info inferior" " 2 .* 3 .* 4 .* 5 .*" "info inferior $i"
   gdb_test "inferior $i + 1" "(_dl_sysinfo_int80|fork|__kernel_(v|)syscall).*" \
       "inferior $i"
 }
+}
 
 gdb_test "continue" "Breakpoint .* main .*exit.*" "Run to exit 16"
+if { [istarget ve-nec-linux*] } {
+    unsupported "info inferior"
+    unsupported "inferior 2"
+} else {
 gdb_test "info inferior" " 2 .* 3 .* 4 .* 5 .*" "info inferior 16"
 gdb_test "inferior 2" " main .*" "restart final"
+}
 
 #
 # Now we should examine all the pids.

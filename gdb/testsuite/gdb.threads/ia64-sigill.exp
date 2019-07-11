@@ -21,6 +21,12 @@
 # the default all-stop mode.
 
 standard_testfile
+
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "asm/unistd.h is unsupported"
+    return
+}
+
 if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" ${binfile} executable [list debug additional_flags=-lrt]] != "" } {
     return -1
 }

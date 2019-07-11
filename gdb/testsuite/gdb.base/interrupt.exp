@@ -185,6 +185,9 @@ if ![file exists $binfile] then {
 
 	    set msg "echo more data"
 	    gdb_test_multiple "" $msg {
+		-re "Undefined command: \"more\".  Try \"help\".*$gdb_prompt " {
+		    unsupported $msg
+		}
 		-i "$inferior_spawn_id" -re "^(\r\n|)more data\r\nmore data\r\n$" {
 		    pass $msg
 		}

@@ -14,6 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if {![isnative] || ![istarget *-linux*] || [skip_shlib_tests]} {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "info probes all is unsupported"
+    }
     return 0
 }
 

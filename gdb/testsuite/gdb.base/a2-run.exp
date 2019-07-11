@@ -158,6 +158,8 @@ gdb_test_stdio "" "720" "" "run \"$testfile\" again after setting args"
 # GOAL: Test that shell is being used with "run".  For remote debugging
 # targets, there is no guarantee that a "shell" (whatever that is) is used.
 if ![is_remote target] then {
+  if { ![istarget ve-nec-linux*] } {
     gdb_test_stdio "run `echo 8`" \
 	"40320" "" "run \"$testfile\" with shell"
+  }
 }

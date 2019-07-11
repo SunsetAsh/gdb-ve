@@ -34,6 +34,7 @@ clean_restart ${binfile}
 runto_main
 
 gdb_breakpoint thread_func
+#gdb_breakpoint 29
 gdb_continue_to_breakpoint "continue to thread_func"
 gdb_test "next" ".*foo \\(\\);"
 

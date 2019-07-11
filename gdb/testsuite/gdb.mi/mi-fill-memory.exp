@@ -33,8 +33,23 @@ if  { [gdb_compile "${srcdir}/${subdir}/${srcfile}.c" "${binfile}" executable {d
 }
 
 mi_run_to_main
-mi_next_to "main" "" "mi-read-memory.c" "20" "next at main"
 
+if {[istarget "ve-nec-linux*"]} {
+    mi_gdb_test "-exec-next"\
+        ".*running.*"\
+        "next at main"
+    gdb_expect {
+        -re ".*stopped.*reason=\"end-stepping-range\".*main.*" {
+            pass "next at main"
+        }
+        timeout {
+            fail "$test (timeout)"
+            return -1
+        }
+    }
+} else {
+    mi_next_to "main" "" "mi-read-memory.c" "20" "next at main"
+}
 mi_gdb_test "1-data-write-memory-bytes"\
 	"1\\\^error,msg=\"Usage: ADDR DATA \\\[COUNT\\\]\.\""\
 	"no arguments"

@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "frame.h"
@@ -2807,6 +2808,19 @@ show_backtrace_cmd (char *args, int from_tty)
   cmd_show_list (show_backtrace_cmdlist, from_tty, "");
 }
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  backtrace_past_entry = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_frame (void)
 {
@@ -2848,7 +2862,7 @@ Show whether backtraces should continue past the entry point of a program."),
 Normally there are no callers beyond the entry point of a program, so GDB\n\
 will terminate the backtrace there.  Set this variable if you need to see\n\
 the rest of the stack trace."),
-			   NULL,
+			   VE_SET_FUNC,
 			   show_backtrace_past_entry,
 			   &set_backtrace_cmdlist,
 			   &show_backtrace_cmdlist);

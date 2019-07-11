@@ -31,6 +31,13 @@ if ![runto_main] then {
    return 0
 }
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_test "set follow-fork-mode child"
 gdb_breakpoint "start"
 

@@ -14,6 +14,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "target-dcache.h"
@@ -107,6 +108,9 @@ static int stack_cache_enabled = 1;
 static void
 set_stack_cache (char *args, int from_tty, struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  stack_cache_enabled_1 = 1;
+#endif
   if (stack_cache_enabled != stack_cache_enabled_1)
     target_dcache_invalidate ();
 

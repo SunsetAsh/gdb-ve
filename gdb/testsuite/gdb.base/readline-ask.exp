@@ -75,7 +75,11 @@ gdb_test_multiple "" $test {
     }
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "foo"
+} else {
 gdb_test "foo" {No symbol "symbol_0foo" in current context\.} "abort more message"
+}
 
 set cmd "p symbol_"
 send_gdb "$cmd\t"
@@ -117,4 +121,8 @@ gdb_test_multiple "" $test {
     }
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "foo"
+} else {
 gdb_test "foo" {No symbol "symbol_foo" in current context\.} "abort ask message"
+}

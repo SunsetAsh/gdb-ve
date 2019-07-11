@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "serial.h"
@@ -42,12 +43,14 @@ struct hardwire_ttystate
 #ifdef CRTSCTS
 /* Boolean to explicitly enable or disable h/w flow control.  */
 static int serial_hwflow;
+#ifndef VE_CUSTOMIZATION
 static void
 show_serial_hwflow (struct ui_file *file, int from_tty,
 		    struct cmd_list_element *c, const char *value)
 {
   fprintf_filtered (file, _("Hardware flow control is %s.\n"), value);
 }
+#endif
 #endif
 
 #endif /* termios */
@@ -912,6 +915,7 @@ _initialize_ser_hardwire (void)
 
 #ifdef HAVE_TERMIOS
 #ifdef CRTSCTS
+#ifndef VE_CUSTOMIZATION
   add_setshow_boolean_cmd ("remoteflow", no_class,
 			   &serial_hwflow, _("\
 Set use of hardware flow control for remote serial I/O."), _("\
@@ -921,6 +925,7 @@ when debugging using remote targets."),
 			   NULL,
 			   show_serial_hwflow,
 			   &setlist, &showlist);
+#endif
 #endif
 #endif
 }

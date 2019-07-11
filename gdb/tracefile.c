@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "tracefile.h"
@@ -305,6 +306,7 @@ trace_save (const char *filename, struct trace_file_writer *writer,
   writer->ops->end (writer);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 trace_save_command (char *args, int from_tty)
 {
@@ -351,6 +353,7 @@ trace_save_command (char *args, int from_tty)
 
   do_cleanups (back_to);
 }
+#endif
 
 /* Save the trace data to file FILENAME of tfile format.  */
 
@@ -500,9 +503,11 @@ extern initialize_file_ftype _initialize_tracefile;
 void
 _initialize_tracefile (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_com ("tsave", class_trace, trace_save_command, _("\
 Save the trace data to a file.\n\
 Use the '-ctf' option to save the data to CTF format.\n\
 Use the '-r' option to direct the target to save directly to the file,\n\
 using its own filesystem."));
+#endif
 }

@@ -28,6 +28,9 @@
 #
 
 if ![supports_reverse] {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "reverse is unsupported"
+    }
     return
 }
 

@@ -37,7 +37,11 @@ proc test_watchpoint { hw } {
 	gdb_test_no_output "set can-use-hw-watchpoints 0" ""
     }
 
+  if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+  } else {
     gdb_test "watch var if return_1 ()" "atchpoint .*: var"
+  }
 
     gdb_breakpoint [gdb_get_line_number "break-at-exit"]
 

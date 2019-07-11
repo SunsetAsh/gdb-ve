@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "filesystem.h"
@@ -57,6 +58,7 @@ target_lbasename (const char *kind, const char *name)
     return unix_lbasename (name);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_target_file_system_kind_command (struct ui_file *file,
 				      int from_tty,
@@ -75,6 +77,7 @@ The assumed file system kind for target reported file names \
 is \"%s\".\n"),
 		      value);
 }
+#endif
 
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 extern initialize_file_ftype _initialize_filesystem;
@@ -82,6 +85,7 @@ extern initialize_file_ftype _initialize_filesystem;
 void
 _initialize_filesystem (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_setshow_enum_cmd ("target-file-system-kind",
 			class_files,
 			target_file_system_kinds,
@@ -100,4 +104,5 @@ knowledge of the target operating system."),
 			NULL, /* setfunc */
 			show_target_file_system_kind_command,
 			&setlist, &showlist);
+#endif
 }

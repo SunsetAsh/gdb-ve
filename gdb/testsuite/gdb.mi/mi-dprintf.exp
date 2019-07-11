@@ -37,6 +37,12 @@ set dp_location1 [gdb_get_line_number "set dprintf 1 here"]
 mi_run_to_main
 
 set i 0
+
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "-dprintf-insert is unsupported command"
+    return
+}
+
 mi_gdb_test "[incr i]-dprintf-insert" \
     "$i\\^error,msg=\"-dprintf-insert: Missing <location>\"" "mi insert without location"
 

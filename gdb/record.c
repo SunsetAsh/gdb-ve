@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "gdbcmd.h"
@@ -218,6 +219,7 @@ show_record_debug (struct ui_file *file, int from_tty,
 		    value);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Alias for "target record".  */
 
 static void
@@ -270,6 +272,7 @@ cmd_record_stop (char *args, int from_tty)
 
   observer_notify_record_changed (current_inferior (), 0, NULL, NULL);
 }
+#endif
 
 /* The "set record" command.  */
 
@@ -289,6 +292,7 @@ show_record_command (char *args, int from_tty)
   cmd_show_list (show_record_cmdlist, from_tty, "");
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The "info record" command.  */
 
 static void
@@ -328,6 +332,7 @@ cmd_record_save (char *args, int from_tty)
 
   target_save_record (recfilename);
 }
+#endif
 
 /* See record.h.  */
 
@@ -345,6 +350,7 @@ record_goto (const char *arg)
   target_goto_record (insn);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* "record goto" command.  Argument is an instruction number,
    as given by "info record".
 
@@ -687,6 +693,7 @@ cmd_record_call_history (char *arg, int from_tty)
       dont_repeat ();
     }
 }
+#endif
 
 /* Helper for "set record instruction-history-size" and "set record
    function-call-history-size" input validation.  COMMAND_VAR is the
@@ -717,6 +724,9 @@ static void
 set_record_insn_history_size (char *args, int from_tty,
 			      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  record_insn_history_size_setshow_var = record_insn_history_size;
+#endif
   validate_history_size (&record_insn_history_size_setshow_var,
 			 &record_insn_history_size);
 }
@@ -729,6 +739,9 @@ static void
 set_record_call_history_size (char *args, int from_tty,
 			      struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  record_call_history_size_setshow_var = record_call_history_size;
+#endif
   validate_history_size (&record_call_history_size_setshow_var,
 			 &record_call_history_size);
 }
@@ -765,12 +778,14 @@ A size of \"unlimited\" means unlimited lines.  The default is 10."),
 			    set_record_call_history_size, NULL,
 			    &set_record_cmdlist, &show_record_cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   c = add_prefix_cmd ("record", class_obscure, cmd_record_start,
 		      _("Start recording."),
 		      &record_cmdlist, "record ", 0, &cmdlist);
   set_cmd_completer (c, filename_completer);
 
   add_com_alias ("rec", "record", class_obscure, 1);
+#endif
   add_prefix_cmd ("record", class_support, set_record_command,
 		  _("Set record options"), &set_record_cmdlist,
 		  "set record ", 0, &setlist);
@@ -779,6 +794,7 @@ A size of \"unlimited\" means unlimited lines.  The default is 10."),
 		  _("Show record options"), &show_record_cmdlist,
 		  "show record ", 0, &showlist);
   add_alias_cmd ("rec", "record", class_obscure, 1, &showlist);
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("record", class_support, info_record_command,
 		  _("Info record options"), &info_record_cmdlist,
 		  "info record ", 0, &infolist);
@@ -855,6 +871,7 @@ from the first argument.\n\
 The number of functions to print can be defined with \"set record \
 function-call-history-size\"."),
            &record_cmdlist);
+#endif
 
   /* Sync command control variables.  */
   record_insn_history_size_setshow_var = record_insn_history_size;

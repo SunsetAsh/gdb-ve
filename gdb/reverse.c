@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "target.h"
@@ -27,6 +28,7 @@
 #include "infrun.h"
 #include "regcache.h"
 
+#ifndef VE_CUSTOMIZATION
 /* User interface:
    reverse-step, reverse-next etc.  */
 
@@ -99,6 +101,7 @@ reverse_finish (char *args, int from_tty)
 {
   exec_reverse_once ("finish", args, from_tty);
 }
+#endif
 
 /* Data structures for a bookmark list.  */
 
@@ -167,6 +170,7 @@ save_bookmark_command (char *args, int from_tty)
 		     paddress (gdbarch, b->sal.pc));
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Implement "delete bookmark" command.  */
 
 static int
@@ -242,6 +246,7 @@ delete_bookmark_command (char *args, int from_tty)
 	warning (_("No bookmark #%d."), num);
     }
 }
+#endif
 
 /* Implement "goto-bookmark" command.  */
 
@@ -293,6 +298,7 @@ goto_bookmark_command (char *args, int from_tty)
   error (_("goto-bookmark: no bookmark found for '%s'."), p);
 }
 
+#ifndef VE_CUSTOMIZATION
 static int
 bookmark_1 (int bnum)
 {
@@ -341,6 +347,7 @@ bookmarks_info (char *args, int from_tty)
 	}
     }
 }
+#endif
 
 
 /* Provide a prototype to silence -Wmissing-prototypes.  */
@@ -349,6 +356,7 @@ extern initialize_file_ftype _initialize_reverse;
 void
 _initialize_reverse (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_com ("reverse-step", class_run, reverse_step, _("\
 Step program backward until it reaches the beginning of another source line.\n\
 Argument N means do this N times (or till program stops for another reason).")
@@ -384,11 +392,13 @@ the breakpoint won't break until the Nth time it is reached)."));
 
   add_com ("reverse-finish", class_run, reverse_finish, _("\
 Execute backward until just before selected stack frame is called."));
+#endif
 
   add_com ("bookmark", class_bookmark, save_bookmark_command, _("\
 Set a bookmark in the program's execution history.\n\
 A bookmark represents a point in the execution history \n\
 that can be returned to at a later point in the debug session."));
+#ifndef VE_CUSTOMIZATION
   add_info ("bookmarks", bookmarks_info, _("\
 Status of user-settable bookmarks.\n\
 Bookmarks are user-settable markers representing a point in the \n\
@@ -399,6 +409,7 @@ Delete a bookmark from the bookmark list.\n\
 Argument is a bookmark number or numbers,\n\
  or no argument to delete all bookmarks.\n"),
 	   &deletelist);
+#endif
   add_com ("goto-bookmark", class_bookmark, goto_bookmark_command, _("\
 Go to an earlier-bookmarked point in the program's execution history.\n\
 Argument is the bookmark number of a bookmark saved earlier by using \n\

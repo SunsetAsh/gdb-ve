@@ -50,14 +50,22 @@ set linesize [expr $pagesize * 2]
 gdb_test_no_output "set dcache line-size $linesize" \
     "set dcache line size to twice the pagesize"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "info dcache"
+} else {
 gdb_test "info dcache" \
     "Dcache 4096 lines of $linesize bytes each.\r\nNo data cache available."
+}
 
 # Make sure dcache doesn't automatically skip unmapped regions.
 delete_mem
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "info mem"
+} else {
 gdb_test "info mem" \
     "Using user-defined memory regions.\r\nThere are no memory regions defined\."
+}
 
 # Given the line size is bigger than the page size, we have
 # alternating mapped and unmapped pages, these make dcache fail to

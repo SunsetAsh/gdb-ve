@@ -31,6 +31,10 @@ if ![runto_main] {
 gdb_breakpoint [gdb_get_line_number "break-here"]
 gdb_continue_to_breakpoint "break-here" ".* break-here .*"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+} else {
 gdb_test "watch x" {Watchpoint [0-9]+: x}
+}
 
 gdb_test_no_output {delete $bpnum}

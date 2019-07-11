@@ -15,6 +15,10 @@
 
 load_lib "dtrace.exp"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "dtrace probe"
+    return 0
+}
 # Run the tests.
 # This returns -1 on failure to compile or start, 0 otherwise.
 proc dtrace_test {} {

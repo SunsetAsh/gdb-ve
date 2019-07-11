@@ -15,6 +15,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #ifndef GDB_PROC_SERVICE_H
 #define GDB_PROC_SERVICE_H
@@ -61,6 +62,8 @@ EXTERN_C_POP
 #ifdef HAVE_SYS_PROCFS_H
 #include <sys/procfs.h>
 #endif
+
+#include "gregset.h"
 
 EXTERN_C_PUSH
 

@@ -14,6 +14,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "skip.h"
@@ -354,6 +355,7 @@ skip_command (char *arg, int from_tty)
   do_cleanups (cleanups);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 skip_info (char *arg, int from_tty)
 {
@@ -433,6 +435,7 @@ Not skipping any files or functions.\n"));
 
   do_cleanups (tbl_chain);
 }
+#endif
 
 static void
 skip_enable_command (char *arg, int from_tty)
@@ -734,6 +737,7 @@ If you don't specify any numbers or ranges, we'll delete all skip entries.\n\n\
 Usage: skip delete [NUMBERS AND/OR RANGES]"),
            &skiplist);
 
+#ifndef VE_CUSTOMIZATION
   add_info ("skip", skip_info, _("\
 Display the status of skips.  You can specify numbers (e.g. \"skip info 1 3\"), \
 ranges (e.g. \"skip info 4-8\"), or both (e.g. \"skip info 1 3 4-8\").\n\n\
@@ -742,4 +746,5 @@ Usage: skip info [NUMBERS AND/OR RANGES]\n\
 The \"Type\" column indicates one of:\n\
 \tfile        - ignored file\n\
 \tfunction    - ignored function"));
+#endif
 }

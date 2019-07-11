@@ -15,6 +15,10 @@
 
 # This file was written by Fred Fish. (fnf@cygnus.com)
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unspported watch command."
+    return -1
+}
 
 standard_testfile
 

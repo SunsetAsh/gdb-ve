@@ -45,6 +45,9 @@ proc test { style } {
 
 	set test "set dprintf"
 	gdb_test_multiple "dprintf $dp_location, \"y=%d\\n\", y" $test {
+	    -re "Undefined command: \"dprintf\"\.  Try \"help\".*$gdb_prompt $" {
+		unsupported $test
+	    }
 	    -re "cannot run dprintf commands.*$gdb_prompt $" {
 		unsupported $test
 	    }

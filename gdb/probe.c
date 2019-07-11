@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "probe.h"
@@ -726,6 +727,7 @@ info_probes_command (char *arg, int from_tty)
   info_probes_for_ops (arg, from_tty, NULL);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Implementation of the `enable probes' command.  */
 
 static void
@@ -817,6 +819,7 @@ disable_probes_command (char *arg, int from_tty)
 
   do_cleanups (cleanup);
 }
+#endif
 
 /* See comments in probe.h.  */
 
@@ -1075,6 +1078,7 @@ _initialize_probe (void)
   create_internalvar_type_lazy ("_probe_arg11", &probe_funcs,
 				(void *) (uintptr_t) 11);
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("all", class_info, info_probes_command,
 	   _("\
 Show information about all type of probes."),
@@ -1101,5 +1105,6 @@ OBJECT matches the executable or shared library name.\n\
 If you do not specify any argument then the command will disable\n\
 all defined probes."),
 	   &disablelist);
+#endif
 
 }

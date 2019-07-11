@@ -23,6 +23,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* FIXME: Various die-reading functions need to be more careful with
    reading off the end of the section.
@@ -23574,6 +23575,19 @@ show_check_physname (struct ui_file *file, int from_tty,
 
 void _initialize_dwarf2_read (void);
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  use_deprecated_index_sections = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_dwarf2_read (void)
 {
@@ -23663,7 +23677,7 @@ When enabled, deprecated .gdb_index sections are used anyway.\n\
 Normally they are ignored either because of a missing feature or\n\
 performance issue.\n\
 Warning: This option must be enabled before gdb reads the file."),
-			   NULL,
+			   VE_SET_FUNC,
 			   NULL,
 			   &setlist, &showlist);
 

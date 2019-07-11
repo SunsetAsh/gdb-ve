@@ -344,6 +344,7 @@ if test x${all_targets} = xfalse ; then
 	bfd_v850ea_arch)	ta="$ta v850-opc.lo v850-dis.lo" ;;
 	bfd_v850_rh850_arch)	ta="$ta v850-opc.lo v850-dis.lo" ;;
 	bfd_vax_arch)		ta="$ta vax-dis.lo" ;;
+	bfd_ve_arch)		ta="$ta ve-dis.lo ve-opc.lo" ;;
 	bfd_visium_arch)	ta="$ta visium-dis.lo visium-opc.lo" ;;
 	bfd_w65_arch)		ta="$ta w65-dis.lo" ;;
 	bfd_we32k_arch)		;;

@@ -71,6 +71,9 @@ set cant_insert_hbreak 0
 set supports_hbreak 0
 set test "probe hbreak support"
 gdb_test_multiple "hbreak main" $test {
+    -re "Undefined command: \"hbreak\".  Try \"help\".*$gdb_prompt $" {
+	unsupported $test
+    }
     -re "No hardware breakpoint support in the target.*$gdb_prompt $" {
 	pass $test
     }
