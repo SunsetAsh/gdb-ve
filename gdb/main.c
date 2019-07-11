@@ -911,16 +911,6 @@ captured_main (void *data)
 			    (optind == argc - 1) ? "" : " ...");
     }
 
-#if 0
-#ifdef VE_CUSTOMIZATION
-  if (pidarg != NULL && execarg == NULL)
-    {
-      error (_("%s: `-p' specified but no program specified"),
-	       gdb_program_name);
-    }
-#endif
-#endif
-
   /* Lookup gdbinit files.  Note that the gdbinit file name may be
      overriden during file initialization, so get_init_files should be
      called after gdb_init.  */
