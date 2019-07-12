@@ -204,7 +204,8 @@ LIBICONV = @LIBICONV@
 
 VEOS_PREFIX = @VEOS_PREFIX@
 VEOS_LIB64_DIR = $(VEOS_PREFIX)/lib64
-LIBVEPTRACE = -L $(VEOS_LIB64_DIR) -lveptrace -Wl,-rpath=$(VEOS_LIB64_DIR)
+EXPORT_SYM = -Wl,-export-dynamic
+LIBVEPTRACE = $(EXPORT_SYM) -L $(VEOS_LIB64_DIR) -lveptrace -Wl,-rpath=$(VEOS_LIB64_DIR)
 
 # Did the user give us a --with-gdb-datadir option?
 GDB_DATADIR = @GDB_DATADIR@
