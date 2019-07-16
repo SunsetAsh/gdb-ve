@@ -26,6 +26,13 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" \
 # Run the test proper.  SCHEDLOCK specifies what scheduler-locking
 # should be set to.
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 proc do_test { schedlock } {
     global binfile
 

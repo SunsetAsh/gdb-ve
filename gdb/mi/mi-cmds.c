@@ -46,8 +46,10 @@ static struct mi_cmd mi_cmds[] =
   { NAME, {NULL, 0}, MI_FUNC, CALLED }
 #define DEF_MI_CMD_MI(NAME, MI_FUNC) DEF_MI_CMD_MI_1(NAME, MI_FUNC, NULL)
 
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("ada-task-info", mi_cmd_ada_task_info),
   DEF_MI_CMD_MI ("add-inferior", mi_cmd_add_inferior),
+#endif
   DEF_MI_CMD_CLI_1 ("break-after", "ignore", 1,
 		    &mi_suppress_notification.breakpoint),
   DEF_MI_CMD_CLI_1 ("break-condition","cond", 1,
@@ -63,9 +65,12 @@ static struct mi_cmd mi_cmds[] =
   DEF_MI_CMD_CLI ("break-info", "info break", 1),
   DEF_MI_CMD_MI_1 ("break-insert", mi_cmd_break_insert,
 		   &mi_suppress_notification.breakpoint),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI_1 ("dprintf-insert", mi_cmd_dprintf_insert,
 		   &mi_suppress_notification.breakpoint),
+#endif
   DEF_MI_CMD_CLI ("break-list", "info break", 0),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI_1 ("break-passcount", mi_cmd_break_passcount,
 		   &mi_suppress_notification.breakpoint),
   DEF_MI_CMD_MI_1 ("break-watch", mi_cmd_break_watch,
@@ -74,10 +79,13 @@ static struct mi_cmd mi_cmds[] =
                    &mi_suppress_notification.breakpoint),
   DEF_MI_CMD_MI_1 ("catch-exception", mi_cmd_catch_exception,
                    &mi_suppress_notification.breakpoint),
+#endif
   DEF_MI_CMD_MI_1 ("catch-load", mi_cmd_catch_load,
                    &mi_suppress_notification.breakpoint),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI_1 ("catch-unload", mi_cmd_catch_unload,
                    &mi_suppress_notification.breakpoint),
+#endif
   DEF_MI_CMD_MI ("data-disassemble", mi_cmd_disassemble),
   DEF_MI_CMD_MI ("data-evaluate-expression", mi_cmd_data_evaluate_expression),
   DEF_MI_CMD_MI ("data-list-changed-registers",
@@ -104,7 +112,9 @@ static struct mi_cmd mi_cmds[] =
   DEF_MI_CMD_MI ("exec-continue", mi_cmd_exec_continue),
   DEF_MI_CMD_MI ("exec-finish", mi_cmd_exec_finish),
   DEF_MI_CMD_MI ("exec-jump", mi_cmd_exec_jump),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("exec-interrupt", mi_cmd_exec_interrupt),
+#endif
   DEF_MI_CMD_MI ("exec-next", mi_cmd_exec_next),
   DEF_MI_CMD_MI ("exec-next-instruction", mi_cmd_exec_next_instruction),
   DEF_MI_CMD_MI ("exec-return", mi_cmd_exec_return),
@@ -126,14 +136,20 @@ static struct mi_cmd mi_cmds[] =
   DEF_MI_CMD_CLI ("gdb-version", "show version", 0),
   DEF_MI_CMD_MI ("inferior-tty-set", mi_cmd_inferior_tty_set),
   DEF_MI_CMD_MI ("inferior-tty-show", mi_cmd_inferior_tty_show),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("info-ada-exceptions", mi_cmd_info_ada_exceptions),
+#endif
   DEF_MI_CMD_MI ("info-gdb-mi-command", mi_cmd_info_gdb_mi_command),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("info-os", mi_cmd_info_os),
+#endif
   DEF_MI_CMD_MI ("interpreter-exec", mi_cmd_interpreter_exec),
   DEF_MI_CMD_MI ("list-features", mi_cmd_list_features),
   DEF_MI_CMD_MI ("list-target-features", mi_cmd_list_target_features),
   DEF_MI_CMD_MI ("list-thread-groups", mi_cmd_list_thread_groups),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("remove-inferior", mi_cmd_remove_inferior),
+#endif
   DEF_MI_CMD_MI ("stack-info-depth", mi_cmd_stack_info_depth),
   DEF_MI_CMD_MI ("stack-info-frame", mi_cmd_stack_info_frame),
   DEF_MI_CMD_MI ("stack-list-arguments", mi_cmd_stack_list_args),
@@ -145,30 +161,38 @@ static struct mi_cmd mi_cmds[] =
   DEF_MI_CMD_MI ("symbol-list-lines", mi_cmd_symbol_list_lines),
   DEF_MI_CMD_CLI ("target-attach", "attach", 1),
   DEF_MI_CMD_MI ("target-detach", mi_cmd_target_detach),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_CLI ("target-disconnect", "disconnect", 0),
   DEF_MI_CMD_CLI ("target-download", "load", 1),
   DEF_MI_CMD_MI ("target-file-delete", mi_cmd_target_file_delete),
   DEF_MI_CMD_MI ("target-file-get", mi_cmd_target_file_get),
   DEF_MI_CMD_MI ("target-file-put", mi_cmd_target_file_put),
   DEF_MI_CMD_CLI ("target-select", "target", 1),
+#endif
   DEF_MI_CMD_MI ("thread-info", mi_cmd_thread_info),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("function-call-history",
 		 mi_cmd_record_function_call_history),
   DEF_MI_CMD_MI ("function-call-history-length",
 		 mi_cmd_record_get_function_call_history_length),
+#endif
   DEF_MI_CMD_MI ("thread-list-ids", mi_cmd_thread_list_ids),
   DEF_MI_CMD_MI_1 ("thread-select", mi_cmd_thread_select,
 		   &mi_suppress_notification.user_selected_context),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("trace-define-variable", mi_cmd_trace_define_variable),
   DEF_MI_CMD_MI_1 ("trace-find", mi_cmd_trace_find,
 		   &mi_suppress_notification.traceframe),
+#endif
   DEF_MI_CMD_MI ("trace-frame-collected",
 		 mi_cmd_trace_frame_collected),
+#ifndef VE_CUSTOMIZATION
   DEF_MI_CMD_MI ("trace-list-variables", mi_cmd_trace_list_variables),
   DEF_MI_CMD_MI ("trace-save", mi_cmd_trace_save),
   DEF_MI_CMD_MI ("trace-start", mi_cmd_trace_start),
   DEF_MI_CMD_MI ("trace-status", mi_cmd_trace_status),
   DEF_MI_CMD_MI ("trace-stop", mi_cmd_trace_stop),
+#endif
   DEF_MI_CMD_MI ("var-assign", mi_cmd_var_assign),
   DEF_MI_CMD_MI ("var-create", mi_cmd_var_create),
   DEF_MI_CMD_MI ("var-delete", mi_cmd_var_delete),

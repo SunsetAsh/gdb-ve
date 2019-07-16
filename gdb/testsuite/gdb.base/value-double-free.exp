@@ -29,7 +29,11 @@ if [target_info exists gdb,no_hardware_watchpoints] {
     gdb_test_no_output "set can-use-hw-watchpoints 0" ""
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "watch var"
+} else {
 gdb_test "watch var" "atchpoint \[0-9\]+: var"
+}
 gdb_test "continue" "atchpoint \[0-9\]+: var.*Old value = 0.*New value = \[12\].*"
 gdb_test "print empty()" " = void"
 # We did segfault here.

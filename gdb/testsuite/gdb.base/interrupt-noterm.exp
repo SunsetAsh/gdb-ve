@@ -60,6 +60,9 @@ if { $async_supported < 0 } {
 # its own process group, instead of the inferior's.
 set test "interrupt"
 gdb_test_multiple $test $test {
+    -re "Undefined command: \"interrupt\".  Try \"help\".*$gdb_prompt " {
+	unsupported $test
+    }
     -re "interrupt\r\n$gdb_prompt " {
 	pass $test
     }

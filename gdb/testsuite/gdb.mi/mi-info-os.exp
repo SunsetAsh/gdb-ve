@@ -54,5 +54,8 @@ if {[mi_gdb_target_load] < 0} {
 }
 
 # Try the argument-less form that lists all the types in a table.
-
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "-info-os unsupported command"
+    return
+}
 mi_gdb_test "-info-os" ".*\\^done,OSDataTable=.*" "-info-os"

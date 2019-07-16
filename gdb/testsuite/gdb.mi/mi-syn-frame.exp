@@ -76,10 +76,15 @@ mi_gdb_test "406-data-evaluate-expression have_a_very_merry_interrupt()" \
 # We should have both a signal handler and a call dummy frame
 # in this next output.
 
-mi_gdb_test "407-stack-list-frames" \
-  "407\\^done,stack=\\\[frame=\{level=\"0\",addr=\"$hex\",func=\"subroutine\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"1\",addr=\"$hex\",func=\"handler\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"2\",addr=\"$hex\",func=\"<signal handler called>\"\},.*frame=\{level=\"$decimal\",addr=\"$hex\",func=\"have_a_very_merry_interrupt\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"$decimal\",addr=\"$hex\",func=\"<function called from gdb>\"\},frame=\{level=\"$decimal\",addr=\"$hex\",func=\"main\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\}.*\\\]" \
-  "list stack frames"
-
+if {[istarget "ve-nec-linux*"]} {
+    mi_gdb_test "407-stack-list-frames" \
+      "407\\^done,stack=\\\[frame=\{level=\"0\",addr=\"$hex\",func=\"subroutine\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"1\",addr=\"$hex\",func=\"handler\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"2\",addr=\"$hex\",func=\".*\"\}.*\\\]" \
+      "list stack frames"
+} else {
+    mi_gdb_test "407-stack-list-frames" \
+      "407\\^done,stack=\\\[frame=\{level=\"0\",addr=\"$hex\",func=\"subroutine\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"1\",addr=\"$hex\",func=\"handler\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"2\",addr=\"$hex\",func=\"<signal handler called>\"\},.*frame=\{level=\"$decimal\",addr=\"$hex\",func=\"have_a_very_merry_interrupt\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\},frame=\{level=\"$decimal\",addr=\"$hex\",func=\"<function called from gdb>\"\},frame=\{level=\"$decimal\",addr=\"$hex\",func=\"main\",file=\".*mi-syn-frame.c\",fullname=\"${fullname_syntax}${srcfile}\",line=\"$decimal\"\}.*\\\]" \
+      "list stack frames"
+}
 
 mi_send_resuming_command "exec-continue" "testing exec continue"
 

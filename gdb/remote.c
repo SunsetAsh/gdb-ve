@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* See the GDB User Guide for details of the GDB remote protocol.  */
 
@@ -171,11 +172,13 @@ static int hexnumnstr (char *, ULONGEST, int);
 
 static CORE_ADDR remote_address_masked (CORE_ADDR);
 
+#ifndef VE_CUSTOMIZATION
 static void print_packet (const char *);
 
 static void compare_sections_command (char *, int);
 
 static void packet_command (char *, int);
+#endif
 
 static int stub_unpack_int (char *buff, int fieldlength);
 
@@ -189,10 +192,12 @@ struct packet_config;
 
 static void show_packet_config_cmd (struct packet_config *config);
 
+#ifndef VE_CUSTOMIZATION
 static void show_remote_protocol_packet_cmd (struct ui_file *file,
 					     int from_tty,
 					     struct cmd_list_element *c,
 					     const char *value);
+#endif
 
 static char *write_ptid (char *buf, const char *endbuf, ptid_t ptid);
 static ptid_t read_ptid (char *buf, char **obuf);
@@ -932,6 +937,7 @@ static const char *const interrupt_sequence_modes[] =
   };
 static const char *interrupt_sequence_mode = interrupt_sequence_control_c;
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_interrupt_sequence (struct ui_file *file, int from_tty,
 			 struct cmd_list_element *c,
@@ -956,6 +962,7 @@ show_interrupt_sequence (struct ui_file *file, int from_tty,
 		    _("Invalid value for interrupt_sequence_mode: %s."),
 		    interrupt_sequence_mode);
 }
+#endif
 
 /* This boolean variable specifies whether interrupt_sequence is sent
    to the remote target when gdb connects to it.
@@ -963,6 +970,7 @@ show_interrupt_sequence (struct ui_file *file, int from_tty,
    expects BREAK g which is Magic SysRq g for connecting gdb.  */
 static int interrupt_on_connect = 0;
 
+#ifndef VE_CUSTOMIZATION
 /* This variable is used to implement the "set/show remotebreak" commands.
    Since these commands are now deprecated in favor of "set/show remote
    interrupt-sequence", it no longer has any effect on the code.  */
@@ -983,6 +991,7 @@ show_remotebreak (struct ui_file *file, int from_tty,
 		  const char *value)
 {
 }
+#endif
 
 /* This variable sets the number of bits in an address that are to be
    sent in a memory ("M" or "m") packet.  Normally, after stripping
@@ -1074,6 +1083,7 @@ get_memory_packet_size (struct memory_packet_config *config)
   return what_they_get;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Update the size of a read/write packet.  If they user wants
    something really big then do a sanity check.  */
 
@@ -1132,12 +1142,14 @@ show_memory_packet_size (struct memory_packet_config *config)
     printf_filtered (_("Packets are limited to %ld bytes.\n"),
 		     get_memory_packet_size (config));
 }
+#endif
 
 static struct memory_packet_config memory_write_packet_config =
 {
   "memory-write-packet-size",
 };
 
+#ifndef VE_CUSTOMIZATION
 static void
 set_memory_write_packet_size (char *args, int from_tty)
 {
@@ -1149,6 +1161,7 @@ show_memory_write_packet_size (char *args, int from_tty)
 {
   show_memory_packet_size (&memory_write_packet_config);
 }
+#endif
 
 static long
 get_memory_write_packet_size (void)
@@ -1161,6 +1174,7 @@ static struct memory_packet_config memory_read_packet_config =
   "memory-read-packet-size",
 };
 
+#ifndef VE_CUSTOMIZATION
 static void
 set_memory_read_packet_size (char *args, int from_tty)
 {
@@ -1172,6 +1186,7 @@ show_memory_read_packet_size (char *args, int from_tty)
 {
   show_memory_packet_size (&memory_read_packet_config);
 }
+#endif
 
 static long
 get_memory_read_packet_size (void)
@@ -1259,6 +1274,7 @@ show_packet_config_cmd (struct packet_config *config)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 add_packet_config_cmd (struct packet_config *config, const char *name,
 		       const char *title, int legacy)
@@ -1297,6 +1313,7 @@ add_packet_config_cmd (struct packet_config *config, const char *name,
 		     &remote_show_cmdlist);
     }
 }
+#endif
 
 static enum packet_result
 packet_check_result (const char *buf)
@@ -1559,6 +1576,7 @@ packet_support (int packet)
   return packet_config_support (config);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_remote_protocol_packet_cmd (struct ui_file *file, int from_tty,
 				 struct cmd_list_element *c,
@@ -1579,6 +1597,7 @@ show_remote_protocol_packet_cmd (struct ui_file *file, int from_tty,
   internal_error (__FILE__, __LINE__, _("Could not find config for %s"),
 		  c->name);
 }
+#endif
 
 /* Should we try one of the 'Z' requests?  */
 
@@ -4379,6 +4398,7 @@ reset_all_packet_configs_support (void)
     remote_protocol_packets[i].support = PACKET_SUPPORT_UNKNOWN;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Initialize all packet configs.  */
 
 static void
@@ -4392,6 +4412,7 @@ init_all_packet_configs (void)
       remote_protocol_packets[i].support = PACKET_SUPPORT_UNKNOWN;
     }
 }
+#endif
 
 /* Symbol look-up.  */
 
@@ -8286,6 +8307,7 @@ escape_buffer (const char *buf, int n)
   return str;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Display a null-terminated packet on stdout, for debugging, using C
    string notation.  */
 
@@ -8296,6 +8318,7 @@ print_packet (const char *buf)
   fputstr_filtered (buf, '"', gdb_stdout);
   puts_filtered ("\"");
 }
+#endif
 
 int
 putpkt (const char *buf)
@@ -9788,6 +9811,7 @@ remote_verify_memory (struct target_ops *ops,
   return simple_verify_memory (ops, data, lma, size);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* compare-sections command
 
    With no arguments, compares each loadable section in the exec bfd
@@ -9869,6 +9893,7 @@ the loaded file\n"));
   if (args && !matched)
     printf_filtered (_("No loaded section named '%s'.\n"), args);
 }
+#endif
 
 /* Write LEN bytes from WRITEBUF into OBJECT_NAME/ANNEX at OFFSET
    into remote target.  The number of bytes written to the remote
@@ -10398,6 +10423,7 @@ remote_memory_map (struct target_ops *ops)
   return result;
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 packet_command (char *args, int from_tty)
 {
@@ -10419,6 +10445,7 @@ packet_command (char *args, int from_tty)
   print_packet (rs->buf);
   puts_filtered ("\n");
 }
+#endif
 
 #if 0
 /* --------- UNIT_TEST for THREAD oriented PACKETS ------------------- */
@@ -11683,6 +11710,7 @@ remote_file_delete (const char *remote_file, int from_tty)
     printf_filtered (_("Successfully deleted file \"%s\".\n"), remote_file);
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 remote_put_command (char *args, int from_tty)
 {
@@ -11745,6 +11773,7 @@ remote_command (char *args, int from_tty)
 {
   help_list (remote_cmdlist, "remote ", all_commands, gdb_stdout);
 }
+#endif
 
 static int
 remote_can_execute_reverse (struct target_ops *self)
@@ -13416,6 +13445,7 @@ remote_thread_events (struct target_ops *ops, int enable)
     }
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 set_remote_cmd (char *args, int from_tty)
 {
@@ -13457,6 +13487,7 @@ show_remote_cmd (char *args, int from_tty)
   /* Close the tuple.  */
   do_cleanups (showlist_chain);
 }
+#endif
 
 
 /* Function to be called whenever a new objfile (shlib) is detected.  */
@@ -13517,6 +13548,7 @@ remote_upload_trace_state_variables (struct target_ops *self,
   return 0;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The "set/show range-stepping" show hook.  */
 
 static void
@@ -13554,6 +13586,7 @@ set_range_stepping (char *ignore_args, int from_tty,
       warning (_("Range stepping is not supported by the current target"));
     }
 }
+#endif
 
 void
 _initialize_remote (void)
@@ -13595,6 +13628,7 @@ _initialize_remote (void)
   stop_reply_queue = QUEUE_alloc (stop_reply_p, stop_reply_xfree);
   /* set/show remote ...  */
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("remote", class_maintenance, set_remote_cmd, _("\
 Remote protocol specific variables\n\
 Configure various remote-protocol specific variables such as\n\
@@ -13995,6 +14029,7 @@ Show the maximum size of the address (in bits) in a memory packet."), NULL,
 	gdb_assert (excepted == (remote_protocol_packets[i].name == NULL));
       }
   }
+#endif
 
   /* Keep the old ``set remote Z-packet ...'' working.  Each individual
      Z sub-packet has its own set and show commands, but users may
@@ -14012,6 +14047,7 @@ packets."),
 				   `Z' packets is %s.  */
 				&remote_set_cmdlist, &remote_show_cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("remote", class_files, remote_command, _("\
 Manipulate files on the remote system\n\
 Transfer files to and from the remote target system."),
@@ -14029,6 +14065,7 @@ Transfer files to and from the remote target system."),
   add_cmd ("delete", class_files, remote_delete_command,
 	   _("Delete a remote file."),
 	   &remote_cmdlist);
+#endif
 
   add_setshow_string_noescape_cmd ("exec-file", class_files,
 				   &remote_exec_file_var, _("\
@@ -14039,6 +14076,7 @@ Show the remote pathname for \"run\""), NULL,
 				   &remote_set_cmdlist,
 				   &remote_show_cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   add_setshow_boolean_cmd ("range-stepping", class_run,
 			   &use_range_stepping, _("\
 Enable or disable range stepping."), _("\
@@ -14052,6 +14090,7 @@ stepping is supported by the target.  The default is on."),
 			   show_range_stepping,
 			   &setlist,
 			   &showlist);
+#endif
 
   /* Eventually initialize fileio.  See fileio.c */
   initialize_remote_fileio (remote_set_cmdlist, remote_show_cmdlist);

@@ -54,7 +54,9 @@ main (int argc, char *argv[])
 		       MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   memset (dont_dump, 0x55, size);
   i = madvise (dont_dump, size, MADV_DONTDUMP);
+#ifndef VEOS
   assert_perror (errno);
+#endif
   assert (i == 0);
 
   return 0; /* break-here */

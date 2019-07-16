@@ -16,7 +16,6 @@
 # This test checks if dprintf prints correctly when it's resolved from
 # pending state.
 # See PR breakpoints/16465.
-
 load_lib mi-support.exp
 
 if {[skip_shlib_tests]} {
@@ -55,6 +54,17 @@ mi_load_shlibs $lib_sl1
 set bp_location1 [gdb_get_line_number "set breakpoint 1 here"]
 
 # Set pending dprintf via MI.
+
+if {[istarget "ve-nec-linux*"]} {
+    mi_create_breakpoint $bp_location1 "mi insert breakpoint bp_location1" \
+        -type "breakpoint" -line $bp_location1 -file ".*$srcfile"
+
+    mi_run_cmd
+
+    unsupported "-dprintf-insert is unsupported command"
+    return
+}
+
 mi_gdb_test "-dprintf-insert -f pendfunc1 \"hello\"" \
     ".*\\^done,bkpt={number=\"1\",type=\"dprintf\",disp=\"keep\",enabled=\"y\",addr=\"<PENDING>\",pending=\"pendfunc1\",times=\"0\",original-location=\"pendfunc1\"}" \
     "mi set dprintf"

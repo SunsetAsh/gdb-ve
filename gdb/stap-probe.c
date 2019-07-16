@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "stap-probe.h"
@@ -1705,6 +1706,7 @@ const struct probe_ops stap_probe_ops =
   NULL   /* disable_probe  */
 };
 
+#ifndef VE_CUSTOMIZATION
 /* Implementation of the `info probes stap' command.  */
 
 static void
@@ -1712,6 +1714,7 @@ info_probes_stap_command (char *arg, int from_tty)
 {
   info_probes_for_ops (arg, from_tty, &stap_probe_ops);
 }
+#endif
 
 void _initialize_stap_probe (void);
 
@@ -1730,6 +1733,7 @@ _initialize_stap_probe (void)
 			     show_stapexpressiondebug,
 			     &setdebuglist, &showdebuglist);
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("stap", class_info, info_probes_stap_command,
 	   _("\
 Show information about SystemTap static probes.\n\
@@ -1739,5 +1743,6 @@ PROVIDER matches probe provider names.\n\
 NAME matches the probe names.\n\
 OBJECT matches the executable or shared library name."),
 	   info_probes_cmdlist_get ());
+#endif
 
 }

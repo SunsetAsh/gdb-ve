@@ -138,8 +138,12 @@ if ![get_function_bounds "main" main_lo main_hi] {
 }
 
 # Manually create a read-only memory region that covers 'main'.
+if { [istarget ve-nec-linux*] } {
+    unsupported "mem $main_lo $main_hi ro"
+} else {
 gdb_test_no_output "mem $main_lo $main_hi ro" \
     "create read-only mem region covering main"
+}
 
 # So that we don't fail inserting breakpoints on addresses outside
 # main, like the internal event breakpoints.
@@ -154,15 +158,23 @@ gdb_test_no_output "set breakpoint always-inserted on"
 gdb_test_no_output "set breakpoint auto-hw off"
 
 # Confirm manual writes to the read-only memory region fail.
+if { [istarget ve-nec-linux*] } {
+    unsupported "p /x *(char *) $main_lo = 1"
+} else {
 gdb_test "p /x *(char *) $main_lo = 1" \
     "Cannot access memory at address $main_lo" \
     "writing to read-only memory fails"
+}
 
 # Ensure that inserting a software breakpoint in a known-read-only
 # region fails.
+if { [istarget ve-nec-linux*] } {
+    unsupported "break *$main_lo"
+} else {
 gdb_test "break *$main_lo" \
     "Cannot insert breakpoint .*Cannot set software breakpoint at read-only address $main_lo.*" \
     "inserting software breakpoint in read-only memory fails"
+}
 
 delete_breakpoints
 

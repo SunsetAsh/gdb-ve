@@ -34,8 +34,12 @@ proc recurse_tests {} {
 	# First we need to step over the assignment of b, so it has a known
 	# value.
 	gdb_test "next" "if \\(a == 1\\)" "next over b = 0 in first instance"
+      if { [istarget ve-nec-linux*] } {
+	unsupported "watch b"
+      } else {
 	gdb_test "watch b" ".*\[Ww\]atchpoint \[0-9]*: b" \
 	    "set first instance watchpoint"
+      }
 
 	# Continue until initial set of b.
 	if [gdb_test "continue" \
@@ -60,8 +64,12 @@ proc recurse_tests {} {
 	# First we need to step over the assignment of b, so it has a known
 	# value.
 	gdb_test "next" "if \\(a == 1\\)" "next over b = 0 in second instance"
+      if { [istarget ve-nec-linux*] } {
+	unsupported "watch b"
+      } else {
 	gdb_test "watch b" ".*\[Ww\]atchpoint \[0-9]*: b" \
 	    "set second instance watchpoint"
+      }
 
 	# Continue until initial set of b (second instance).
 	if [gdb_test "continue" \

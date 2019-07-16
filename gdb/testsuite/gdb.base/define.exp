@@ -221,6 +221,10 @@ gdb_expect {
 }
 
 # Test creation of an additional target subcommand.
+if { [istarget ve-nec-linux*] } {
+    unsupported "define target testsuite"
+    unsupported "document target testsuite"
+} else {
 gdb_test_multiple "define target testsuite" "" {
     -re "Type commands for definition of \"target testsuite\".\r\nEnd with a line saying just \"end\".\r\n>$" {
 	gdb_test "printf \"hello\\n\"\nend" "" "define target testsuite"
@@ -231,12 +235,24 @@ gdb_test_multiple "document target testsuite" "" {
 	gdb_test "A test target.\nend" "" "document target testsuite"
     }
 }
+}
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "help target"
+    unsupported "target testsuite"
+    unsupported "show user target testsuite"
+} else {
 gdb_test "help target" ".*A test target.*"
 gdb_test "target testsuite" "hello"
 gdb_test "show user target testsuite" "User command \"target testsuite\":\r\n  printf \"hello\\\\n\"\r\n"
+}
 
 # We should even be able to hook subcommands.
+if { [istarget ve-nec-linux*] } {
+    unsupported "define target hook-testsuite"
+    unsupported "define target hookpost-testsuite"
+    unsupported "taeget testuite with hooks"
+} else {
 gdb_test_multiple "define target hook-testsuite" "" {
     -re "Type commands for definition of \"target hook-testsuite\".\r\nEnd with a line saying just \"end\".\r\n>$" {
 	gdb_test "printf \"one\\n\"\nend" "" "define target hook-testsuite"
@@ -250,6 +266,7 @@ gdb_test_multiple "define target hookpost-testsuite" "" {
 }
 
 gdb_test "target testsuite" "one\r\nhello\r\ntwo" "target testsuite with hooks"
+}
 
 # This is a quasi-define command: Verify that the user can redefine
 # GDB's gdb_prompt.

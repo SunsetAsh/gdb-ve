@@ -14520,6 +14520,7 @@ do
     vax_aout_nbsd_vec)		 tb="$tb vaxnetbsd.lo aout32.lo" ;;
     vax_elf32_vec)		 tb="$tb elf32-vax.lo elf32.lo $elf" ;;
     ft32_elf32_vec)		 tb="$tb elf32-ft32.lo elf32.lo $elf" ;;
+    ve_elf64_vec)		 tb="$tb elf64-ve.lo elf-ifunc.lo elf64.lo $elf"; target_size=64 ;;
     visium_elf32_vec)		 tb="$tb elf32-visium.lo elf32.lo $elf" ;;
     w65_coff_vec)		 tb="$tb coff-w65.lo reloc16.lo $coffgen" ;;
     we32k_coff_vec)		 tb="$tb coff-we32k.lo $coffgen" ;;

@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "common-defs.h"
 #include "linux-ptrace.h"
@@ -27,6 +28,10 @@
 #include "gdb_wait.h"
 #include "gdb_ptrace.h"
 #include <sys/procfs.h>
+
+#ifdef VE_CUSTOMIZATION
+#include "ve-ptrace.h"
+#endif
 
 /* If PaX or NX prevents execution of stack memory then calls to functions in
    the inferior must use the entry point as the return address.  */
@@ -85,6 +90,7 @@ linux_ptrace_attach_fail_reason_string (ptid_t ptid, int err)
   return reason_string;
 }
 
+#ifndef	VE_CUSTOMIZATION
 #if defined __i386__ || defined __x86_64__
 
 /* Address of the 'ret' instruction in asm code block below.  */
@@ -338,9 +344,30 @@ linux_child_function (void *child_stack)
 static void linux_test_for_tracesysgood (int child_pid);
 static void linux_test_for_tracefork (int child_pid);
 static void linux_test_for_exitkill (int child_pid);
+#endif	/* ! VE_CUSTOMIZATION */
 
 /* Determine ptrace features available on this target.  */
 
+#ifdef	VE_CUSTOMIZATION
+void
+linux_check_ptrace_features (void)
+{
+  /* Initialize the options.  */
+  supported_ptrace_options = 0;
+  /* linux_test_for_tracesysgood */
+  supported_ptrace_options |= PTRACE_O_TRACESYSGOOD;
+  /* linux_test_for_tracefork */
+  supported_ptrace_options |= PTRACE_O_TRACECLONE;
+  supported_ptrace_options |= PTRACE_O_TRACEFORK;
+  supported_ptrace_options |= PTRACE_O_TRACEVFORK;
+#ifdef	VE_UNSUPPORTED
+  supported_ptrace_options |= PTRACE_O_TRACEEXEC;
+  supported_ptrace_options |= PTRACE_O_TRACEVFORKDONE;
+#endif
+  /* linux_test_for_exitkill() */
+  supported_ptrace_options |= PTRACE_O_EXITKILL;
+}
+#else
 void
 linux_check_ptrace_features (void)
 {
@@ -374,7 +401,7 @@ linux_check_ptrace_features (void)
   /* Clean things up and kill any pending children.  */
   do
     {
-      ret = ptrace (PTRACE_KILL, child_pid, (PTRACE_TYPE_ARG3) 0,
+      ret = ptrace_func (PTRACE_KILL, child_pid, (PTRACE_TYPE_ARG3) 0,
 		    (PTRACE_TYPE_ARG4) 0);
       if (ret != 0)
 	warning (_("linux_check_ptrace_features: failed to kill child"));
@@ -382,16 +409,18 @@ linux_check_ptrace_features (void)
     }
   while (WIFSTOPPED (status));
 }
+#endif	/* VE_CUSTOMIZATION */
 
 /* Determine if PTRACE_O_TRACESYSGOOD can be used to catch
    syscalls.  */
 
+#ifndef	VE_CUSTOMIZATION
 static void
 linux_test_for_tracesysgood (int child_pid)
 {
   int ret;
 
-  ret = ptrace (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
+  ret = ptrace_func (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
 		(PTRACE_TYPE_ARG4) PTRACE_O_TRACESYSGOOD);
 
   if (ret == 0)
@@ -409,14 +438,14 @@ linux_test_for_tracefork (int child_pid)
 
   /* First, set the PTRACE_O_TRACEFORK option.  If this fails, we
      know for sure that it is not supported.  */
-  ret = ptrace (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
+  ret = ptrace_func (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
 		(PTRACE_TYPE_ARG4) PTRACE_O_TRACEFORK);
 
   if (ret != 0)
     return;
 
   /* Check if the target supports PTRACE_O_TRACEVFORKDONE.  */
-  ret = ptrace (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
+  ret = ptrace_func (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
 		(PTRACE_TYPE_ARG4) (PTRACE_O_TRACEFORK
 				    | PTRACE_O_TRACEVFORKDONE));
   if (ret == 0)
@@ -434,7 +463,7 @@ linux_test_for_tracefork (int child_pid)
      We do not explicitly check for vfork tracing here.  It is
      assumed that vfork tracing is available whenever fork tracing
      is available.  */
-  ret = ptrace (PTRACE_CONT, child_pid, (PTRACE_TYPE_ARG3) 0,
+  ret = ptrace_func (PTRACE_CONT, child_pid, (PTRACE_TYPE_ARG3) 0,
 		(PTRACE_TYPE_ARG4) 0);
   if (ret != 0)
     warning (_("linux_test_for_tracefork: failed to resume child"));
@@ -448,7 +477,7 @@ linux_test_for_tracefork (int child_pid)
       /* We did receive a fork event notification.  Make sure its PID
 	 is reported.  */
       second_pid = 0;
-      ret = ptrace (PTRACE_GETEVENTMSG, child_pid, (PTRACE_TYPE_ARG3) 0,
+      ret = ptrace_func (PTRACE_GETEVENTMSG, child_pid, (PTRACE_TYPE_ARG3) 0,
 		    (PTRACE_TYPE_ARG4) &second_pid);
       if (ret == 0 && second_pid != 0)
 	{
@@ -463,7 +492,7 @@ linux_test_for_tracefork (int child_pid)
 
 	  /* Do some cleanup and kill the grandchild.  */
 	  my_waitpid (second_pid, &second_status, 0);
-	  ret = ptrace (PTRACE_KILL, second_pid, (PTRACE_TYPE_ARG3) 0,
+	  ret = ptrace_func (PTRACE_KILL, second_pid, (PTRACE_TYPE_ARG3) 0,
 			(PTRACE_TYPE_ARG4) 0);
 	  if (ret != 0)
 	    warning (_("linux_test_for_tracefork: "
@@ -483,12 +512,13 @@ linux_test_for_exitkill (int child_pid)
 {
   int ret;
 
-  ret = ptrace (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
+  ret = ptrace_func (PTRACE_SETOPTIONS, child_pid, (PTRACE_TYPE_ARG3) 0,
 		(PTRACE_TYPE_ARG4) PTRACE_O_EXITKILL);
 
   if (ret == 0)
     supported_ptrace_options |= PTRACE_O_EXITKILL;
 }
+#endif	/* VE_CUSTOMIZATION */
 
 /* Enable reporting of all currently supported ptrace events.
    OPTIONS is a bit mask of extended features we want enabled,
@@ -510,8 +540,8 @@ linux_enable_event_reporting (pid_t pid, int options)
   options &= supported_ptrace_options;
 
   /* Set the options.  */
-  ptrace (PTRACE_SETOPTIONS, pid, (PTRACE_TYPE_ARG3) 0,
-	  (PTRACE_TYPE_ARG4) (uintptr_t) options);
+  ptrace_func (PTRACE_SETOPTIONS, pid, (void *) 0,
+	  (void *) (uintptr_t) options);
 }
 
 /* Disable reporting of all currently supported ptrace events.  */
@@ -520,7 +550,7 @@ void
 linux_disable_event_reporting (pid_t pid)
 {
   /* Set the options.  */
-  ptrace (PTRACE_SETOPTIONS, pid, (PTRACE_TYPE_ARG3) 0, 0);
+  ptrace_func (PTRACE_SETOPTIONS, pid, (PTRACE_TYPE_ARG3) 0, 0);
 }
 
 /* Returns non-zero if PTRACE_OPTIONS is contained within
@@ -599,7 +629,9 @@ linux_ptrace_init_warnings (void)
     return;
   warned = 1;
 
+#ifndef VE_CUSTOMIZATION
   linux_ptrace_test_ret_to_nx ();
+#endif
 }
 
 /* Extract extended ptrace event from wait status.  */

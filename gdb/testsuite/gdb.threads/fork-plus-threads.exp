@@ -26,7 +26,7 @@ if { [target_info exists gdb_protocol]
      && [target_info gdb_protocol] == "remote" } {
     continue
 }
-
+set timeout 200
 standard_testfile
 
 proc do_test { detach_on_fork } {

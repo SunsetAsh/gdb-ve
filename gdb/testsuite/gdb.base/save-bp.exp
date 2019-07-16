@@ -45,7 +45,11 @@ set loc_bp5 [gdb_get_line_number "with commands"]
 gdb_breakpoint ${srcfile}:${loc_bp5}
 gdb_test "commands\nsilent\nend" "End with.*" "add breakpoint commands"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "dprintf ${srcfile}:${loc_bp5},\"At foo entry\\n\""
+} else {
 gdb_test "dprintf ${srcfile}:${loc_bp5},\"At foo entry\\n\"" "Dprintf .*"
+}
 
 set loc_bp8 [gdb_get_line_number "Return line"]
 gdb_breakpoint "${srcfile}:${loc_bp8}"

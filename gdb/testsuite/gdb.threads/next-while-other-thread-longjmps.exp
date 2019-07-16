@@ -18,6 +18,11 @@
 # "next" commands in the main thread should be able to complete
 # undisturbed.
 
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "try is unsupported function"
+    return
+}
+
 standard_testfile
 
 set linenum [gdb_get_line_number "set break here"]

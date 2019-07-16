@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "exec.h"
@@ -101,6 +102,9 @@ free_inferior (struct inferior *inf)
   discard_all_inferior_continuations (inf);
   inferior_free_data (inf);
   xfree (inf->args);
+#ifdef VE_CUSTOMIZATION
+  xfree (inf->ve_args);
+#endif
   xfree (inf->terminal);
   free_environ (inf->environment);
   target_desc_info_free (inf->tdesc_info);
@@ -748,6 +752,7 @@ kill_inferior_command (char *args, int from_tty)
   bfd_cache_close_all ();
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 inferior_command (char *args, int from_tty)
 {
@@ -796,6 +801,7 @@ inferior_command (char *args, int from_tty)
       observer_notify_user_selected_context_changed (USER_SELECTED_INFERIOR);
     }
 }
+#endif
 
 /* Print information about currently known inferiors.  */
 
@@ -805,6 +811,7 @@ info_inferiors_command (char *args, int from_tty)
   print_inferior (current_uiout, args);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* remove-inferior ID */
 
 static void
@@ -844,6 +851,7 @@ remove_inferior_command (char *args, int from_tty)
       delete_inferior (inf);
     }
 }
+#endif
 
 struct inferior *
 add_inferior_with_spaces (void)
@@ -873,6 +881,7 @@ add_inferior_with_spaces (void)
   return inf;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* add-inferior [-copies N] [-exec FILENAME]  */
 
 static void
@@ -1025,6 +1034,7 @@ clone_inferior_command (char *args, int from_tty)
 
   do_cleanups (old_chain);
 }
+#endif
 
 /* Print notices when new inferiors are created and die.  */
 static void
@@ -1076,6 +1086,7 @@ initialize_inferiors (void)
   add_info ("inferiors", info_inferiors_command, 
 	    _("IDs of specified inferiors (all inferiors if no argument)."));
 
+#ifndef VE_CUSTOMIZATION
   c = add_com ("add-inferior", no_class, add_inferior_command, _("\
 Add a new inferior.\n\
 Usage: add-inferior [-copies <N>] [-exec <FILENAME>]\n\
@@ -1095,6 +1106,7 @@ Add N copies of inferior ID.  The new inferior has the same\n\
 executable loaded as the copied inferior.  If -copies is not specified,\n\
 adds 1 copy.  If ID is not specified, it is the current inferior\n\
 that is cloned."));
+#endif
 
   add_cmd ("inferiors", class_run, detach_inferior_command, _("\
 Detach from inferior ID (or list of IDS)."),
@@ -1104,10 +1116,12 @@ Detach from inferior ID (or list of IDS)."),
 Kill inferior ID (or list of IDs)."),
 	   &killlist);
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("inferior", class_run, inferior_command, _("\
 Use this command to switch between inferiors.\n\
 The new inferior ID must be currently known."),
 	   &cmdlist);
+#endif
 
   add_setshow_boolean_cmd ("inferior-events", no_class,
          &print_inferior_events, _("\

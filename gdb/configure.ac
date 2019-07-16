@@ -18,6 +18,8 @@ dnl GNU General Public License for more details.
 dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
+dnl
+dnl  Changes by NEC Corporation for the VE port, 2017-2018
 
 dnl Process this file with autoconf to produce a configure script.
 
@@ -289,6 +291,17 @@ if test x${all_targets} = xtrue; then
     TARGET_OBS='$(ALL_TARGET_OBS)'
   fi
 fi
+
+# VE defines
+#    . ${srcdir}/configure.tgt
+case "${targ}" in
+	ve*-*-linux*)
+cat >>confdefs.h <<_ACEOF
+#define	VE_CUSTOMIZATION	1
+#define	LIBTHREAD_DB_SEARCH_PATH	"/opt/nec/ve/share/gdb/auto-load/lib64"
+_ACEOF
+	;;
+esac
 
 AC_SUBST(TARGET_OBS)
 AC_SUBST(HAVE_NATIVE_GCORE_TARGET)

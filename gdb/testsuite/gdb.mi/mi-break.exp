@@ -182,7 +182,7 @@ proc test_abreak_creation {} {
 }
 
 proc test_ignore_count {} {
-    global line_callme_body
+#    global line_callme_body
 
     mi_gdb_test "-break-insert -i 1 callme" \
         "\\^done,[mi_make_breakpoint -ignore 1]" \
@@ -190,7 +190,7 @@ proc test_ignore_count {} {
 
     mi_run_cmd
 
-    mi_expect_stop "breakpoint-hit" "callme" "\{name=\"i\",value=\"2\"\}" ".*basics.c" $line_callme_body \
+    mi_expect_stop "breakpoint-hit" "callme" "\{name=\"i\",value=\"1\"\}" ".*basics.c" 48 \
         {"" "disp=\"keep\"" } "run to breakpoint with ignore count"
 }
 

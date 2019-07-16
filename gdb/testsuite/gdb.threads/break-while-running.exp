@@ -62,6 +62,13 @@ proc test { update_thread_list always_inserted non_stop } {
 
     delete_breakpoints
 
+    set can_do_cmd 0
+
+    if { !$can_do_cmd } {
+        unsupported "no target support"
+        return
+   }
+
     # Leave the main thread stopped, so GDB can poke at memory freely.
     if {$non_stop == "off"} {
 	gdb_test_no_output "set scheduler-locking on"

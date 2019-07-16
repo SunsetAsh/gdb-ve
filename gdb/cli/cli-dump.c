@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "cli/cli-decode.h"
@@ -103,6 +104,7 @@ fopen_with_cleanup (const char *filename, const char *mode)
   return file;
 }
 
+#ifndef VE_CUSTOMIZATION
 static bfd *
 bfd_openr_with_cleanup (const char *filename, const char *target)
 {
@@ -119,6 +121,7 @@ bfd_openr_with_cleanup (const char *filename, const char *target)
 
   return ibfd;
 }
+#endif
 
 static bfd *
 bfd_openw_with_cleanup (const char *filename, const char *target,
@@ -439,6 +442,7 @@ struct callback_data {
   CORE_ADDR load_end;
 };
 
+#ifndef VE_CUSTOMIZATION
 /* Function: restore_section_callback.
 
    Callback function for bfd_map_over_sections.
@@ -634,6 +638,7 @@ restore_command (char *args_in, int from_tty)
     }
   return;
 }
+#endif
 
 static void
 srec_dump_command (char *cmd, int from_tty)
@@ -814,6 +819,7 @@ Arguments are FILE EXPRESSION.  Writes the value of EXPRESSION\n\
 to the specified FILE in raw target ordered bytes."),
 	   &binary_append_cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   c = add_com ("restore", class_vars, restore_command, _("\
 Restore the contents of FILE to target memory.\n\
 Arguments are FILE OFFSET START END where all except FILE are optional.\n\
@@ -821,5 +827,6 @@ OFFSET will be added to the base address of the file (default zero).\n\
 If START and END are given, only the file contents within that range\n\
 (file relative) will be restored to target memory."));
   c->completer = filename_completer;
+#endif
   /* FIXME: completers for other commands.  */
 }

@@ -26,6 +26,13 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executab
     return -1
 }
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "TLS is unsupported"
+    return
+}
+
 clean_restart ${binfile}
 if ![runto_main] then {
    fail "Can't run to main"
@@ -34,7 +41,6 @@ if ![runto_main] then {
 
 # Formerly: Cannot access memory at address 0x0
 gdb_test "p thread_local" "= 42" "thread local storage"
-
 # Done!
 #
 gdb_exit

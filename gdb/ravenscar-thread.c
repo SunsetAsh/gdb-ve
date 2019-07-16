@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "gdbcore.h"
@@ -436,6 +437,7 @@ _initialize_ravenscar (void)
 
   complete_target_initialization (&ravenscar_ops);
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("ravenscar", no_class, set_ravenscar_command,
                   _("Prefix command for changing Ravenscar-specific settings"),
                   &set_ravenscar_list, "set ravenscar ", 0, &setlist);
@@ -453,4 +455,5 @@ Enable or disable support for task/thread switching with the GNAT\n\
 Ravenscar run-time library for bareboard configuration."),
 			   NULL, show_ravenscar_task_switching_command,
 			   &set_ravenscar_list, &show_ravenscar_list);
+#endif
 }

@@ -39,9 +39,15 @@ proc test {type symbol} {
 	    if [target_info exists gdb,no_hardware_watchpoints] {
 		# The software watchpoint functionality is in GDB an unrelated test.
 		gdb_test_no_output "set can-use-hw-watchpoints 0"
+                geb_test "show can-use-hw-watchpoints"
 	    }
 
 	    gdb_test "show detach-on-fork" "Whether gdb will detach the child of a fork is on\\."
+            if {$type == "child"} {
+                unsupported "child is unsupported"
+                return
+            }
+
 	    gdb_test_no_output "set follow-fork-mode $type"
 	    gdb_test "show follow-fork-mode" "Debugger response to a program call of fork or vfork is \"$type\"\\."
 	    # Testcase uses it for the `follow-fork-mode child' type.
@@ -50,6 +56,13 @@ proc test {type symbol} {
 	    if ![runto_main] {
 		return
 	    }
+
+            set can_do_cmd 0
+
+            if { !$can_do_cmd } {
+                unsupported "watch is unsupported command"
+                return
+            }
 
 	    gdb_test "watch var" "atchpoint \[0-9\]+: var" "Set the watchpoint"
 

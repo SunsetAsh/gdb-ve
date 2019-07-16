@@ -14,6 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 if {[skip_hw_watchpoint_tests]} {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "hw watchpoint is unsupported command"
+    }
     return 0
 }
 

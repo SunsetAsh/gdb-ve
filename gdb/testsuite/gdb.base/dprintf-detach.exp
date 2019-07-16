@@ -65,7 +65,11 @@ proc dprintf_detach_test { breakpoint_always_inserted dprintf_style disconnected
 	}
 
 	# Add a dprintf and detach.
+    if { [istarget ve-nec-linux*] } {
+        unsupported "dprintf function, \"hello\""
+    } else {
 	gdb_test "dprintf function, \"hello\"" "Dprintf .*" "dprintf insertion"
+    }
 	gdb_test "detach" "Detaching from program: .*$escapedbinfile, .*" "detach program"
 
 	gdb_exit

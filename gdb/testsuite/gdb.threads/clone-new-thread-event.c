@@ -28,6 +28,10 @@
 #include <sys/syscall.h>
 
 #include <features.h>
+#ifdef VEOS
+#include <sys/mman.h>
+#endif
+
 #ifdef __UCLIBC__
 #if !(defined(__UCLIBC_HAS_MMU__) || defined(__ARCH_HAS_MMU__))
 #define HAS_NOMMU
@@ -60,22 +64,45 @@ main (int argc, char **argv)
 {
   unsigned char *stack;
   int new_pid;
+#ifdef VEOS
+  unsigned char *tls;
+  unsigned long tid;
+  unsigned long ctid;
+#endif
 
   stack = malloc (STACK_SIZE);
+#ifdef VEOS
+  tls = mmap(NULL, 2 * 1024 * 1024, PROT_READ | PROT_WRITE,
+	     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
+
   assert (stack != NULL);
 
+#ifdef VEOS
+#define CLONE_FLAGS (CLONE_VM |CLONE_FS | CLONE_FILES | CLONE_SIGHAND  \
+                     | CLONE_THREAD | CLONE_SYSVSEM | CLONE_SETTLS      \
+                     | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID       \
+                     | CLONE_DETACHED)
+#endif
+
+#ifndef VEOS
   new_pid = clone (fn, stack + STACK_SIZE, CLONE_FILES
 #if defined(__UCLIBC__) && defined(HAS_NOMMU)
 		   | CLONE_VM
 #endif /* defined(__UCLIBC__) && defined(HAS_NOMMU) */
 		   , NULL, NULL, NULL, NULL);
-  assert (new_pid > 0);
-
   // Wait for the child process to finish, to ensure that SIGUSR1 is caught
   // before the parent dies.
   int new_pid_status = 0;
   int expect_duplicate_pid = waitpid (new_pid, &new_pid_status, __WCLONE);
   assert (expect_duplicate_pid  == new_pid);
+  assert (new_pid > 0);
+#else
+  new_pid = clone (fn, stack + STACK_SIZE, CLONE_FLAGS
+                  , NULL, &tid, tls, &ctid, NULL);
+  assert (new_pid > 0);
+sleep (10);
+#endif
 
   return 0;
 }

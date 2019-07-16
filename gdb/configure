@@ -11,6 +11,9 @@
 #
 # This configure script is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
+#
+# Changes by NEC Corporation for the VE port, 2017-2018
+#
 ## -------------------- ##
 ## M4sh Initialization. ##
 ## -------------------- ##
@@ -710,6 +713,7 @@ PKGVERSION
 HAVE_NATIVE_GCORE_TARGET
 TARGET_OBS
 subdirs
+VEOS_PREFIX
 GDB_DATADIR
 DEBUGDIR
 MAKEINFO_EXTRA_FLAGS
@@ -815,6 +819,7 @@ enable_plugins
 enable_largefile
 enable_build_with_cxx
 with_separate_debug_dir
+with_veos_prefix
 with_gdb_datadir
 with_relocated_sources
 with_auto_load_dir
@@ -5444,6 +5449,16 @@ cat >>confdefs.h <<_ACEOF
 #define BINDIR "$ac_define_dir"
 _ACEOF
 
+# VEOS directory
+if test "${with_veos_prefix+set}" = set; then :
+  withval=$with_veos_prefix;
+    VEOS_PREFIX=$withval
+else
+    VEOS_PREFIX=/opt/nec/ve/veos
+fi
+cat >>confdefs.h <<_ACEOF
+#define	VEOS_PREFIX "$VEOS_PREFIX"
+_ACEOF
 
 
 
@@ -5727,6 +5742,17 @@ _ACEOF
     TARGET_OBS='$(ALL_TARGET_OBS)'
   fi
 fi
+
+# VE defines
+#    . ${srcdir}/configure.tgt
+case "${targ}" in
+	ve*-*-linux*)
+cat >>confdefs.h <<_ACEOF
+#define	VE_CUSTOMIZATION	1
+#define	LIBTHREAD_DB_SEARCH_PATH	"/opt/nec/ve/share/gdb/auto-load/lib64"
+_ACEOF
+	;;
+esac
 
 
 

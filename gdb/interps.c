@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* This is just a first cut at separating out the "interpreter"
    functions of gdb into self-contained modules.  There are a couple

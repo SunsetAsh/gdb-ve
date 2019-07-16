@@ -99,7 +99,11 @@ test_signal_no_handler (void)
 }
 
 static void
+#ifdef VEOS
+test_signal_nested_handler (int x)
+#else
 test_signal_nested_handler ()
+#endif
 {
   test ();
 }

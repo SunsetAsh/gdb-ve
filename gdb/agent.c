@@ -14,6 +14,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "command.h"
@@ -34,6 +35,7 @@ static const char *can_use_agent_enum[] =
 
 static const char *can_use_agent = can_use_agent_off;
 
+#ifndef VE_CUSTOMIZATION
 static void
 show_can_use_agent (struct ui_file *file, int from_tty,
 		    struct cmd_list_element *c, const char *value)
@@ -50,6 +52,7 @@ set_can_use_agent (char *args, int from_tty, struct cmd_list_element *c)
     /* Something wrong during setting, set flag to default value.  */
     can_use_agent = can_use_agent_off;
 }
+#endif
 
 /* -Wmissing-prototypes */
 extern initialize_file_ftype _initialize_agent;
@@ -71,6 +74,7 @@ _initialize_agent (void)
 {
   observer_attach_new_objfile (agent_new_objfile);
 
+#ifndef VE_CUSTOMIZATION
   add_setshow_enum_cmd ("agent", class_run,
 			can_use_agent_enum,
 			&can_use_agent, _("\
@@ -84,4 +88,5 @@ target."),
 			set_can_use_agent,
 			show_can_use_agent,
 			&setlist, &showlist);
+#endif
 }

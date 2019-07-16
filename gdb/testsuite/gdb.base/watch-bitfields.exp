@@ -15,6 +15,11 @@
 
 # This file is part of the gdb testsuite
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+    return -1
+}
+
 standard_testfile
 
 if {[prepare_for_testing "failed to prepare" $testfile $srcfile debug]} {

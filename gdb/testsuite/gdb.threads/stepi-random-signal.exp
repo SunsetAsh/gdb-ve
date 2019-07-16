@@ -36,6 +36,13 @@ if ![runto start] {
 # instructions.  We wouldn't be able to detect whether a stepi makes
 # progress over those.
 gdb_test_no_output "set scheduler-locking on"
+
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+
 gdb_test "thread 1" "Switching to .*"
 gdb_breakpoint $srcfile:[gdb_get_line_number "set break 2 here"]
 gdb_continue_to_breakpoint "loop" ".* set break 2 here .*"

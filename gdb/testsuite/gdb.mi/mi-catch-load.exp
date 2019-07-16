@@ -76,6 +76,11 @@ mi_run_to_main
 
 # test -catch-unload
 mi_gdb_test "111-gdb-set auto-solib-add on" "111\\^done" "catch-unload: auto-solib-add on"
+
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "-catch-unload is unsupported command"
+    return
+}
 mi_gdb_test "222-catch-unload -t mi-catch-load-so.so*" \
     "222\\^done,bkpt=\{number=\"2\",type=\"catchpoint\",disp=\"del\",enabled=\"y\",what=\"unload of library matching mi-catch-load-so\.so\\*\",catch-type=\"unload\",thread-groups=\\\[\"i1\"\\\],times=\"0\"\}" \
     "catch-unload: catch unload"

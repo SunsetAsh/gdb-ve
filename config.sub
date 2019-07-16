@@ -49,6 +49,9 @@ timestamp='2016-05-23'
 # or in some cases, the newer four-part form:
 #	CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM
 # It is wrong to echo any other type of specification.
+#
+# Changes by NEC Corporation for the VE port, 2017-2018
+#
 
 me=`echo "$0" | sed -e 's,.*/,,'`
 
@@ -253,6 +256,7 @@ case $basic_machine in
 	| am33_2.0 \
 	| arc | arceb \
 	| arm | arm[bl]e | arme[lb] | armv[2-8] | armv[3-8][lb] | armv7[arm] \
+	| ve \
 	| avr | avr32 \
 	| ba \
 	| be32 | be64 \
@@ -375,6 +379,7 @@ case $basic_machine in
 	| alpha64-* | alpha64ev[4-8]-* | alpha64ev56-* | alpha64ev6[78]-* \
 	| alphapca5[67]-* | alpha64pca5[67]-* | arc-* | arceb-* \
 	| arm-*  | armbe-* | armle-* | armeb-* | armv*-* \
+	| ve-* \
 	| avr-* | avr32-* \
 	| ba-* \
 	| be32-* | be64-* \

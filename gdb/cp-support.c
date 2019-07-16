@@ -20,6 +20,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "cp-support.h"
@@ -1676,6 +1677,7 @@ first_component_command (char *arg, int from_tty)
 extern initialize_file_ftype _initialize_cp_support; /* -Wmissing-prototypes */
 
 
+#ifndef VE_CUSTOMIZATION
 /* Implement "info vtbl".  */
 
 static void
@@ -1686,6 +1688,7 @@ info_vtbl_command (char *arg, int from_tty)
   value = parse_and_eval (arg);
   cplus_print_vtable (value);
 }
+#endif
 
 void
 _initialize_cp_support (void)
@@ -1706,11 +1709,13 @@ _initialize_cp_support (void)
 	   _("Print the first class/namespace component of NAME."),
 	   &maint_cplus_cmd_list);
 
+#ifndef VE_CUSTOMIZATION
   add_info ("vtbl", info_vtbl_command,
 	    _("Show the virtual function table for a C++ object.\n\
 Usage: info vtbl EXPRESSION\n\
 Evaluate EXPRESSION and display the virtual function table for the\n\
 resulting object."));
+#endif
 
 #ifdef HAVE_WORKING_FORK
   add_setshow_boolean_cmd ("catch-demangler-crashes", class_maintenance,

@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "inferior.h"
@@ -3535,6 +3536,9 @@ insert_dbx_link_breakpoint (procinfo *pi)
    (or possibly wait eventcodes) into gdb internal event codes.
    Returns the id of process (and possibly thread) that incurred the
    event.  Event codes are returned through a pointer parameter.  */
+#ifdef VE_CUSTOMIZATION
+extern pid_t ve_gdb_waitpid(pid_t , int *, int );
+#endif
 
 static ptid_t
 procfs_wait (struct target_ops *ops,
@@ -3579,7 +3583,11 @@ wait_again:
 	      int wait_retval;
 
 	      /* /proc file not found; presumably child has terminated.  */
+#ifdef VE_CUSTOMIZATION
+	      wait_retval = ve_gdb_waitpid(pid,&wstat,0);
+#else
 	      wait_retval = wait (&wstat); /* "wait" for the child's exit.  */
+#endif
 
 	      /* Wrong child?  */
 	      if (wait_retval != ptid_get_pid (inferior_ptid))
@@ -3674,7 +3682,11 @@ wait_again:
 		      }
 		    else
 		      {
+#if VE_CUSTOMIZATION
+			int temp = ve_gdb_waitpid(pid,&wstat,0);
+#else
 			int temp = wait (&wstat);
+#endif
 
 			/* FIXME: shouldn't I make sure I get the right
 			   event from the right process?  If (for

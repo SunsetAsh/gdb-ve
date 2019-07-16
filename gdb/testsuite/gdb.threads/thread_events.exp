@@ -51,7 +51,7 @@ proc gdb_test_thread_start {messages_enabled command pattern message} {
   set events_seen 0
 
   return [gdb_test_multiple $command $message {
-    -re "\\\[New Thread \[^\]\]*\\\]\r\n" {
+    -re "\\\[New LWP \[^\]\]*\\\]\r\n" {
       incr events_seen
       exp_continue
     }
@@ -76,7 +76,7 @@ proc gdb_test_thread_exit {messages_enabled command pattern message} {
   set events_seen 0
 
   return [gdb_test_multiple $command $message {
-    -re "\\\[Thread \[^\]\]* exited\\\]\r\n" {
+    -re "\\\[LWP \[^\]\]* exited\\\]\r\n" {
       incr events_seen
       exp_continue
     }
@@ -128,7 +128,6 @@ proc test_thread_messages {enabled} {
   gdb_test_thread_start $enabled "continue" \
        ".*Breakpoint .*,.*threadfunc.*at.*$srcfile:.*" \
        "continue to threadfunc $enabled_string"
-
   # continue to after_join_func breakpoint.  A thread will exit.
   # Expect to see a thread exit message, if messages are enabled.
   gdb_test_thread_exit $enabled "continue" \

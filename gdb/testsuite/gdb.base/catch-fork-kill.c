@@ -19,7 +19,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#ifdef VEOS
 #include <sys/wait.h>
+#endif
 
 int fds[2] = { -1, -1 };
 

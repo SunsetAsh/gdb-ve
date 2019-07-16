@@ -36,9 +36,13 @@ proc test_watchpoint_across_vfork { hw teststr } {
 	gdb_test_no_output "set can-use-hw-watchpoints 0" ""
     }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+} else {
     gdb_test "watch global" \
 	"atchpoint .*: global" \
 	"Watchpoint on global variable ($teststr)"
+}
 
     gdb_test "continue" \
 	"atchpoint .*: global.*" \

@@ -38,6 +38,14 @@ if { [gdb_compile_shlib_pthreads ${srcdir}/${subdir}/${srcfile_lib} ${binfile_li
 clean_restart ${binfile}
 gdb_load_shlib ${binfile_lib}
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "TLS is unsupported"
+    return
+}
+
+
 if ![runto_main] then {
     fail "Can't run to main"
     return 0

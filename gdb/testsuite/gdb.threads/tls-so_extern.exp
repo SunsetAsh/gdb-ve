@@ -33,6 +33,10 @@ if { [gdb_compile_shlib_pthreads ${srcdir}/${subdir}/${srcfile_lib} ${binfile_li
     return -1
 }
 
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "TLS is unsupported"
+    return
+}
 
 clean_restart ${binfile}
 gdb_load_shlib ${binfile_lib}

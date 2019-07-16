@@ -42,6 +42,13 @@ if ![runto_main] {
 
 # Make sure it's GDB's decr_pc logic that's being tested, not the
 # target's.
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_test_no_output "set range-stepping off"
 
 delete_breakpoints

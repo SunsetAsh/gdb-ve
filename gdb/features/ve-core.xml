@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<!-- Copyright (C) 2007-2016 Free Software Foundation, Inc.
+
+     Copying and distribution of this file, with or without modification,
+     are permitted in any medium without royalty provided the copyright
+     notice and this notice are preserved.  -->
+<!-- Changes by NEC Corporation for the VE port, 2017-2018 -->
+
+<!DOCTYPE feature SYSTEM "gdb-target.dtd">
+<feature name="org.gnu.gdb.ve.core">
+  <reg name="usrcc" bitsize="64" type="uint64"/>
+  <reg name="pmc0" bitsize="64" type="uint64"/>
+  <reg name="pmc1" bitsize="64" type="uint64"/>
+  <reg name="pmc2" bitsize="64" type="uint64"/>
+  <reg name="pmc3" bitsize="64" type="uint64"/>
+  <reg name="pmc4" bitsize="64" type="uint64"/>
+  <reg name="pmc5" bitsize="64" type="uint64"/>
+  <reg name="pmc6" bitsize="64" type="uint64"/>
+  <reg name="pmc7" bitsize="64" type="uint64"/>
+  <reg name="pmc8" bitsize="64" type="uint64"/>
+  <reg name="pmc9" bitsize="64" type="uint64"/>
+  <reg name="pmc10" bitsize="64" type="uint64"/>
+  <reg name="pmc11" bitsize="64" type="uint64"/>
+  <reg name="pmc12" bitsize="64" type="uint64"/>
+  <reg name="pmc13" bitsize="64" type="uint64"/>
+  <reg name="pmc14" bitsize="64" type="uint64"/>
+  <reg name="pmc15" bitsize="64" type="uint64"/>
+  <reg name="psw" bitsize="64" type="uint64"/>
+  <reg name="exs" bitsize="64" type="uint64"/>
+  <reg name="ic" bitsize="64" type="code_ptr"/>
+  <reg name="ice" bitsize="64" type="uint64"/>
+  <reg name="vixr" bitsize="64" type="uint64"/>
+  <reg name="vl" bitsize="64" type="uint64"/>
+  <reg name="sar" bitsize="64" type="uint64"/>
+  <reg name="pmmr" bitsize="64" type="uint64"/>
+  <reg name="pmcr0" bitsize="64" type="uint64"/>
+  <reg name="pmcr1" bitsize="64" type="uint64"/>
+  <reg name="pmcr2" bitsize="64" type="uint64"/>
+  <reg name="pmcr3" bitsize="64" type="uint64"/>
+  <reg name="s0" bitsize="64" type="uint64"/>
+  <reg name="s1" bitsize="64" type="uint64"/>
+  <reg name="s2" bitsize="64" type="uint64"/>
+  <reg name="s3" bitsize="64" type="uint64"/>
+  <reg name="s4" bitsize="64" type="uint64"/>
+  <reg name="s5" bitsize="64" type="uint64"/>
+  <reg name="s6" bitsize="64" type="uint64"/>
+  <reg name="s7" bitsize="64" type="uint64"/>
+  <reg name="s8" bitsize="64" type="uint64"/>
+  <reg name="fp" bitsize="64" type="data_ptr"/>
+  <reg name="s10" bitsize="64" type="uint64"/>
+  <reg name="sp" bitsize="64" type="data_ptr"/>
+  <reg name="s12" bitsize="64" type="uint64"/>
+  <reg name="s13" bitsize="64" type="uint64"/>
+  <reg name="s14" bitsize="64" type="uint64"/>
+  <reg name="s15" bitsize="64" type="uint64"/>
+  <reg name="s16" bitsize="64" type="uint64"/>
+  <reg name="s17" bitsize="64" type="uint64"/>
+  <reg name="s18" bitsize="64" type="uint64"/>
+  <reg name="s19" bitsize="64" type="uint64"/>
+  <reg name="s20" bitsize="64" type="uint64"/>
+  <reg name="s21" bitsize="64" type="uint64"/>
+  <reg name="s22" bitsize="64" type="uint64"/>
+  <reg name="s23" bitsize="64" type="uint64"/>
+  <reg name="s24" bitsize="64" type="uint64"/>
+  <reg name="s25" bitsize="64" type="uint64"/>
+  <reg name="s26" bitsize="64" type="uint64"/>
+  <reg name="s27" bitsize="64" type="uint64"/>
+  <reg name="s28" bitsize="64" type="uint64"/>
+  <reg name="s29" bitsize="64" type="uint64"/>
+  <reg name="s30" bitsize="64" type="uint64"/>
+  <reg name="s31" bitsize="64" type="uint64"/>
+  <reg name="s32" bitsize="64" type="uint64"/>
+  <reg name="s33" bitsize="64" type="uint64"/>
+  <reg name="s34" bitsize="64" type="uint64"/>
+  <reg name="s35" bitsize="64" type="uint64"/>
+  <reg name="s36" bitsize="64" type="uint64"/>
+  <reg name="s37" bitsize="64" type="uint64"/>
+  <reg name="s38" bitsize="64" type="uint64"/>
+  <reg name="s39" bitsize="64" type="uint64"/>
+  <reg name="s40" bitsize="64" type="uint64"/>
+  <reg name="s41" bitsize="64" type="uint64"/>
+  <reg name="s42" bitsize="64" type="uint64"/>
+  <reg name="s43" bitsize="64" type="uint64"/>
+  <reg name="s44" bitsize="64" type="uint64"/>
+  <reg name="s45" bitsize="64" type="uint64"/>
+  <reg name="s46" bitsize="64" type="uint64"/>
+  <reg name="s47" bitsize="64" type="uint64"/>
+  <reg name="s48" bitsize="64" type="uint64"/>
+  <reg name="s49" bitsize="64" type="uint64"/>
+  <reg name="s50" bitsize="64" type="uint64"/>
+  <reg name="s51" bitsize="64" type="uint64"/>
+  <reg name="s52" bitsize="64" type="uint64"/>
+  <reg name="s53" bitsize="64" type="uint64"/>
+  <reg name="s54" bitsize="64" type="uint64"/>
+  <reg name="s55" bitsize="64" type="uint64"/>
+  <reg name="s56" bitsize="64" type="uint64"/>
+  <reg name="s57" bitsize="64" type="uint64"/>
+  <reg name="s58" bitsize="64" type="uint64"/>
+  <reg name="s59" bitsize="64" type="uint64"/>
+  <reg name="s60" bitsize="64" type="uint64"/>
+  <reg name="s61" bitsize="64" type="uint64"/>
+  <reg name="s62" bitsize="64" type="uint64"/>
+  <reg name="s63" bitsize="64" type="uint64"/>
+
+  <vector id="v4u" type="uint64" count="4"/>
+  <union id="v4u64">
+    <field name="v4_uint64" type="v4u"/>
+  </union>
+  <reg name="vm0" bitsize="256" type="v4u64"/>
+  <reg name="vm1" bitsize="256" type="v4u64"/>
+  <reg name="vm2" bitsize="256" type="v4u64"/>
+  <reg name="vm3" bitsize="256" type="v4u64"/>
+  <reg name="vm4" bitsize="256" type="v4u64"/>
+  <reg name="vm5" bitsize="256" type="v4u64"/>
+  <reg name="vm6" bitsize="256" type="v4u64"/>
+  <reg name="vm7" bitsize="256" type="v4u64"/>
+  <reg name="vm8" bitsize="256" type="v4u64"/>
+  <reg name="vm9" bitsize="256" type="v4u64"/>
+  <reg name="vm10" bitsize="256" type="v4u64"/>
+  <reg name="vm11" bitsize="256" type="v4u64"/>
+  <reg name="vm12" bitsize="256" type="v4u64"/>
+  <reg name="vm13" bitsize="256" type="v4u64"/>
+  <reg name="vm14" bitsize="256" type="v4u64"/>
+  <reg name="vm15" bitsize="256" type="v4u64"/>
+
+  <vector id="v256d" type="ieee_double" count="256"/>
+  <union id="vec64">
+    <field name="v256_double" type="v256d"/>
+  </union>
+  <reg name="v0" bitsize="16384" type="vec64"/>
+  <reg name="v1" bitsize="16384" type="vec64"/>
+  <reg name="v2" bitsize="16384" type="vec64"/>
+  <reg name="v3" bitsize="16384" type="vec64"/>
+  <reg name="v4" bitsize="16384" type="vec64"/>
+  <reg name="v5" bitsize="16384" type="vec64"/>
+  <reg name="v6" bitsize="16384" type="vec64"/>
+  <reg name="v7" bitsize="16384" type="vec64"/>
+  <reg name="v8" bitsize="16384" type="vec64"/>
+  <reg name="v9" bitsize="16384" type="vec64"/>
+  <reg name="v10" bitsize="16384" type="vec64"/>
+  <reg name="v11" bitsize="16384" type="vec64"/>
+  <reg name="v12" bitsize="16384" type="vec64"/>
+  <reg name="v13" bitsize="16384" type="vec64"/>
+  <reg name="v14" bitsize="16384" type="vec64"/>
+  <reg name="v15" bitsize="16384" type="vec64"/>
+  <reg name="v16" bitsize="16384" type="vec64"/>
+  <reg name="v17" bitsize="16384" type="vec64"/>
+  <reg name="v18" bitsize="16384" type="vec64"/>
+  <reg name="v19" bitsize="16384" type="vec64"/>
+  <reg name="v20" bitsize="16384" type="vec64"/>
+  <reg name="v21" bitsize="16384" type="vec64"/>
+  <reg name="v22" bitsize="16384" type="vec64"/>
+  <reg name="v23" bitsize="16384" type="vec64"/>
+  <reg name="v24" bitsize="16384" type="vec64"/>
+  <reg name="v25" bitsize="16384" type="vec64"/>
+  <reg name="v26" bitsize="16384" type="vec64"/>
+  <reg name="v27" bitsize="16384" type="vec64"/>
+  <reg name="v28" bitsize="16384" type="vec64"/>
+  <reg name="v29" bitsize="16384" type="vec64"/>
+  <reg name="v30" bitsize="16384" type="vec64"/>
+  <reg name="v31" bitsize="16384" type="vec64"/>
+  <reg name="v32" bitsize="16384" type="vec64"/>
+  <reg name="v33" bitsize="16384" type="vec64"/>
+  <reg name="v34" bitsize="16384" type="vec64"/>
+  <reg name="v35" bitsize="16384" type="vec64"/>
+  <reg name="v36" bitsize="16384" type="vec64"/>
+  <reg name="v37" bitsize="16384" type="vec64"/>
+  <reg name="v38" bitsize="16384" type="vec64"/>
+  <reg name="v39" bitsize="16384" type="vec64"/>
+  <reg name="v40" bitsize="16384" type="vec64"/>
+  <reg name="v41" bitsize="16384" type="vec64"/>
+  <reg name="v42" bitsize="16384" type="vec64"/>
+  <reg name="v43" bitsize="16384" type="vec64"/>
+  <reg name="v44" bitsize="16384" type="vec64"/>
+  <reg name="v45" bitsize="16384" type="vec64"/>
+  <reg name="v46" bitsize="16384" type="vec64"/>
+  <reg name="v47" bitsize="16384" type="vec64"/>
+  <reg name="v48" bitsize="16384" type="vec64"/>
+  <reg name="v49" bitsize="16384" type="vec64"/>
+  <reg name="v50" bitsize="16384" type="vec64"/>
+  <reg name="v51" bitsize="16384" type="vec64"/>
+  <reg name="v52" bitsize="16384" type="vec64"/>
+  <reg name="v53" bitsize="16384" type="vec64"/>
+  <reg name="v54" bitsize="16384" type="vec64"/>
+  <reg name="v55" bitsize="16384" type="vec64"/>
+  <reg name="v56" bitsize="16384" type="vec64"/>
+  <reg name="v57" bitsize="16384" type="vec64"/>
+  <reg name="v58" bitsize="16384" type="vec64"/>
+  <reg name="v59" bitsize="16384" type="vec64"/>
+  <reg name="v60" bitsize="16384" type="vec64"/>
+  <reg name="v61" bitsize="16384" type="vec64"/>
+  <reg name="v62" bitsize="16384" type="vec64"/>
+  <reg name="v63" bitsize="16384" type="vec64"/>
+</feature>

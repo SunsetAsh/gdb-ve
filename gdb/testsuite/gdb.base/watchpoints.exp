@@ -15,6 +15,10 @@
 
 # This file was written by Pierre Muller. (muller@ics.u-strasbg.fr)
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsuppored watch command."
+    return -1
+}
 
 standard_testfile
 

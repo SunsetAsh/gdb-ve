@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* Remote async notification is sent from remote target over RSP.
    Each type of notification is represented by an object of
@@ -270,6 +271,19 @@ remote_notif_state_xfree (struct remote_notif_state *state)
   xfree (state);
 }
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  notif_debug = 0;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 /* -Wmissing-prototypes */
 extern initialize_file_ftype _initialize_notif;
 
@@ -282,7 +296,7 @@ Set debugging of async remote notification."), _("\
 Show debugging of async remote notification."), _("\
 When non-zero, debugging output about async remote notifications"
 " is enabled."),
-			   NULL,
+			   VE_SET_FUNC,
 			   NULL,
 			   &setdebuglist, &showdebuglist);
 }

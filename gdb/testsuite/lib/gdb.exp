@@ -506,7 +506,12 @@ proc runto { function args } {
     
     # the "at foo.c:36" output we get with -g.
     # the "in func" output we get without -g.
-    gdb_expect 30 {
+    if {[istarget "ve-nec-linux*"]} {
+	set ve_timeout 360
+    } else {
+	set ve_timeout 30
+    }
+    gdb_expect $ve_timeout {
 	-re "Break.* at .*:$decimal.*$gdb_prompt $" {
 	    if { $print_pass } {
 		pass $test_name
@@ -3455,7 +3460,7 @@ proc gdb_compile {source dest type options} {
 	      || [istarget *-*-cygwin*]
 	      || [istarget *-*-pe*]) } {
 	    # Do not need anything.
-	} elseif { [istarget *-*-freebsd*] || [istarget *-*-openbsd*] } {
+	} elseif { [istarget *-*-freebsd*] || [istarget *-*-openbsd*] || [istarget "ve-nec-linux*"] } {
 	    lappend new_options "ldflags=-Wl,-rpath,${outdir}"
 	} elseif { [istarget arm*-*-symbianelf*] } {
 	    if { $shlib_load } {
@@ -3551,6 +3556,9 @@ proc gdb_compile {source dest type options} {
     regsub "\[\r\n\]*$" "$result" "" result
     regsub "^\[\r\n\]*" "$result" "" result
     
+    if { [istarget ve-nec-linux*] } {
+	set built_failed [regsub "target_compile_failed" $result "" result]
+    }
     if {[lsearch $options quiet] < 0} {
 	# We shall update this on a per language basis, to avoid
 	# changing the entire testsuite in one go.
@@ -3560,6 +3568,11 @@ proc gdb_compile {source dest type options} {
 	    gdb_compile_test $source $result
 	} elseif { $result != "" } {
 	    clone_output "gdb compile failed, $result"
+	}
+    }
+    if { [istarget ve-nec-linux*] } {
+	if {!$built_failed} {
+	    set result ""
 	}
     }
     return $result
@@ -4094,6 +4107,13 @@ proc spawn_wait_for_attach { executable_list } {
 	# spawn we control when to wait for/reap the process.  That
 	# allows killing the process by PID without being subject to
 	# pid-reuse races.
+        if {[istarget "ve-nec-linux*"]} {
+            set dobinary "/opt/nec/ve/bin/ve_exec"
+            set executable "${dobinary} $executable"
+        } else {
+            set executable "$executable"
+        }
+
 	lappend spawn_id_list [remote_spawn target $executable]
     }
 
@@ -4157,6 +4177,10 @@ proc gdb_gcore_cmd {core test} {
     global gdb_prompt
 
     set result 0
+    if { [istarget ve-nec-linux*] } {
+	unsupported $test
+	return $result
+    }
     gdb_test_multiple "gcore $core" $test {
 	-re "Saved corefile .*\[\r\n\]+$gdb_prompt $" {
 	    pass $test
@@ -5629,7 +5653,13 @@ if {[info exists GDB_PARALLEL]} {
 proc core_find {binfile {deletefiles {}} {arg ""}} {
     global objdir subdir
 
-    set destcore "$binfile.core"
+    if {[istarget "ve-nec-linux*"]} {
+        set destcore "$binfile.core.ve"
+    } else {
+        set destcore "$binfile.core"
+    }
+
+#    set destcore "$binfile.core"
     file delete $destcore
 
     # Create a core file named "$destcore" rather than just "core", to
@@ -5648,7 +5678,13 @@ proc core_find {binfile {deletefiles {}} {arg ""}} {
     set found 0
     set coredir [standard_output_file coredir.[getpid]]
     file mkdir $coredir
-    catch "system \"(cd ${coredir}; ulimit -c unlimited; ${binfile} ${arg}; true) >/dev/null 2>&1\""
+    if {[istarget "ve-nec-linux*"]} {
+        set dobinary "/opt/nec/ve/bin/ve_exec"
+        catch "system \"(cd ${coredir}; ulimit -c unlimited; ${dobinary} ${binfile} ${arg}; true) >/dev/null 2>&1\""
+    } else {
+        catch "system \"(cd ${coredir}; ulimit -c unlimited; ${binfile} ${arg}; true) >/dev/null 2>&1\""
+    }
+#    catch "system \"(cd ${coredir}; ulimit -c unlimited; ${binfile} ${arg}; true) >/dev/null 2>&1\""
     #      remote_exec host "${binfile}"
     foreach i "${coredir}/core ${coredir}/core.coremaker.c ${binfile}.core" {
 	if [remote_file build exists $i] {

@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "arch-utils.h"
@@ -164,6 +165,7 @@ char *trace_notes = NULL;
 
 char *trace_stop_notes = NULL;
 
+#ifndef VE_CUSTOMIZATION
 /* ======= Important command functions: ======= */
 static void trace_actions_command (char *, int);
 static void trace_start_command (char *, int);
@@ -176,6 +178,7 @@ static void trace_find_line_command (char *, int);
 static void trace_find_range_command (char *, int);
 static void trace_find_outside_command (char *, int);
 static void trace_dump_command (char *, int);
+#endif
 
 /* support routines */
 
@@ -339,6 +342,7 @@ find_trace_state_variable_by_number (int number)
   return NULL;
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 delete_trace_state_variable (const char *name)
 {
@@ -358,6 +362,7 @@ delete_trace_state_variable (const char *name)
 
   warning (_("No trace variable named \"$%s\", not deleting"), name);
 }
+#endif
 
 /* Throws an error if NAME is not valid syntax for a trace state
    variable's name.  */
@@ -383,6 +388,7 @@ validate_trace_state_variable_name (const char *name)
     error (_("$%s is not a valid trace state variable name"), name);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The 'tvariable' command collects a name and optional expression to
    evaluate into an initial value.  */
 
@@ -478,6 +484,7 @@ delete_trace_variable_command (char *args, int from_tty)
 
   dont_repeat ();
 }
+#endif
 
 void
 tvariables_info_1 (void)
@@ -543,6 +550,7 @@ tvariables_info_1 (void)
   do_cleanups (back_to);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* List all the trace state variables.  */
 
 static void
@@ -550,6 +558,7 @@ tvariables_info (char *args, int from_tty)
 {
   tvariables_info_1 ();
 }
+#endif
 
 /* Stash definitions of tsvs into the given file.  */
 
@@ -645,6 +654,7 @@ decode_agent_options (const char *exp, int *trace_string)
   return exp;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Enter a list of actions for a tracepoint.  */
 static void
 trace_actions_command (char *args, int from_tty)
@@ -667,6 +677,7 @@ trace_actions_command (char *args, int from_tty)
     }
   /* else just return */
 }
+#endif
 
 /* Report the results of checking the agent expression, as errors or
    internal errors.  */
@@ -1892,6 +1903,7 @@ start_tracing (char *notes)
   current_trace_status()->running = 1;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The tstart command requests the target to start a new trace run.
    The command passes any arguments it has to the target verbatim, as
    an optional "trace note".  This is useful as for instance a warning
@@ -1926,6 +1938,7 @@ trace_stop_command (char *args, int from_tty)
 
   stop_tracing (args);
 }
+#endif
 
 void
 stop_tracing (char *note)
@@ -1974,6 +1987,7 @@ stop_tracing (char *note)
   current_trace_status ()->running = 0;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* tstatus command */
 static void
 trace_status_command (char *args, int from_tty)
@@ -2131,6 +2145,7 @@ trace_status_command (char *args, int from_tty)
 
   VEC_free (breakpoint_p, tp_vec);
 }
+#endif
 
 /* Report the trace status to uiout, in a way suitable for MI, and not
    suitable for CLI.  If ON_STOP is true, suppress a few fields that
@@ -2461,6 +2476,7 @@ check_trace_running (struct trace_status *status)
    T<hexnum>    (gives the selected tracepoint number)
  */
 
+#ifndef VE_CUSTOMIZATION
 /* tfind command */
 static void
 trace_find_command (char *args, int from_tty)
@@ -2691,6 +2707,7 @@ trace_find_outside_command (char *args, int from_tty)
 
   tfind_1 (tfind_outside, 0, start, stop, from_tty);
 }
+#endif
 
 /* info scope command: list the locals for a scope.  */
 static void
@@ -2861,6 +2878,7 @@ scope_info (char *args, int from_tty)
   do_cleanups (back_to);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Helper for trace_dump_command.  Dump the action list starting at
    ACTION.  STEPPING_ACTIONS is true if we're iterating over the
    actions of the body of a while-stepping action.  STEPPING_FRAME is
@@ -2966,6 +2984,7 @@ trace_dump_actions (struct command_line *action,
 	}
     }
 }
+#endif
 
 /* Return bp_location of the tracepoint associated with the current
    traceframe.  Set *STEPPING_FRAME_P to 1 if the current traceframe
@@ -3044,6 +3063,7 @@ all_tracepoint_actions_and_cleanup (struct breakpoint *t)
   return actions;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The tdump command.  */
 
 static void
@@ -3073,6 +3093,7 @@ trace_dump_command (char *args, int from_tty)
 
   do_cleanups (old_chain);
 }
+#endif
 
 /* Encode a piece of a tracepoint's source-level definition in a form
    that is suitable for both protocol and saving in files.  */
@@ -3101,6 +3122,9 @@ static void
 set_disconnected_tracing (char *args, int from_tty,
 			  struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  disconnected_tracing = 0;
+#endif
   target_set_disconnected_tracing (disconnected_tracing);
 }
 
@@ -3108,6 +3132,9 @@ static void
 set_circular_trace_buffer (char *args, int from_tty,
 			   struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  circular_trace_buffer = 0;
+#endif
   target_set_circular_trace_buffer (circular_trace_buffer);
 }
 
@@ -3115,6 +3142,9 @@ static void
 set_trace_buffer_size (char *args, int from_tty,
 			   struct cmd_list_element *c)
 {
+#ifdef VE_CUSTOMIZATION
+  trace_buffer_size = -1;
+#endif
   target_set_trace_buffer_size (trace_buffer_size);
 }
 
@@ -3124,6 +3154,11 @@ set_trace_user (char *args, int from_tty,
 {
   int ret;
 
+#ifdef VE_CUSTOMIZATION
+  if (trace_user)
+    xfree (trace_user);
+  trace_user = NULL;
+#endif
   ret = target_set_trace_notes (trace_user, NULL, NULL);
 
   if (!ret)
@@ -3136,6 +3171,11 @@ set_trace_notes (char *args, int from_tty,
 {
   int ret;
 
+#ifdef VE_CUSTOMIZATION
+  if (trace_notes)
+    xfree (trace_notes);
+  trace_notes = NULL;
+#endif
   ret = target_set_trace_notes (NULL, trace_notes, NULL);
 
   if (!ret)
@@ -3148,6 +3188,11 @@ set_trace_stop_notes (char *args, int from_tty,
 {
   int ret;
 
+#ifdef VE_CUSTOMIZATION
+  if (trace_stop_notes)
+    xfree (trace_stop_notes);
+  trace_stop_notes = NULL;
+#endif
   ret = target_set_trace_notes (NULL, NULL, trace_stop_notes);
 
   if (!ret)
@@ -3952,6 +3997,7 @@ release_static_tracepoint_marker (struct static_tracepoint_marker *marker)
   marker->str_id = NULL;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Print MARKER to gdb_stdout.  */
 
 static void
@@ -4117,6 +4163,7 @@ info_static_tracepoint_markers_command (char *arg, int from_tty)
 
   do_cleanups (old_chain);
 }
+#endif
 
 /* The $_sdata convenience variable is a bit special.  We don't know
    for sure type of the value until we actually have a chance to fetch
@@ -4344,6 +4391,21 @@ static const struct internalvar_funcs sdata_funcs =
   NULL
 };
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (default_collect)
+    xfree (default_collect);
+  default_collect = xstrdup ("");
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 /* module initialization */
 void
 _initialize_tracepoint (void)
@@ -4366,6 +4428,7 @@ _initialize_tracepoint (void)
 	   _("Tracing of program execution without stopping the program."),
 	   &cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   add_com ("tdump", class_trace, trace_dump_command,
 	   _("Print everything collected at the current tracepoint."));
 
@@ -4447,6 +4510,7 @@ Start trace data collection.\n\
 Usage: tstart [ <notes> ... ]\n\
 Any arguments supplied are recorded with the trace as a note and\n\
 reported by tstatus (if the target supports trace notes)."));
+#endif
 
   add_com ("end", class_trace, end_actions_pseudocommand, _("\
 Ends a list of commands or actions.\n\
@@ -4455,6 +4519,7 @@ Entering \"end\" on a line by itself is the normal way to terminate\n\
 such a list.\n\n\
 Note: the \"end\" command cannot be used at the gdb prompt."));
 
+#ifndef VE_CUSTOMIZATION
   add_com ("while-stepping", class_trace, while_stepping_pseudocommand, _("\
 Specify single-stepping behavior at a tracepoint.\n\
 Argument is number of instructions to trace in single-step mode\n\
@@ -4488,13 +4553,14 @@ Specify the actions to be taken at a tracepoint.\n\
 Tracepoint actions may include collecting of specified data,\n\
 single-stepping, or enabling/disabling other tracepoints,\n\
 depending on target's capabilities."));
+#endif
 
   default_collect = xstrdup ("");
   add_setshow_string_cmd ("default-collect", class_trace,
 			  &default_collect, _("\
 Set the list of expressions to collect by default"), _("\
 Show the list of expressions to collect by default"), NULL,
-			  NULL, NULL,
+			  VE_SET_FUNC, NULL,
 			  &setlist, &showlist);
 
   add_setshow_boolean_cmd ("disconnected-tracing", no_class,

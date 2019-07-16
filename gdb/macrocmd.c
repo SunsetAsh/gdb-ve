@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 
 #include "defs.h"
@@ -28,6 +29,7 @@
 #include "linespec.h"
 
 
+#ifndef VE_CUSTOMIZATION
 /* The `macro' prefix command.  */
 
 static struct cmd_list_element *macrolist;
@@ -39,6 +41,7 @@ macro_command (char *arg, int from_tty)
     ("\"macro\" must be followed by the name of a macro command.\n");
   help_list (macrolist, "macro ", all_commands, gdb_stdout);
 }
+#endif
 
 
 
@@ -52,6 +55,7 @@ macro_inform_no_debuginfo (void)
   puts_filtered ("GDB has no preprocessor macro information for that code.\n");
 }
 
+#ifndef VE_CUSTOMIZATION
 static void
 macro_expand_command (char *exp, int from_tty)
 {
@@ -119,6 +123,7 @@ macro_expand_once_command (char *exp, int from_tty)
   do_cleanups (cleanup_chain);
   return;
 }
+#endif
 
 /*  Outputs the include path of a macro starting at FILE and LINE to STREAM.
 
@@ -302,6 +307,7 @@ info_macros_command (char *args, int from_tty)
 }
 
 
+#ifndef VE_CUSTOMIZATION
 /* User-defined macros.  */
 
 static void
@@ -488,6 +494,7 @@ macro_list_command (char *exp, int from_tty)
 {
   macro_for_each (macro_user_macros, print_one_macro, NULL);
 }
+#endif
 
 
 /* Initializing the `macrocmd' module.  */
@@ -497,6 +504,7 @@ extern initialize_file_ftype _initialize_macrocmd; /* -Wmissing-prototypes */
 void
 _initialize_macrocmd (void)
 {
+#ifndef VE_CUSTOMIZATION
   /* We introduce a new command prefix, `macro', under which we'll put
      the various commands for working with preprocessor macros.  */
   add_prefix_cmd ("macro", class_info, macro_command,
@@ -521,6 +529,7 @@ whereas `macro expand' shows you how all the macros involved in an\n\
 expression work together to yield a pre-processed expression."),
 	   &macrolist);
   add_alias_cmd ("exp1", "expand-once", no_class, 1, &macrolist);
+#endif
 
   add_info ("macro", info_macro_command,
 	    _("Show the definition of MACRO, and it's source location.\n\
@@ -535,6 +544,7 @@ Options: \n\
 source location.\n\
 Usage: info macros [LINESPEC]"));
 
+#ifndef VE_CUSTOMIZATION
   add_cmd ("define", no_class, macro_define_command, _("\
 Define a new C/C++ preprocessor macro.\n\
 The GDB command `macro define DEFINITION' is equivalent to placing a\n\
@@ -552,4 +562,5 @@ Remove the definition of the C/C++ preprocessor macro with the given name."),
   add_cmd ("list", no_class, macro_list_command,
 	   _("List all the macros defined using the `macro define' command."),
 	   &macrolist);
+#endif
 }

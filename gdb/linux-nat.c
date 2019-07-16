@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "inferior.h"
@@ -69,6 +70,12 @@
 #include "objfiles.h"
 #include "nat/linux-namespaces.h"
 #include "fileio.h"
+
+#ifdef VE_CUSTOMIZATION
+#include "ve-ptrace.h"
+#include "ve-tdep.h"	/* for ve_gdb_waitpid() */
+#include "nat/ve-linux-procfs.h"
+#endif
 
 #ifndef SPUFS_MAGIC
 #define SPUFS_MAGIC 0x23c9b64e
@@ -509,7 +516,39 @@ linux_child_follow_fork (struct target_ops *ops, int follow_child,
 
 	  if (linux_nat_prepare_to_resume != NULL)
 	    linux_nat_prepare_to_resume (child_lp);
+#ifdef VE_CUSTOMIZATION
+
+	  /* When debugging an inferior in an architecture that supports
+	     hardware single stepping on a kernel without commit
+	     6580807da14c423f0d0a708108e6df6ebc8bc83d, the vfork child
+	     process starts with the TIF_SINGLESTEP/X86_EFLAGS_TF bits
+	     set if the parent process had them set.
+	     To work around this, single step the child process
+	     once before detaching to clear the flags.  */
+
+	  if (!gdbarch_software_single_step_p (target_thread_architecture
+						   (child_lp->ptid)))
+	    {
+	      linux_disable_event_reporting (child_pid);
+	      if (ptrace_func (PTRACE_SINGLESTEP, child_pid, 0, 0) < 0)
+		perror_with_name (_("Couldn't do single step"));
+	      if (ve_gdb_waitpid(child_pid, &status, 0) < 0)
+		perror_with_name (_("Couldn't wait vfork process"));
+	    }
+
+	  if (WIFSTOPPED (status))
+	    {
+	      int signo;
+
+	      signo = WSTOPSIG (status);
+	      if (signo != 0
+		  && !signal_pass_state (gdb_signal_from_host (signo)))
+		signo = 0;
+	      ptrace_func (PTRACE_DETACH, child_pid, 0, (void *)signo);
+	    }
+#else
 	  ptrace (PTRACE_DETACH, child_pid, 0, 0);
+#endif
 
 	  /* Resets value of inferior_ptid to parent ptid.  */
 	  do_cleanups (old_chain);
@@ -1051,13 +1090,17 @@ linux_nat_post_attach_wait (ptid_t ptid, int first, int *signalled)
 
       /* Finally, resume the stopped process.  This will deliver the SIGSTOP
 	 (or a higher priority signal, just like normal PTRACE_ATTACH).  */
-      ptrace (PTRACE_CONT, pid, 0, 0);
+      ptrace_func (PTRACE_CONT, pid, 0, 0);
     }
 
   /* Make sure the initial process is stopped.  The user-level threads
      layer might want to poke around in the inferior, and that won't
      work if things haven't stabilized yet.  */
+#ifdef VE_CUSTOMIZATION
+  new_pid = ve_gdb_waitpid (pid, &status, __WALL);
+#else
   new_pid = my_waitpid (pid, &status, __WALL);
+#endif
   gdb_assert (pid == new_pid);
 
   if (!WIFSTOPPED (status))
@@ -1115,7 +1158,7 @@ attach_proc_task_lwp_callback (ptid_t ptid)
     {
       int lwpid = ptid_get_lwp (ptid);
 
-      if (ptrace (PTRACE_ATTACH, lwpid, 0, 0) < 0)
+      if (ptrace_func (PTRACE_ATTACH, lwpid, 0, 0) < 0)
 	{
 	  int err = errno;
 
@@ -1837,6 +1880,15 @@ linux_handle_syscall_trap (struct lwp_info *lp, int stopping)
   struct target_waitstatus *ourstatus = &lp->waitstatus;
   struct gdbarch *gdbarch = target_thread_architecture (lp->ptid);
   int syscall_number = (int) gdbarch_get_syscall_number (gdbarch, lp->ptid);
+#ifdef	VE_CUSTOMIZATION
+  /* Now , lp->syscall_state is set TARGET_WAITKIND_SYSCALL_RETURN.
+     syscall number is not set from syscall return, so gdb 
+     has to use lp->waitstatus */
+  if (lp->syscall_state == TARGET_WAITKIND_SYSCALL_ENTRY)
+    {
+      syscall_number = ourstatus->value.syscall_number;
+    }
+#endif
 
   if (stopping)
     {
@@ -1869,7 +1921,7 @@ linux_handle_syscall_trap (struct lwp_info *lp, int stopping)
 			    ptid_get_lwp (lp->ptid));
 
       lp->syscall_state = TARGET_WAITKIND_IGNORE;
-      ptrace (PTRACE_CONT, ptid_get_lwp (lp->ptid), 0, 0);
+      ptrace_func (PTRACE_CONT, ptid_get_lwp (lp->ptid), 0, 0);
       lp->stopped = 0;
       return 1;
     }
@@ -1975,14 +2027,25 @@ linux_handle_extended_wait (struct lwp_info *lp, int status)
       unsigned long new_pid;
       int ret;
 
-      ptrace (PTRACE_GETEVENTMSG, pid, 0, &new_pid);
+      ptrace_func (PTRACE_GETEVENTMSG, pid, 0, &new_pid);
 
       /* If we haven't already seen the new PID stop, wait for it now.  */
       if (! pull_pid_from_list (&stopped_pids, new_pid, &status))
 	{
 	  /* The new child has a pending SIGSTOP.  We can't affect it until it
 	     hits the SIGSTOP, but we're already attached.  */
+#ifdef	VE_CUSTOMIZATION
+	  if (ptrace_func (PTRACE_ATTACH, new_pid, 0, 0) < 0)
+	    {
+	      warning (_("Cannot attach to lwp %d: %s"),
+		       (pid_t)new_pid,
+		       linux_ptrace_attach_fail_reason_string (lp->ptid,
+							       errno));
+	    }
+	  ret = ve_gdb_waitpid (new_pid, &status, __WALL);
+#else
 	  ret = my_waitpid (new_pid, &status, __WALL);
+#endif
 	  if (ret == -1)
 	    perror_with_name (_("waiting for new child"));
 	  else if (ret != new_pid)
@@ -2164,7 +2227,11 @@ wait_lwp (struct lwp_info *lp)
 
   for (;;)
     {
+#ifdef VE_CUSTOMIZATION
+      pid = ve_gdb_waitpid (ptid_get_lwp (lp->ptid), &status, __WALL | WNOHANG);
+#else
       pid = my_waitpid (ptid_get_lwp (lp->ptid), &status, __WALL | WNOHANG);
+#endif
       if (pid == -1 && errno == ECHILD)
 	{
 	  /* The thread has previously exited.  We need to delete it
@@ -2314,6 +2381,9 @@ stop_callback (struct lwp_info *lp, void *data)
   if (!lp->stopped && !lp->signalled)
     {
       int ret;
+#ifdef VE_CUSTOMIZATION
+      long pret;
+#endif
 
       if (debug_linux_nat)
 	{
@@ -2322,6 +2392,9 @@ stop_callback (struct lwp_info *lp, void *data)
 			      target_pid_to_str (lp->ptid));
 	}
       errno = 0;
+#ifdef VE_CUSTOMIZATION
+      pret = ptrace_func(PTRACE_STOP_VE,ptid_get_lwp (lp->ptid),0,0);
+#endif
       ret = kill_lwp (ptid_get_lwp (lp->ptid), SIGSTOP);
       if (debug_linux_nat)
 	{
@@ -2329,6 +2402,9 @@ stop_callback (struct lwp_info *lp, void *data)
 			      "SC:  lwp kill %d %s\n",
 			      ret,
 			      errno ? safe_strerror (errno) : "ERRNO-OK");
+#ifdef VE_CUSTOMIZATION
+	  fprintf_unfiltered (gdb_stdlog,"SC: STOP_VE %ld\n",pret);
+#endif
 	}
 
       lp->signalled = 1;
@@ -2534,7 +2610,7 @@ stop_wait_callback (struct lwp_info *lp, void *data)
 	  lp->ignore_sigint = 0;
 
 	  errno = 0;
-	  ptrace (PTRACE_CONT, ptid_get_lwp (lp->ptid), 0, 0);
+	  ptrace_func (PTRACE_CONT, ptid_get_lwp (lp->ptid), 0, 0);
 	  lp->stopped = 0;
 	  if (debug_linux_nat)
 	    fprintf_unfiltered (gdb_stdlog,
@@ -3183,6 +3259,12 @@ linux_nat_filter_event (int lwpid, int status)
       /* When using hardware single-step, we need to report every signal.
 	 Otherwise, signals in pass_mask may be short-circuited
 	 except signals that might be caused by a breakpoint.  */
+#ifdef VE_CUSTOMIZATION
+      if (!lp->step
+	  && WSTOPSIG (status) && sigismember (&pass_mask, WSTOPSIG (status))
+	  && !linux_wstatus_maybe_breakpoint (status) 
+	  && !( lp->last_resume_kind == resume_stop && WSTOPSIG (status) == SIGSTOP ))
+#else
       if (!lp->step
 	  && WSTOPSIG (status) && sigismember (&pass_mask, WSTOPSIG (status))
 	  && WSTOPSIG (status) != SIGSTOP
@@ -3191,6 +3273,7 @@ linux_nat_filter_event (int lwpid, int status)
 	  && WSTOPSIG (status) != SIGILL
 	  && WSTOPSIG (status) != SIGTRAP
 	  && !linux_wstatus_maybe_breakpoint (status))
+#endif
 	{
 	  linux_resume_one_lwp (lp, lp->step, signo);
 	  if (debug_linux_nat)
@@ -3355,7 +3438,11 @@ linux_nat_wait_1 (struct target_ops *ops,
 	   the TGID pid.  */
 
       errno = 0;
+#ifdef VE_CUSTOMIZATION
+      lwpid = ve_gdb_waitpid (-1, &status,  __WALL | WNOHANG);
+#else
       lwpid = my_waitpid (-1, &status,  __WALL | WNOHANG);
+#endif
 
       if (debug_linux_nat)
 	fprintf_unfiltered (gdb_stdlog,
@@ -3666,7 +3753,7 @@ kill_one_lwp (pid_t pid)
   /* Some kernels ignore even SIGKILL for processes under ptrace.  */
 
   errno = 0;
-  ptrace (PTRACE_KILL, pid, 0, 0);
+  ptrace_func (PTRACE_KILL, pid, 0, 0);
   if (debug_linux_nat)
     {
       int save_errno = errno;
@@ -3690,7 +3777,11 @@ kill_wait_one_lwp (pid_t pid)
 
   do
     {
+#ifdef VE_CUSTOMIZATION
+      res = ve_gdb_waitpid (pid, NULL, __WALL);
+#else
       res = my_waitpid (pid, NULL, __WALL);
+#endif
       if (res != (pid_t) -1)
 	{
 	  if (debug_linux_nat)
@@ -3851,7 +3942,7 @@ linux_xfer_siginfo (struct target_ops *ops, enum target_object object,
     return TARGET_XFER_E_IO;
 
   errno = 0;
-  ptrace (PTRACE_GETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, &siginfo);
+  ptrace_func (PTRACE_GETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, &siginfo);
   if (errno != 0)
     return TARGET_XFER_E_IO;
 
@@ -3876,7 +3967,7 @@ linux_xfer_siginfo (struct target_ops *ops, enum target_object object,
       siginfo_fixup (&siginfo, inf_siginfo, 1);
 
       errno = 0;
-      ptrace (PTRACE_SETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, &siginfo);
+      ptrace_func (PTRACE_SETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, &siginfo);
       if (errno != 0)
 	return TARGET_XFER_E_IO;
     }
@@ -4380,8 +4471,10 @@ linux_target_install_ops (struct target_ops *t)
   t->to_post_attach = linux_child_post_attach;
   t->to_follow_fork = linux_child_follow_fork;
 
+#ifndef VE_CUSTOMIZATION
   super_xfer_partial = t->to_xfer_partial;
   t->to_xfer_partial = linux_xfer_partial;
+#endif
 
   t->to_static_tracepoint_markers_by_strid
     = linux_child_static_tracepoint_markers_by_strid;
@@ -4958,7 +5051,7 @@ linux_nat_get_siginfo (ptid_t ptid, siginfo_t *siginfo)
     pid = ptid_get_pid (ptid);
 
   errno = 0;
-  ptrace (PTRACE_GETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, siginfo);
+  ptrace_func (PTRACE_GETSIGINFO, pid, (PTRACE_TYPE_ARG3) 0, siginfo);
   if (errno != 0)
     {
       memset (siginfo, 0, sizeof (*siginfo));

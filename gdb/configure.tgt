@@ -1,5 +1,8 @@
 # Mappings from configurations to GDB target definitions.  This is
 # invoked from the autoconf generated configure script.
+#
+# Changes by NEC Corporation for the VE port, 2017-2018
+#
 
 # This file sets the following shell variables:
 #  gdb_target_obs	target-specific object files to use
@@ -83,6 +86,16 @@ am33_2.0*-*-linux*)
 			solib-svr4.o"
 	;;
 
+ve*-*-linux*)
+        # Target: NEC VE based machine running GNU/Linux
+        gdb_target_obs="ve-tdep.o ve-linux-nat.o inf-ptrace.o \
+			ve-linux-tdep.o linux-tdep.o \
+			fork-child.o linux-nat.o linux-ptrace.o \
+			linux-procfs.o linux-osdata.o linux-fork.o \
+			linux-waitpid.o linux-namespaces.o \
+			linux-personality.o linux-thread-db.o \
+			proc-service.o solib-svr4.o ve-linux-procfs.o" 
+        ;;
 arm*-wince-pe | arm*-*-mingw32ce*)
 	# Target: ARM based machine running Windows CE (win32)
 	gdb_target_obs="arm.o arm-get-next-pcs.o arm-tdep.o \

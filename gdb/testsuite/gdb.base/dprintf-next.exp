@@ -29,8 +29,12 @@ if ![runto_main] {
     return -1
 }
 
+if { [istarget ve-nec-linux*] } {
+  unsupported "dprintf $dp_location, \"%d\\n\", x"
+} else {
 gdb_test "dprintf $dp_location, \"%d\\n\", x" \
     "Dprintf .*"
+}
 
 gdb_test "next" "\\+\\+x\;.*\/\* Next without dprintf.*" "next 1"
 gdb_test "next" "\\+\\+x\;.*\/\* Set dprintf here.*" "next 2"

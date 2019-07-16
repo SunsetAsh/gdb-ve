@@ -122,8 +122,8 @@ DESCRIPTION
 .#define bfd_mach_i960_hx        8
 .
 .  bfd_arch_or1k,      {* OpenRISC 1000 *}
-.#define bfd_mach_or1k           1
-.#define bfd_mach_or1knd         2
+.#define bfd_mach_or1k		1
+.#define bfd_mach_or1knd	2
 .
 .  bfd_arch_sparc,     {* SPARC *}
 .#define bfd_mach_sparc			1
@@ -195,7 +195,7 @@ DESCRIPTION
 .#define bfd_mach_mips_octeon		6501
 .#define bfd_mach_mips_octeonp		6601
 .#define bfd_mach_mips_octeon2		6502
-.#define bfd_mach_mips_octeon3          6503
+.#define bfd_mach_mips_octeon3		6503
 .#define bfd_mach_mips_xlr              887682   {* decimal 'XLR'  *}
 .#define bfd_mach_mipsisa32             32
 .#define bfd_mach_mipsisa32r2           33
@@ -227,7 +227,7 @@ DESCRIPTION
 .#define bfd_mach_i386_i386_nacl	(bfd_mach_i386_i386 | bfd_mach_i386_nacl)
 .#define bfd_mach_x86_64_nacl		(bfd_mach_x86_64 | bfd_mach_i386_nacl)
 .#define bfd_mach_x64_32_nacl		(bfd_mach_x64_32 | bfd_mach_i386_nacl)
-.  bfd_arch_iamcu,   {* Intel MCU *}
+.  bfd_arch_iamcu,	{* Intel MCU *}
 .#define bfd_mach_iamcu			(1 << 8)
 .#define bfd_mach_i386_iamcu		(bfd_mach_i386_i386 | bfd_mach_iamcu)
 .#define bfd_mach_i386_iamcu_intel_syntax (bfd_mach_i386_iamcu | bfd_mach_i386_intel_syntax)
@@ -346,11 +346,11 @@ DESCRIPTION
 .#define bfd_mach_arm_iWMMXt	12
 .#define bfd_mach_arm_iWMMXt2	13
 .  bfd_arch_nds32,     {* Andes NDS32 *}
-.#define bfd_mach_n1            1
-.#define bfd_mach_n1h           2
-.#define bfd_mach_n1h_v2        3
-.#define bfd_mach_n1h_v3        4
-.#define bfd_mach_n1h_v3m       5
+.#define bfd_mach_n1		1
+.#define bfd_mach_n1h		2
+.#define bfd_mach_n1h_v2	3
+.#define bfd_mach_n1h_v3	4
+.#define bfd_mach_n1h_v3m	5
 .  bfd_arch_ns32k,     {* National Semiconductors ns32000 *}
 .  bfd_arch_w65,       {* WDC 65816 *}
 .  bfd_arch_tic30,     {* Texas Instruments TMS320C30 *}
@@ -369,12 +369,12 @@ DESCRIPTION
 .#define bfd_mach_v850e2v3      0x45325633
 .#define bfd_mach_v850e3v5      0x45335635 {* ('E'|'3'|'V'|'5') *}
 .  bfd_arch_arc,       {* ARC Cores *}
-.#define bfd_mach_arc_a4        0
-.#define bfd_mach_arc_a5        1
-.#define bfd_mach_arc_arc600    2
-.#define bfd_mach_arc_arc601    4
-.#define bfd_mach_arc_arc700    3
-.#define bfd_mach_arc_arcv2     5
+.#define bfd_mach_arc_a4         0
+.#define bfd_mach_arc_a5         1
+.#define bfd_mach_arc_arc600     2
+.#define bfd_mach_arc_arc601     4
+.#define bfd_mach_arc_arc700     3
+.#define bfd_mach_arc_arcv2      5
 . bfd_arch_m32c,     {* Renesas M16C/M32C.  *}
 .#define bfd_mach_m16c        0x75
 .#define bfd_mach_m32c        0x78
@@ -400,7 +400,7 @@ DESCRIPTION
 .#define bfd_mach_fr550		550
 .  bfd_arch_moxie,       {* The moxie processor *}
 .#define bfd_mach_moxie		1
-.  bfd_arch_ft32,       {* The ft32 processor *}
+.  bfd_arch_ft32,	{* The ft32 processor *}
 .#define bfd_mach_ft32		1
 .  bfd_arch_mcore,
 .  bfd_arch_mep,
@@ -525,6 +525,8 @@ DESCRIPTION
 .#define bfd_mach_nios2r2	2
 .  bfd_arch_visium,	{* Visium *}
 .#define bfd_mach_visium	1
+.  bfd_arch_ve,	{* NEC VE *}
+.#define bfd_mach_ve 0
 .  bfd_arch_last
 .  };
 */
@@ -646,6 +648,7 @@ extern const bfd_arch_info_type bfd_tilepro_arch;
 extern const bfd_arch_info_type bfd_v850_arch;
 extern const bfd_arch_info_type bfd_v850_rh850_arch;
 extern const bfd_arch_info_type bfd_vax_arch;
+extern const bfd_arch_info_type bfd_ve_arch;
 extern const bfd_arch_info_type bfd_visium_arch;
 extern const bfd_arch_info_type bfd_w65_arch;
 extern const bfd_arch_info_type bfd_we32k_arch;
@@ -735,6 +738,7 @@ static const bfd_arch_info_type * const bfd_archures_list[] =
     &bfd_v850_arch,
     &bfd_v850_rh850_arch,
     &bfd_vax_arch,
+    &bfd_ve_arch,
     &bfd_visium_arch,
     &bfd_w65_arch,
     &bfd_we32k_arch,

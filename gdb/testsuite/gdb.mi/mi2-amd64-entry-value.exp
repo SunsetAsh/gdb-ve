@@ -12,7 +12,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 load_lib mi-support.exp
 set MIFLAGS "-i=mi2"
 
@@ -29,6 +28,9 @@ if [info exists COMPILE] {
     set srcfile ${testfile}.c
     lappend opts debug optimize=-O2
 } elseif { ![istarget x86_64-*-* ] || ![is_lp64_target] } {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "veos unsupport this test"
+    }
     verbose "Skipping mi2-amd64-entry-value."
     return
 }

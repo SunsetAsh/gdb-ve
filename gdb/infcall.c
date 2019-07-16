@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "infcall.h"
@@ -1465,6 +1466,22 @@ call_function_by_hand_dummy (struct value *function,
 				      dummy_dtor_data);
 }
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (!strcmp (c->name, "coerce-float-to-double"))
+    coerce_float_to_double_p = 1;
+  if (!strcmp (c->name, "unwind-on-terminating-exception"))
+    unwind_on_terminating_exception_p = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
 
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 void _initialize_infcall (void);
@@ -1483,7 +1500,7 @@ information to determine that a function is prototyped.  If this flag is\n\
 set, GDB will perform the conversion for a function it considers\n\
 unprototyped.\n\
 The default is to perform the conversion.\n"),
-			   NULL,
+			   VE_SET_FUNC,
 			   show_coerce_float_to_double_p,
 			   &setlist, &showlist);
 
@@ -1510,7 +1527,7 @@ default exception handler.  If set, gdb unwinds the stack and restores\n\
 the context to what it was before the call.  If unset, gdb allows the\n\
 std::terminate call to proceed.\n\
 The default is to unwind the frame."),
-			   NULL,
+			   VE_SET_FUNC,
 			   show_unwind_on_terminating_exception_p,
 			   &setlist, &showlist);
 

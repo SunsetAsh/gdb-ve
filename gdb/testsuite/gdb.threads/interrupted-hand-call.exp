@@ -46,7 +46,7 @@ gdb_test "break all_threads_running" \
 # hitting breakpoint 2 in all_threads_running().
 
 gdb_test "continue" \
-         ".*Breakpoint 2, all_threads_running ().*" \
+         ".*Breakpoint 2,.*all_threads_running ().*" \
          "run to all_threads_running"
 
 # NOTE: Don't turn on scheduler-locking here.

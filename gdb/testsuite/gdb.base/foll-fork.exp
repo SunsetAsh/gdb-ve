@@ -142,7 +142,11 @@ proc test_follow_fork { who detach cmd } {
 	    gdb_test "info inferiors" "\\* 1 .*process.* 2 .*process.*" \
 		     "info inferiors"
 
+	  if { [istarget ve-nec-linux*] } {
+	    unsupported "inferior 2"
+	  } else {
 	    gdb_test "inferior 2" "Switching to inferior 2 .*"
+	  }
 	    set resume_unfollowed 1
 
 	} elseif {$who == "child" && $detach == "on"} {
@@ -160,7 +164,11 @@ proc test_follow_fork { who detach cmd } {
 	    gdb_test "info inferiors" " 1 .*process.*\\* 2 .*process.*" \
 		     "info inferiors"
 
+	  if { [istarget ve-nec-linux*] } {
+	    unsupported "inferior 1"
+	  } else {
 	    gdb_test "inferior 1" "Switching to inferior 1 .*"
+	  }
 	    set resume_unfollowed 1
 	}
 

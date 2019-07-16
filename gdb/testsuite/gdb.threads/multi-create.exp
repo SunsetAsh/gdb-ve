@@ -27,7 +27,7 @@ runto_main
 # Run to the beginning of create_function several times.  Make sure
 # we always stop there, and not somewhere else in the guts of the
 # thread library.
-
+set timeout 200
 set bp_location1 [gdb_get_line_number "set breakpoint 1 here"]
 gdb_breakpoint $srcfile:$bp_location1
 for {set i 0} {$i < 32} {incr i} {

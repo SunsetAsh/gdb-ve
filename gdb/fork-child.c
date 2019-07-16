@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "inferior.h"
@@ -41,6 +42,12 @@
 extern char **environ;
 
 static char *exec_wrapper;
+
+#ifdef VE_CUSTOMIZATION
+/* chlld process debugging */
+static int fork_child_debug;
+extern char *ve_wrapper_and_args;
+#endif
 
 /* Break up SCRATCH into an argument vector suitable for passing to
    execvp and store it in ARGV.  E.g., on "run a b c d" this routine
@@ -175,6 +182,7 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
       argv = XALLOCAVEC (char *, argc);
       argv[0] = exec_file;
       breakup_args (allargs, &argv[1]);
+
     }
   else
     {
@@ -184,6 +192,10 @@ fork_inferior (char *exec_file_arg, char *allargs, char **env,
       char *p;
       int need_to_quote;
       const int escape_bang = escape_bang_in_quoted_argument (shell_file);
+
+#ifdef VE_CUSTOMIZATION
+      exec_wrapper = ve_wrapper_and_args;
+#endif
 
       /* Multiplying the length of exec_file by 4 is to account for the
          fact that it may expand when quoted; it is a worst-case number
@@ -437,10 +449,22 @@ startup_inferior (int ntraps)
   int terminal_initted = 0;
   ptid_t resume_ptid;
 
+#ifdef VE_CUSTOMIZATION
+  if (fork_child_debug)
+    printf_unfiltered(_("startup_inferior initialize pending_exec = %d\n"),
+    pending_execs);
+#endif
+
   if (startup_with_shell)
     {
+#ifdef VE_CUSTOMIZATION
+      if (fork_child_debug)
+	printf_unfiltered(_("startup_with_shell set pending_exec = %d\n"),
+	pending_execs);
+#else
       /* One trap extra for exec'ing the shell.  */
       pending_execs++;
+#endif
     }
 
   if (target_supports_multi_process ())
@@ -453,7 +477,15 @@ startup_inferior (int ntraps)
      must get it up to actual execution of the real program.  */
 
   if (exec_wrapper)
+#ifdef VE_CUSTOMIZATION
+    {
+      if (fork_child_debug)
+	printf_unfiltered(_("exec_wrapper set pending_exec = %d\n"),
+	pending_execs);
+    }
+#else
     pending_execs++;
+#endif
 
   while (1)
     {
@@ -463,6 +495,10 @@ startup_inferior (int ntraps)
       struct target_waitstatus ws;
       memset (&ws, 0, sizeof (ws));
       event_ptid = target_wait (resume_ptid, &ws, 0);
+#ifdef VE_CUSTOMIZATION
+      if (fork_child_debug)
+	printf_unfiltered(_("target_wait ws.kind = %d\n"),ws.kind);
+#endif
 
       if (ws.kind == TARGET_WAITKIND_IGNORE)
 	/* The inferior didn't really stop, keep waiting.  */
@@ -535,6 +571,11 @@ startup_inferior (int ntraps)
 
 	      terminal_initted = 1;
 	    }
+#ifdef VE_CUSTOMIZATION
+	  if (fork_child_debug)
+	    printf_unfiltered(_("decrement(break loop if 0) set pending_exec = %d\n"),
+	    pending_execs-1);
+#endif
 
 	  if (--pending_execs == 0)
 	    break;
@@ -566,6 +607,22 @@ show_startup_with_shell (struct ui_file *file, int from_tty,
 		    value);
 }
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (exec_wrapper)
+    xfree (exec_wrapper);
+  exec_wrapper = NULL;
+  startup_with_shell = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 extern initialize_file_ftype _initialize_fork_child;
 
@@ -577,7 +634,7 @@ Set a wrapper for running programs.\n\
 The wrapper prepares the system and environment for the new program."),
 			    _("\
 Show the wrapper for running programs."), NULL,
-			    NULL, NULL,
+			    VE_SET_FUNC, NULL,
 			    &setlist, &showlist);
 
   add_cmd ("exec-wrapper", class_run, unset_exec_wrapper_command,
@@ -588,7 +645,17 @@ Show the wrapper for running programs."), NULL,
 			   &startup_with_shell, _("\
 Set use of shell to start subprocesses.  The default is on."), _("\
 Show use of shell to start subprocesses."), NULL,
-			   NULL,
+			   VE_SET_FUNC,
 			   show_startup_with_shell,
 			   &setlist, &showlist);
+
+#ifdef VE_CUSTOMIZATION
+  add_setshow_boolean_cmd ("fork-child", class_maintenance, &fork_child_debug,
+			   _("Set fork-child debugging."),
+			   _("Show fork-child debugging."),
+			   _("When on, child process debugging is enabled."),
+			   NULL,
+			   NULL,
+			   &setdebuglist, &showdebuglist);
+#endif
 }

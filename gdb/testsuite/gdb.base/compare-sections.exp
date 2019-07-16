@@ -32,6 +32,10 @@ proc compare_sections { {options ""} } {
 	set command "compare-sections"
     }
     set test $command
+    if { [istarget ve-nec-linux*] } {
+	unsupported $test
+	return
+    }
     gdb_test_multiple $command $test {
 	-re "MIS-MATCHED.*$gdb_prompt $" {
 	    fail $test
@@ -70,10 +74,14 @@ with_test_prefix "after reload" {
 set command "compare-sections .text"
 set command_re [string_to_regexp $command]
 set test $command
+if { [istarget ve-nec-linux*] } {
+    unsupported $test
+} else {
 gdb_test_multiple $command $test {
     -re "^$command_re\r\nSection .text, range $hex -- $hex. matched\.\r\n$gdb_prompt $" {
 	pass $test
     }
+}
 }
 
 # Now get past startup code.
@@ -84,8 +92,12 @@ if ![runto_main] then {
 
 with_test_prefix "after run to main" {
     # Assume all targets' startup code changes some loaded variable.
+  if { [istarget ve-nec-linux*] } {
+    unsupported "compare-sections"
+  } else {
     gdb_test "compare-sections" \
 	"MIS-MATCHED.*warning.*One or more sections.*does not match.*loaded file"
+  }
 
     # Assume startup code doesn't change read-only sections.
     compare_sections "-r"
@@ -147,6 +159,10 @@ with_test_prefix "read-only" {
 	return -1
     }
 
+  if { [istarget ve-nec-linux*] } {
+    unsupported "compare-sections -r"
+  } else {
     gdb_test "compare-sections -r" \
 	"MIS-MATCHED.*warning.*One or more sections.*does not match.*loaded file.*"
+  }
 }

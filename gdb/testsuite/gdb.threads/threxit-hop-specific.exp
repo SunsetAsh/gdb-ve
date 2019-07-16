@@ -17,6 +17,7 @@
 # specific breakpoint when the selected thread has gone away.
 
 standard_testfile
+set timeout 200
 
 if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" \
 	 executable debug] != "" } {
@@ -25,7 +26,9 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" \
 
 clean_restart ${binfile}
 
-runto_main
+#runto_main
+gdb_test "break main"
+gdb_test "run"
 
 # Get ourselves to the thread that exits
 gdb_breakpoint "thread_function"

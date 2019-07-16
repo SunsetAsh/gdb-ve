@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "command.h"
@@ -31,6 +32,12 @@
 #include "inf-ptrace.h"
 #include "inf-child.h"
 #include "gdbthread.h"
+
+#ifdef VE_CUSTOMIZATION
+#include "gdbcmd.h"
+#include "ve-ptrace.h"
+static int inf_ptrace_debug;
+#endif
 
 
 
@@ -51,7 +58,7 @@ inf_ptrace_follow_fork (struct target_ops *ops, int follow_child,
       /* Breakpoints have already been detached from the child by
 	 infrun.c.  */
 
-      if (ptrace (PT_DETACH, child_pid, (PTRACE_TYPE_ARG3)1, 0) == -1)
+      if (ptrace_func (PT_DETACH, child_pid, (PTRACE_TYPE_ARG3)1, 0) == -1)
 	perror_with_name (("ptrace"));
     }
 
@@ -78,8 +85,14 @@ inf_ptrace_remove_fork_catchpoint (struct target_ops *self, int pid)
 static void
 inf_ptrace_me (void)
 {
+#ifdef VE_CUSTOMIZATION
+  /* Do nothing.
+   * Because ve_exec do PTRACE_TRACEME call for both pseudo and VE processes.
+   */
+#else
   /* "Trace me, Dr. Memory!"  */
   ptrace (PT_TRACE_ME, 0, (PTRACE_TYPE_ARG3)0, 0);
+#endif
 }
 
 /* Start a new inferior Unix child process.  EXEC_FILE is the file to
@@ -108,6 +121,13 @@ inf_ptrace_create_inferior (struct target_ops *ops,
 
   pid = fork_inferior (exec_file, allargs, env, inf_ptrace_me, NULL,
 		       NULL, NULL, NULL);
+#ifdef VE_CUSTOMIZATION
+  if (inf_ptrace_debug)
+    {
+      printf_unfiltered(_("fork_inferior(\"%s\",\"%s\") pid=%d\n"),
+      exec_file, allargs, pid);
+    }
+#endif
 
   discard_cleanups (back_to);
 
@@ -195,7 +215,7 @@ inf_ptrace_attach (struct target_ops *ops, const char *args, int from_tty)
 
 #ifdef PT_ATTACH
   errno = 0;
-  ptrace (PT_ATTACH, pid, (PTRACE_TYPE_ARG3)0, 0);
+  ptrace_func (PT_ATTACH, pid, (PTRACE_TYPE_ARG3)0, 0);
   if (errno != 0)
     perror_with_name (("ptrace"));
 #else
@@ -250,7 +270,7 @@ inf_ptrace_detach (struct target_ops *ops, const char *args, int from_tty)
      previously attached to the inferior.  It *might* work if we
      started the process ourselves.  */
   errno = 0;
-  ptrace (PT_DETACH, pid, (PTRACE_TYPE_ARG3)1, sig);
+  ptrace_func (PT_DETACH, pid, (void *)1, (void *)sig);
   if (errno != 0)
     perror_with_name (("ptrace"));
 #else
@@ -284,7 +304,7 @@ inf_ptrace_kill (struct target_ops *ops)
   if (pid == 0)
     return;
 
-  ptrace (PT_KILL, pid, (PTRACE_TYPE_ARG3)0, 0);
+  ptrace_func (PT_KILL, pid, (PTRACE_TYPE_ARG3)0, 0);
   waitpid (pid, &status, 0);
 
   target_mourn_inferior ();
@@ -356,7 +376,7 @@ inf_ptrace_resume (struct target_ops *ops,
      where it was.  If GDB wanted it to start some other way, we have
      already written a new program counter value to the child.  */
   errno = 0;
-  ptrace (request, pid, (PTRACE_TYPE_ARG3)1, gdb_signal_to_host (signal));
+  ptrace_func (request, pid, (void *)1, (void *)gdb_signal_to_host (signal));
   if (errno != 0)
     perror_with_name (("ptrace"));
 }
@@ -520,10 +540,21 @@ inf_ptrace_xfer_partial (struct target_ops *ops, enum target_object object,
 	    if (rounded_offset < offset
 		|| (offset + partial_len
 		    < rounded_offset + sizeof (PTRACE_TYPE_RET)))
+#ifdef VE_CUSTOMIZATION
+	      {
+	        /* Need part of initial word -- fetch it.  */
+	        buffer.word = ptrace_func (PT_READ_I, pid,
+				    (void *)(uintptr_t)
+				    rounded_offset, 0);
+	        if (inf_ptrace_debug)
+		  printf_unfiltered(_("ptrace(PT_READ_I) for write addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+	      }
+#else
 	      /* Need part of initial word -- fetch it.  */
-	      buffer.word = ptrace (PT_READ_I, pid,
+	      buffer.word = ptrace_func (PT_READ_I, pid,
 				    (PTRACE_TYPE_ARG3)(uintptr_t)
 				    rounded_offset, 0);
+#endif
 
 	    /* Copy data to be written over corresponding part of
 	       buffer.  */
@@ -531,30 +562,61 @@ inf_ptrace_xfer_partial (struct target_ops *ops, enum target_object object,
 		    writebuf, partial_len);
 
 	    errno = 0;
-	    ptrace (PT_WRITE_D, pid,
-		    (PTRACE_TYPE_ARG3)(uintptr_t)rounded_offset,
-		    buffer.word);
+	    ptrace_func (PT_WRITE_D, pid,
+		    (void *)(uintptr_t)rounded_offset,
+		    (void *)buffer.word);
 	    if (errno)
 	      {
 		/* Using the appropriate one (I or D) is necessary for
 		   Gould NP1, at least.  */
 		errno = 0;
-		ptrace (PT_WRITE_I, pid,
-			(PTRACE_TYPE_ARG3)(uintptr_t)rounded_offset,
-			buffer.word);
+		ptrace_func (PT_WRITE_I, pid,
+			(void *)(uintptr_t)rounded_offset,
+			(void *)buffer.word);
 		if (errno)
 		  return TARGET_XFER_EOF;
+#ifdef VE_CUSTOMIZATION
+		else
+		  {
+		    if (inf_ptrace_debug)
+		      {
+			printf_unfiltered(_("ptrace:PT_WRITE_I for write addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+			buffer.word = ptrace_func (PT_READ_I, pid,
+				(void *)(uintptr_t)
+				rounded_offset, 0);
+			printf_unfiltered(_("ptrace:PT_READ_I for write addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+		      }
+		  }
+	      }
+	    else
+	      {
+		if (inf_ptrace_debug)
+		  {
+		    printf_unfiltered(_("ptrace:PT_WRITE_D for write addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+		    buffer.word = ptrace_func (PT_READ_I, pid,
+				(void *)(uintptr_t)
+				rounded_offset, 0);
+		    printf_unfiltered(_("ptrace:PT_READ_I for write addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+		  }
+#endif
 	      }
 	  }
 
 	if (readbuf)
 	  {
 	    errno = 0;
-	    buffer.word = ptrace (PT_READ_I, pid,
-				  (PTRACE_TYPE_ARG3)(uintptr_t)rounded_offset,
+	    buffer.word = ptrace_func (PT_READ_I, pid,
+				  (void *)(uintptr_t)rounded_offset,
 				  0);
 	    if (errno)
 	      return TARGET_XFER_EOF;
+#ifdef VE_CUSTOMIZATION
+	    else
+	      {
+		if (inf_ptrace_debug)
+		  printf_unfiltered(_("ptrace:PT_READ_I for read addr=0x%016lx data=0x%016lx pid=%d\n"), (uintptr_t)rounded_offset, buffer.word, pid);
+	      }
+#endif
 	    /* Copy appropriate bytes out of the buffer.  */
 	    memcpy (readbuf, buffer.byte + (offset - rounded_offset),
 		    partial_len);
@@ -736,7 +798,7 @@ inf_ptrace_fetch_register (struct regcache *regcache, int regnum)
   for (i = 0; i < size / sizeof (PTRACE_TYPE_RET); i++)
     {
       errno = 0;
-      buf[i] = ptrace (PT_READ_U, pid, (PTRACE_TYPE_ARG3)(uintptr_t)addr, 0);
+      buf[i] = ptrace_func (PT_READ_U, pid, (void *)(uintptr_t)addr, 0);
       if (errno != 0)
 	error (_("Couldn't read register %s (#%d): %s."),
 	       gdbarch_register_name (gdbarch, regnum),
@@ -795,7 +857,7 @@ inf_ptrace_store_register (const struct regcache *regcache, int regnum)
   for (i = 0; i < size / sizeof (PTRACE_TYPE_RET); i++)
     {
       errno = 0;
-      ptrace (PT_WRITE_U, pid, (PTRACE_TYPE_ARG3)(uintptr_t)addr, buf[i]);
+      ptrace_func (PT_WRITE_U, pid, (void *)(uintptr_t)addr, (void *)buf[i]);
       if (errno != 0)
 	error (_("Couldn't write register %s (#%d): %s."),
 	       gdbarch_register_name (gdbarch, regnum),
@@ -838,3 +900,23 @@ inf_ptrace_trad_target (CORE_ADDR (*register_u_offset)
 
   return t;
 }
+
+#ifdef VE_CUSTOMIZATION
+/*
+ * For set and show inf-ptrace
+ */
+extern initialize_file_ftype _initialize_inf_ptrace; /* -Wmissing-prototypes */
+
+void
+_initialize_inf_ptrace(void)
+{
+  add_setshow_boolean_cmd ("inf-ptrace", class_maintenance, &inf_ptrace_debug,
+			   _("Set inf-ptrace debugging."),
+			   _("Show inf-ptrace debugging."),
+			   _("When on, ptrace I/F debugging is enabled."),
+			   NULL,
+			   NULL, 
+			   &setdebuglist, &showdebuglist);
+
+}
+#endif

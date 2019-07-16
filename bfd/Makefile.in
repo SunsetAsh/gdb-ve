@@ -497,6 +497,7 @@ ALL_MACHINES = \
 	cpu-v850.lo \
 	cpu-v850_rh850.lo \
 	cpu-vax.lo \
+	cpu-ve.lo \
 	cpu-visium.lo \
 	cpu-w65.lo \
 	cpu-we32k.lo \
@@ -584,6 +585,7 @@ ALL_MACHINES_CFILES = \
 	cpu-v850.c \
 	cpu-v850_rh850.c \
 	cpu-vax.c \
+	cpu-ve.c \
 	cpu-visium.c \
 	cpu-w65.c \
 	cpu-we32k.c \
@@ -1012,6 +1014,7 @@ BFD64_BACKENDS = \
 	elf64-sh64.lo \
 	elf64-sparc.lo \
 	elf64-tilegx.lo \
+	elf64-ve.lo \
 	elf64-x86-64.lo \
 	elf64.lo \
 	elfn32-mips.lo \
@@ -1050,6 +1053,7 @@ BFD64_BACKENDS_CFILES = \
 	elf64-sh64.c \
 	elf64-sparc.c \
 	elf64-tilegx.c \
+	elf64-ve.c \
 	elf64-x86-64.c \
 	elf64.c \
 	elfn32-mips.c \
@@ -1428,6 +1432,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-v850.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-v850_rh850.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-vax.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-ve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-visium.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-w65.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu-we32k.Plo@am__quote@
@@ -1534,6 +1539,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64-sh64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64-sparc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64-tilegx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64-ve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64-x86-64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elf64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elflink.Plo@am__quote@

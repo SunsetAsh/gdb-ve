@@ -50,6 +50,11 @@ proc do_test { non_stop cond_bp_target } {
 	return 0
     }
 
+    if {$non_stop=="on"} {
+        unsupported "unsupported command"
+        return
+    }
+
     # Whether it's known that the test fails.
     set should_kfail 0
 
@@ -128,7 +133,8 @@ proc do_test { non_stop cond_bp_target } {
 	"no threads left"
 }
 
-foreach_with_prefix non_stop {"on" "off"} {
+#foreach_with_prefix non_stop {"on" "off"} {
+ foreach_with_prefix non_stop {"off" "on"} {
     foreach_with_prefix cond_bp_target {1 0} {
 	do_test $non_stop $cond_bp_target
     }

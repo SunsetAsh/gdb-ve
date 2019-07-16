@@ -63,7 +63,8 @@ proc test { step_over } {
 
 	gdb_test "thread 1" "Switching to thread 1.*"
 
-	set pattern "\\\* 1\[ \t\]+Thread.*"
+#	set pattern "\\\* 1\[ \t\]+Thread.*"
+        set pattern "\\\* 1\[ \t\]+LWP.*"
 
 	gdb_test "info threads" $pattern "thread 1 selected"
 

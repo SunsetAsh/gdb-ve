@@ -41,7 +41,7 @@ proc test { sigtrap_thread } {
 	    return 0
 	}
 
-	set pattern "\\\* 2\[ \t\]+Thread.*"
+	set pattern "\\\* 2\[ \t\]+LWP.*"
 	gdb_test "info threads" $pattern "thread 2 hit breakpoint"
 
 	gdb_test "break sigtrap_handler" "Breakpoint .* at .*$srcfile.*"
@@ -57,7 +57,7 @@ proc test { sigtrap_thread } {
 	    "Continuing with signal SIGTRAP.*Breakpoint .* sigtrap_handler .*" \
 	    "signal SIGTRAP reaches handler"
 
-	set pattern "\\\* $sigtrap_thread\[ \t\]+Thread.*"
+	set pattern "\\\* $sigtrap_thread\[ \t\]+.*"
 	gdb_test "info threads" $pattern "right thread got the signal"
     }
 }

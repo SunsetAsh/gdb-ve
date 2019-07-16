@@ -23,6 +23,15 @@ if {[prepare_for_testing "failed to prepare" $testfile $srcfile {debug pthreads}
 }
 
 gdb_test_no_output "set pagination off"
+
+#command "set non-stop on" can not set on
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_test_no_output "set non-stop on"
 
 if ![runto_main] {

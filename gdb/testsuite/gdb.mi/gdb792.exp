@@ -16,6 +16,10 @@
 #
 # test gdb/792
 #
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "can not support C++ class because no DWARF information"
+    return
+}
 
 if { [skip_cplus_tests] } { continue }
 

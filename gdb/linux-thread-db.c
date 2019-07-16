@@ -1780,8 +1780,8 @@ static void tdb_thread_fetch_registers (struct target_ops *ops, struct regcache 
   td_err_e val;
   prgregset_t gregset;
   prfpregset_t fpregset;
-  gdb_gregset_t *gregset_p = &gregset;
-  gdb_fpregset_t *fpregset_p = &fpregset;
+  gdb_gregset_t *gregset_p = (gdb_gregset_t *)&gregset;
+  gdb_fpregset_t *fpregset_p = (gdb_fpregset_t *)&fpregset;
   struct target_ops *target_beneath;
   struct thread_db_info *info;
   info = get_thread_db_info (ptid_get_pid (inferior_ptid));

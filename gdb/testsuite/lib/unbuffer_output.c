@@ -22,7 +22,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef VEOS
+static void
+#else
 static int
+#endif
 gdb_unbuffer_output (void)
 {
   /* Always force this for Windows testing.  To a native Windows

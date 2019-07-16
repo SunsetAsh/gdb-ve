@@ -103,6 +103,14 @@ if { "$have_tls" != "" } {
     }
     gdb_breakpoint [gdb_get_line_number "tlsvar-is-set"]
     gdb_continue_to_breakpoint "tlsvar-is-set" ".* tlsvar-is-set .*"
+
+    set can_do_cmd 0
+
+    if { !$can_do_cmd } {
+        unsupported "Thread local storage is unsupported"
+        return
+    }
+
     gdb_test "p tlsvar" " = 2" "tlsvar in thread"
     gdb_test "thread 1" ".*"
     # Unwind to main.

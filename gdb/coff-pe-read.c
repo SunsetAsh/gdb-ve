@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
    Contributed by Raoul M. Gough (RaoulGough@yahoo.co.uk).  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 
@@ -689,6 +690,7 @@ pe_text_section_offset (struct bfd *abfd)
   return DEFAULT_COFF_PE_TEXT_SECTION_OFFSET;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Implements "show debug coff_pe_read" command.  */
 
 static void
@@ -697,6 +699,7 @@ show_debug_coff_pe_read (struct ui_file *file, int from_tty,
 {
   fprintf_filtered (file, _("Coff PE read debugging is %s.\n"), value);
 }
+#endif
 
 /* Provide a prototype to silence -Wmissing-prototypes.  */
 
@@ -707,6 +710,7 @@ void _initialize_coff_pe_read (void);
 void
 _initialize_coff_pe_read (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_setshow_zuinteger_cmd ("coff-pe-read", class_maintenance,
 			     &debug_coff_pe_read,
 			     _("Set coff PE read debugging."),
@@ -715,4 +719,5 @@ _initialize_coff_pe_read (void)
 			       "of exported symbols are displayed."),
 			     NULL, show_debug_coff_pe_read,
 			     &setdebuglist, &showdebuglist);
+#endif
 }

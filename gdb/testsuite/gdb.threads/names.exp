@@ -22,6 +22,11 @@ if [target_info exists gdb,no_thread_names] {
 
 standard_testfile
 
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "pthread_attr_setaffinity_np is unsupported"
+    return
+}
+
 if [prepare_for_testing "failed to prepare" $testfile $srcfile {debug pthreads}] {
     return -1
 }

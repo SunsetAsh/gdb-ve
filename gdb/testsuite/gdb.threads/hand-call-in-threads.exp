@@ -66,9 +66,13 @@ gdb_test "break hand_call" \
 # hitting breakpoint 2 in all_threads_running().
 
 gdb_test "continue" \
-         ".*Breakpoint 2, all_threads_running ().*" \
+         ".*Breakpoint 2,.*all_threads_running ().*" \
          "run to all_threads_running"
 
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "set scheduler-locking command isjust support replay"
+    return
+}
 # Before we start making hand function calls, turn on scheduler locking.
 
 gdb_test_no_output "set scheduler-locking on" "enable scheduler locking"
@@ -143,8 +147,8 @@ gdb_test_multiple "maint print dummy-frames" "all dummies popped" {
 
 # Before we resume the full program, turn off scheduler locking.
 gdb_test_no_output "set scheduler-locking off" "disable scheduler locking"
+gdb_test "show scheduler-locking"
 gdb_test "show scheduler-locking" ".* locking scheduler .* is \"off\"." "show scheduler locking off"
-
 # Continue one last time, the program should exit normally.
 #
 # ??? This currently doesn't work because gdb doesn't know how to singlestep

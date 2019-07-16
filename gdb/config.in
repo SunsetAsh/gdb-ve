@@ -1,4 +1,5 @@
 /* config.in.  Generated from configure.ac by autoheader.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
@@ -833,3 +834,7 @@
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
+
+#undef	VE_CUSTOMIZATION
+
+#undef LIBTHREAD_DB_SEARCH_PATH

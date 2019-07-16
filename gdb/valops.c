@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "symtab.h"
@@ -4157,6 +4158,19 @@ value_imag (struct value *val)
     error (_("value is not a complex number"));
 }
 
+#ifdef VE_CUSTOMIZATION
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  overload_resolution = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_valops (void)
 {
@@ -4164,7 +4178,7 @@ _initialize_valops (void)
 			   &overload_resolution, _("\
 Set overload resolution in evaluating C++ functions."), _("\
 Show overload resolution in evaluating C++ functions."), 
-			   NULL, NULL,
+			   NULL, VE_SET_FUNC,
 			   show_overload_resolution,
 			   &setlist, &showlist);
   overload_resolution = 1;

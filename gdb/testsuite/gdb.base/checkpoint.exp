@@ -14,6 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 if { [is_remote target] || ![isnative] } then {
+    if { [istarget ve-nec-linux*] } {
+	unsupported "checkpoint"
+    }
     continue
 }
 

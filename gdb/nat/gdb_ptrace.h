@@ -139,7 +139,11 @@ extern PTRACE_TYPE_RET ptrace();
 #  define ptrace(request, pid, addr, data) \
           ptrace64 (request, pid, addr, data, 0)
 #  undef PTRACE_TYPE_ARG3
+#ifdef VE_CUSTOMIZATION
+#  define PTRACE_TYPE_ARG3 void *
+#else
 #  define PTRACE_TYPE_ARG3 long long
+#endif
 # else
 #  define ptrace(request, pid, addr, data) \
           ptrace (request, pid, addr, data, 0)

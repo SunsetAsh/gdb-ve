@@ -26,7 +26,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <pthread.h>
-
+#ifdef VEOS
+#include <sys/mman.h>
+#endif
 #define STACK_SIZE 0x1000
 
 int clone_pid;
@@ -42,21 +44,43 @@ thread_fn (void *arg)
 {
   unsigned char *stack;
   int res;
+#ifdef VEOS
+  unsigned char *tls;
+  unsigned long tid;
+  unsigned long ctid;
+#endif
 
   stack = malloc (STACK_SIZE);
+#ifdef VEOS
+  tls = mmap(NULL, 2 * 1024 * 1024, PROT_READ | PROT_WRITE,
+	     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
   assert (stack != NULL);
+
+#ifdef VEOS
+#define CLONE_FLAGS (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND  \
+                     | CLONE_THREAD | CLONE_SYSVSEM | CLONE_SETTLS      \
+                     | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID       \
+                     | CLONE_DETACHED)
+#endif
+
 
 #ifdef __ia64__
   clone_pid = __clone2 (clone_fn, stack, STACK_SIZE, CLONE_VM, NULL);
 #else
+#ifndef VEOS
   clone_pid = clone (clone_fn, stack + STACK_SIZE, CLONE_VM, NULL);
+#else
+  clone_pid = clone (clone_fn, stack + STACK_SIZE, CLONE_FLAGS, NULL,
+ 		     &tid, tls, &ctid, NULL);
+#endif
 #endif
 
   assert (clone_pid > 0);
-
   /* Wait for child.  */
-  res = waitpid (clone_pid, NULL, __WCLONE);
-  assert (res != -1);
+  sleep (10);
+//  res = waitpid (clone_pid, NULL, __WCLONE);
+//  assert (res != -1);
 
   return NULL;
 }

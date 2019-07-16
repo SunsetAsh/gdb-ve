@@ -17,6 +17,11 @@
 # test running programs
 #
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported watch command."
+    return -1
+}
+
 if {[skip_shlib_tests]} {
     return 0
 }

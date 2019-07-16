@@ -22,6 +22,14 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executab
 
 clean_restart ${testfile}
 
+#command "set non-stop on" can not set on
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
 gdb_test_no_output "set non-stop on"
 
 if { ! [ runto_main ] } then {

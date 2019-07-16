@@ -412,6 +412,8 @@ extern initialize_file_ftype _initialize_osdata; /* -Wmissing-prototypes */
 void
 _initialize_osdata (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_info ("os", info_osdata_command,
            _("Show OS data ARG."));
+#endif
 }

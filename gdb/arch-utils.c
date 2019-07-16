@@ -19,6 +19,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 
@@ -332,6 +333,7 @@ set_endian (char *ignore_args, int from_tty, struct cmd_list_element *c)
 
   gdbarch_info_init (&info);
 
+#ifndef VE_CUSTOMIZATION
   if (set_endian_string == endian_auto)
     {
       target_byte_order_user = BFD_ENDIAN_UNKNOWN;
@@ -358,6 +360,7 @@ set_endian (char *ignore_args, int from_tty, struct cmd_list_element *c)
   else
     internal_error (__FILE__, __LINE__,
 		    _("set_endian: bad value"));
+#endif
 
   show_endian (gdb_stdout, from_tty, NULL, NULL);
 }

@@ -17,6 +17,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "observer.h"
@@ -1159,6 +1160,7 @@ print_ada_task_info (struct ui_out *uiout,
   do_cleanups (old_chain);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Print a detailed description of the Ada task whose ID is TASKNO_STR
    for the given inferior (INF).  */
 
@@ -1363,6 +1365,7 @@ Task switching not supported when debugging from core files\n\
       task_command_1 (taskno_str, from_tty, current_inferior ());
     }
 }
+#endif
 
 /* Indicate that the given inferior's task list may have changed,
    so invalidate the cache.  */
@@ -1453,6 +1456,7 @@ _initialize_tasks (void)
   observer_attach_normal_stop (ada_tasks_normal_stop_observer);
   observer_attach_new_objfile (ada_tasks_new_objfile_observer);
 
+#ifndef VE_CUSTOMIZATION
   /* Some new commands provided by this module.  */
   add_info ("tasks", info_tasks_command,
             _("Provide information about all known Ada tasks"));
@@ -1460,4 +1464,5 @@ _initialize_tasks (void)
            _("Use this command to switch between Ada tasks.\n\
 Without argument, this command simply prints the current task ID"),
            &cmdlist);
+#endif
 }

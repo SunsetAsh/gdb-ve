@@ -21,6 +21,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "record.h"
@@ -2971,6 +2972,7 @@ init_record_btrace_ops (void)
   ops->to_magic = OPS_MAGIC;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Start recording in BTS format.  */
 
 static void
@@ -3054,6 +3056,7 @@ cmd_set_record_btrace (char *args, int from_tty)
 {
   cmd_show_list (set_record_btrace_cmdlist, from_tty, "");
 }
+#endif
 
 /* The "show record btrace" command.  */
 
@@ -3063,6 +3066,7 @@ cmd_show_record_btrace (char *args, int from_tty)
   cmd_show_list (show_record_btrace_cmdlist, from_tty, "");
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The "show record btrace replay-memory-access" command.  */
 
 static void
@@ -3132,6 +3136,7 @@ show_record_pt_buffer_size_value (struct ui_file *file, int from_tty,
   fprintf_filtered (file, _("The record/replay pt buffer size is %s.\n"),
 		    value);
 }
+#endif
 
 void _initialize_record_btrace (void);
 
@@ -3140,6 +3145,7 @@ void _initialize_record_btrace (void);
 void
 _initialize_record_btrace (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("btrace", class_obscure, cmd_record_btrace_start,
 		  _("Start branch trace recording."), &record_btrace_cmdlist,
 		  "record btrace ", 0, &record_cmdlist);
@@ -3163,11 +3169,13 @@ This format may not be available on all processors."),
   add_prefix_cmd ("btrace", class_support, cmd_set_record_btrace,
 		  _("Set record options"), &set_record_btrace_cmdlist,
 		  "set record btrace ", 0, &set_record_cmdlist);
+#endif
 
   add_prefix_cmd ("btrace", class_support, cmd_show_record_btrace,
 		  _("Show record options"), &show_record_btrace_cmdlist,
 		  "show record btrace ", 0, &show_record_cmdlist);
 
+#ifndef VE_CUSTOMIZATION
   add_setshow_enum_cmd ("replay-memory-access", no_class,
 			replay_memory_access_types, &replay_memory_access, _("\
 Set what memory accesses are allowed during replay."), _("\
@@ -3227,6 +3235,7 @@ The actual buffer size may differ from the requested size.  Use \"info record\" 
 to see the actual buffer size."), NULL, show_record_pt_buffer_size_value,
 			    &set_record_btrace_pt_cmdlist,
 			    &show_record_btrace_pt_cmdlist);
+#endif
 
   init_record_btrace_ops ();
   add_target (&record_btrace_ops);

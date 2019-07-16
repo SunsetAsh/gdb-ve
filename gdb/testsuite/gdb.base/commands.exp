@@ -150,14 +150,26 @@ proc infrun_breakpoint_command_test {} {
 # to get around a synchronization problem in expect.
 # part1: issue the gdb command "commands"
 # part2: send the list of commands
+    set err_id -1
     gdb_test_multiple "commands" \
 	"commands in infrun_breakpoint_command_test #1" {
 	    -re "End with" {
 		pass "commands in infrun_breakpoint_command_test #1"
+		set err_id 1
 	    }
 	}
+if { [istarget ve-nec-linux*] } {
+  if {$err_id == -1} {
+    fail "step\nstep\nstep\nstep\nend"
+  } else {
+    set timeout 900
     gdb_test "step\nstep\nstep\nstep\nend" "" \
 	"commands in infrun_breakpoint_command_test #2"
+  }
+} else {
+    gdb_test "step\nstep\nstep\nstep\nend" "" \
+	"commands in infrun_breakpoint_command_test #2"
+}
 
     gdb_test "continue" \
 	"Continuing.*.*.*Breakpoint \[0-9\]*, factorial \\(value=5\\).*at.*\[0-9\]*\[      \]*if \\(value > 1\\) \{.*\[0-9\]*\[      \]*value \\*= factorial \\(value - 1\\);.*" \
@@ -256,12 +268,16 @@ proc watchpoint_command_test {} {
     #
     set wp_id -1
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "watch local_var"
+} else {
     gdb_test_multiple "watch local_var" "watch local_var" {
         -re "\[Ww\]atchpoint (\[0-9\]*): local_var.*$gdb_prompt $" {
             set wp_id $expect_out(1,string)
             pass "watch local_var"
         }
     }
+}
 
     if {$wp_id == -1} {return}
 
@@ -380,6 +396,12 @@ proc deprecated_command_test {} {
 	    "both alias and command are deprecated"
     gdb_test "p 5" ".\[0-9\]* = 5.*" "Deprecated warning goes away /2/"
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "maintenance deprecate set remote memory-read-packet-size \"srm\" "
+    unsupported "set remote memory-read-packet-size"
+    unsupported "maintenance deprecate set remote memory-read-packet-size"
+    unsupported "set remote memory-read-packet-size"
+} else {
     gdb_test_no_output "maintenance deprecate set remote memory-read-packet-size \"srm\" " \
 	    "deprecate long command /1/"
     gdb_test "set remote memory-read-packet-size" \
@@ -391,6 +413,7 @@ proc deprecated_command_test {} {
     gdb_test "set remote memory-read-packet-size" \
 	    "Warning: command 'set remote memory-read-packet-size' is deprecated.*No alternative known.*" \
 	    "long command deprecated with no alternative /2/"
+}
 
     gdb_test "maintenance deprecate" \
 	    "\"maintenance deprecate\".*" \

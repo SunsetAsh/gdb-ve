@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "top.h"
@@ -54,6 +55,7 @@ static struct cmd_list_element *compile_command_list;
 
 int compile_debug;
 
+#ifndef VE_CUSTOMIZATION
 /* Implement "show debug compile".  */
 
 static void
@@ -163,6 +165,7 @@ compile_code_command (char *arg, int from_tty)
 
   do_cleanups (cleanup);
 }
+#endif
 
 /* Callback for compile_print_command.  */
 
@@ -174,6 +177,7 @@ compile_print_value (struct value *val, void *data_voidp)
   print_value (val, fmtp);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Handle the input from the 'compile print' command.  The "compile
    print" command is used to evaluate and print an expression that may
    contain calls to the GCC compiler.  The language expected in this
@@ -208,6 +212,7 @@ compile_print_command (char *arg_param, int from_tty)
 
   do_cleanups (cleanup);
 }
+#endif
 
 /* A cleanup function to remove a directory and all its contents.  */
 
@@ -319,6 +324,7 @@ set_compile_args (char *args, int from_tty, struct cmd_list_element *c)
   build_argc_argv (compile_args, &compile_args_argc, &compile_args_argv);
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Implement 'show compile-args'.  */
 
 static void
@@ -329,6 +335,7 @@ show_compile_args (struct ui_file *file, int from_tty,
 			    "are \"%s\".\n"),
 		    value);
 }
+#endif
 
 /* Append ARGC and ARGV (as parsed by build_argc_argv) to *ARGCP and *ARGVP.
    ARGCP+ARGVP can be zero+NULL and also ARGC+ARGV can be zero+NULL.  */
@@ -593,6 +600,7 @@ compile_to_object (struct command_line *cmd, const char *cmd_string,
   return object_file;
 }
 
+#ifndef VE_CUSTOMIZATION
 /* The "compile" prefix command.  */
 
 static void
@@ -602,6 +610,7 @@ compile_command (char *args, int from_tty)
      assume it is a direct code compilation.  */
   compile_code_command (args, from_tty);
 }
+#endif
 
 /* See compile.h.  */
 
@@ -673,6 +682,7 @@ _initialize_compile (void)
 {
   struct cmd_list_element *c = NULL;
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("compile", class_obscure, compile_command,
 		  _("\
 Command to compile source code and inject it into the inferior."),
@@ -742,6 +752,7 @@ Use options like -I (include file directory) or ABI settings.\n\
 String quoting is parsed like in shell, for example:\n\
   -mno-align-double \"-I/dir with a space/include\""),
 			  set_compile_args, show_compile_args, &setlist, &showlist);
+#endif
 
   /* Override flags possibly coming from DW_AT_producer.  */
   compile_args = xstrdup ("-O0 -gdwarf-4"

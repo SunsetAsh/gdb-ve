@@ -19,6 +19,11 @@ if {![dwarf2_support]} {
     return 0  
 }
 
+if { [istarget ve-nec-linux*] } {
+    unsupported "no target support"
+    return 0
+}
+
 if { [skip_cplus_tests] } { continue }
 
 standard_testfile method-ptr.cc subrange-dw.S

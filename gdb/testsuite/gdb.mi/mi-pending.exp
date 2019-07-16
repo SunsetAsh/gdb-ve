@@ -89,9 +89,13 @@ mi_expect_stop "breakpoint-hit" "pendfunc1" ".*" ".*" ".*" \
 mi_send_resuming_command "exec-continue" "continuing execution to conditional bp"
 
 # Now we should stop on the conditional breakpoint.
-mi_expect_stop "breakpoint-hit" "pendfunc2" "\{name=\"x\",value=\"4\"\}" ".*" ".*" \
-    { "" "disp=\"keep\"" } \
-    "Run till MI pending breakpoint on pendfunc2 with x==4"
+if {[istarget "ve-nec-linux*"]} {
+    xfail "veos cannot stop here"
+} else {
+    mi_expect_stop "breakpoint-hit" "pendfunc2" "\{name=\"x\",value=\"4\"\}" ".*" ".*" \
+        { "" "disp=\"keep\"" } \
+        "Run till MI pending breakpoint on pendfunc2 with x==4"
+}
 
 mi_send_resuming_command "exec-continue" "continuing execution to thread creation"
 

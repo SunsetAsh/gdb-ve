@@ -287,7 +287,11 @@ gdb_test "info frame" "No stack.|No selected frame." "info frame"
 #test info files
 gdb_test_no_output "info files" "info files"
 #test info float
+if { [istarget ve-nec-linux*] } {
+    unsupported "info float"
+} else {
 gdb_test "info float" "The program has no registers now." "info float"
+}
 #test info functions
 gdb_test "info functions" "All defined functions:" "info functions"
 #test info locals
@@ -352,7 +356,11 @@ gdb_test "info vector" "The program has no registers now." "info vector"
 #test info warranty
 gdb_test "info warranty" "15. *Disclaimer of Warranty.*" "info warranty"
 #test info watchpoints
+if { [istarget ve-nec-linux*] } {
+    unsupported "info watchpoints"
+} else {
 gdb_test "info watchpoints" "No watchpoints." "info watchpoints"
+}
 #test inspect
 gdb_test "inspect" "The history is empty." "inspect"
 #test jump
@@ -367,7 +375,11 @@ gdb_test "list" "No symbol table is loaded.  Use the \"file\" command.*" "list"
 # The ``takes a file name'' case is for vxgdb.
 # The ``Use the "file" command'' case is for newer GDB versions which try
 # to deduce the filename from the exec file.
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported load command."
+} else {
 gdb_test "load" "You can't do that when your target is `None'.*|The load command takes a file name.*|Must specify at least a file name with the load command.*|.*Use the .file. or .exec-file. command.*" "load"
+}
 #test next "n" abbreviation
 gdb_test "n" "The program is not being run." "next \"n\" abbreviation"
 #test next
@@ -380,8 +392,24 @@ gdb_test "nexti" "The program is not being run." "nexti"
 gdb_test "output" "Argument required .expression to compute.*" "output"
 
 #test overlay
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported overlay command."
+} else {
 gdb_test "overlay" "\"overlay\" must be followed by the name of .*"
+}
 #test a non-existant overlay subcommand
+if { [istarget ve-nec-linux*] } {
+    unsupported "unsupported overlay on"
+    unsupported "unsupported overlay manual #1"
+    unsupported "unsupported overlay auto"
+    unsupported "unsupported overlay off"
+    unsupported "unsupported overlay list"
+    unsupported "unsupported overlay map #1"
+    unsupported "unsupported overlay unmap #1"
+    unsupported "unsupported overlay manual #2"
+    unsupported "unsupported overlay map #2"
+    unsupported "unsupported overlay unmap #2"
+} else {
 gdb_test "overlay on"     "Undefined overlay command.* Try \"help overlay\"."
 gdb_test_no_output "overlay manual" "overlay manual #1"
 gdb_test_no_output "overlay auto"
@@ -392,6 +420,7 @@ gdb_test "overlay unmap"  "Overlay debugging not enabled.*" "overlay unmap #1"
 gdb_test_no_output "overlay manual" "overlay manual #2"
 gdb_test "overlay map"    "Argument required: name of an overlay section." "overlay map #2"
 gdb_test "overlay unmap"  "Argument required: name of an overlay section." "overlay unmap #2"
+}
 
 #test print "p" abbreviation
 gdb_test "p" "The history is empty." "print \"p\" abbreviation"

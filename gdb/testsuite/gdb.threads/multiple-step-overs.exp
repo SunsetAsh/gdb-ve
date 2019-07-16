@@ -29,6 +29,14 @@ if {[gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" \
     return -1
 }
 
+set can_do_cmd 0
+
+if { !$can_do_cmd } {
+    unsupported "unsupported command"
+    return
+}
+
+
 # Prepare environment for test.
 
 proc setup {} {
@@ -43,7 +51,6 @@ proc setup {} {
 	}
 
 	gdb_test_no_output "set displaced-stepping $displaced"
-
 	gdb_breakpoint [gdb_get_line_number "set wait-threads breakpoint here"]
 	gdb_continue_to_breakpoint "run to breakpoint"
 	gdb_test "info threads" "\\\* 1 .* 2 .* 3 .*" "info threads shows all threads"

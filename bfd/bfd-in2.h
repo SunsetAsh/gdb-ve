@@ -2344,6 +2344,8 @@ enum bfd_architecture
 #define bfd_mach_nios2r2       2
   bfd_arch_visium,     /* Visium */
 #define bfd_mach_visium        1
+  bfd_arch_ve,     /* NEC VE */
+#define bfd_mach_ve 0
   bfd_arch_last
   };
 
@@ -6346,6 +6348,110 @@ assembler and not (currently) written to any object files.  */
   BFD_RELOC_VISIUM_HI16_PCREL,
   BFD_RELOC_VISIUM_LO16_PCREL,
   BFD_RELOC_VISIUM_IM16_PCREL,
+/* NEC VE - No relocation is necessary.  */
+  BFD_RELOC_VE_NONE,
+
+/* NEC VE - A 32 bit reference to the symbol virtual address.  */
+  BFD_RELOC_VE_REFLONG,
+
+/* NEC VE - A 64 bit reference to the symbol virtual address.  */
+  BFD_RELOC_VE_REFQUAD,
+
+/* NEC VE - A 32 bit PC relative offset.  */
+  BFD_RELOC_VE_SREL32,
+
+/* NEC VE - A 64 bit reference to the symbol virtual address.(bits 32-63)  */
+  BFD_RELOC_VE_HI32,
+
+/* NEC VE - A 64 bit reference to the symbol virtual address.(bits 0-31) */
+  BFD_RELOC_VE_LO32,
+
+/* NEC VE - PC_HI32 */
+  BFD_RELOC_VE_PC_HI32,
+
+/* NEC VE - PC_LO32 */
+  BFD_RELOC_VE_PC_LO32,
+
+/* NEC VE - GOT32. */
+  BFD_RELOC_VE_GOT32,
+
+/* NEC VE - GOT_HI32. */
+  BFD_RELOC_VE_GOT_HI32,
+
+/* NEC VE - GOT_LO32. */
+  BFD_RELOC_VE_GOT_LO32,
+
+/* NEC VE - GOTOFF32. */
+  BFD_RELOC_VE_GOTOFF32,
+
+/* NEC VE - GOTOFF_HI32. */
+  BFD_RELOC_VE_GOTOFF_HI32,
+
+/* NEC VE - GOTOFF_LO32. */
+  BFD_RELOC_VE_GOTOFF_LO32,
+
+/* NEC VE - PLT32. */
+  BFD_RELOC_VE_PLT32,
+
+/* NEC VE - PLT_HI32. */
+  BFD_RELOC_VE_PLT_HI32,
+
+/* NEC VE - PLT_LO32. */
+  BFD_RELOC_VE_PLT_LO32,
+
+/* NEC VE - RELATIVE */
+  BFD_RELOC_VE_RELATIVE,
+
+/* NEC VE - Global Data.  */
+  BFD_RELOC_VE_GLOB_DAT,
+
+/* NEC VE - Jump Slot.  */
+  BFD_RELOC_VE_JUMP_SLOT,
+
+/* NEC VE - COPY. */
+  BFD_RELOC_VE_COPY,
+
+/* NEC VE - IRELATIVE. */
+  BFD_RELOC_VE_IRELATIVE,
+
+/* NEC VE - DTPMOD64. */
+  BFD_RELOC_VE_DTPMOD64,
+
+/* NEC VE - DTPOFF64. */
+  BFD_RELOC_VE_DTPOFF64,
+
+/* NEC VE - TPOFF64. */
+  BFD_RELOC_VE_TPOFF64,
+
+/* NEC VE - TLS_GD_HI32. */
+  BFD_RELOC_VE_TLS_GD_HI32,
+
+/* NEC VE - TLS_GD_LO32. */
+  BFD_RELOC_VE_TLS_GD_LO32,
+
+/* NEC VE - TLS_LD_HI32. */
+  BFD_RELOC_VE_TLS_LD_HI32,
+
+/* NEC VE - TLS_LD_LO32. */
+  BFD_RELOC_VE_TLS_LD_LO32,
+
+/* NEC VE - TLS_DTPOFF32. */
+  BFD_RELOC_VE_DTPOFF32,
+
+/* NEC VE - TLS_IE_HI32. */
+  BFD_RELOC_VE_TLS_IE_HI32,
+
+/* NEC VE - TLS_IE_LO32. */
+  BFD_RELOC_VE_TLS_IE_LO32,
+
+/* NEC VE - TPOFF_HI32. */
+  BFD_RELOC_VE_TPOFF_HI32,
+
+/* NEC VE - TPOFF_LO32. */
+  BFD_RELOC_VE_TPOFF_LO32,
+
+/* NEC VE - TPOFF32. */
+  BFD_RELOC_VE_TPOFF32,
   BFD_RELOC_UNUSED };
 
 typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;

@@ -90,6 +90,7 @@
 #define ARCH_tilepro
 #define ARCH_v850
 #define ARCH_vax
+#define ARCH_ve
 #define ARCH_visium
 #define ARCH_w65
 #define ARCH_xstormy16
@@ -498,6 +499,11 @@ disassembler (bfd *abfd)
 #ifdef ARCH_vax
     case bfd_arch_vax:
       disassemble = print_insn_vax;
+      break;
+#endif
+#ifdef ARCH_ve
+    case bfd_arch_ve:
+      disassemble = print_insn_ve;
       break;
 #endif
 #ifdef ARCH_visium

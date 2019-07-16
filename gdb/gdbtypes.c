@@ -21,6 +21,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "bfd.h"
@@ -5586,6 +5587,23 @@ objfile_type (struct objfile *objfile)
 
 extern initialize_file_ftype _initialize_gdbtypes;
 
+#ifdef VE_CUSTOMIZATION
+#include "cli/cli-decode.h"
+static void
+set_dummy_func (char *args, int from_tty,
+		struct cmd_list_element *c)
+{
+  if (!strcmp (c->name, "opaque-type-resolution"))
+    opaque_type_resolution = 1;
+  if (!strcmp (c->name, "type"))
+    strict_type_checking = 1;
+}
+
+#define VE_SET_FUNC set_dummy_func
+#else
+#define VE_SET_FUNC NULL
+#endif
+
 void
 _initialize_gdbtypes (void)
 {
@@ -5608,7 +5626,7 @@ _initialize_gdbtypes (void)
 			     " types (if set before loading symbols)."),
 			   _("Show resolution of opaque struct/class/union"
 			     " types (if set before loading symbols)."),
-			   NULL, NULL,
+			   NULL, VE_SET_FUNC,
 			   show_opaque_type_resolution,
 			   &setlist, &showlist);
 
@@ -5617,7 +5635,7 @@ _initialize_gdbtypes (void)
 			   &strict_type_checking,
 			   _("Set strict type checking."),
 			   _("Show strict type checking."),
-			   NULL, NULL,
+			   NULL, VE_SET_FUNC,
 			   show_strict_type_checking,
 			   &setchecklist, &showchecklist);
 }

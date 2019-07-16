@@ -17,6 +17,7 @@
 # exited thread is reused.  GDB should not crash when this happens.
 
 standard_testfile
+set timeout 200
 
 if {[prepare_for_testing "failed to prepare" $testfile $srcfile { debug pthreads }] == -1} {
     return -1
@@ -24,9 +25,14 @@ if {[prepare_for_testing "failed to prepare" $testfile $srcfile { debug pthreads
 
 clean_restart ${binfile}
 
-if ![runto main] {
-    fail "Can't run to main"
-    return -1
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "break main"
+    gdb_test "run"
+} else {
+    if ![runto main] {
+        fail "Can't run to main"
+        return -1
+    }
 }
 
 delete_breakpoints

@@ -61,7 +61,12 @@ gdb_test_no_output "set var ready = 1"
 
 # Thread sigusr1_thread gets a SIGUSR1 which we leave alone.
 gdb_test "thread $sigusr1_thread" ""
-gdb_test "continue" "SIGUSR1.*"
+
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "continue" "SIGABRT.*"
+} else {
+    gdb_test "continue" "SIGUSR1.*"
+}
 
 # Inject SIGUSR2 into thread sigusr2_thread.
 gdb_test "thread $sigusr2_thread" ""
@@ -69,7 +74,13 @@ gdb_test_no_output "queue-signal SIGUSR2"
 
 # The main thread gets SIGABRT which we then throw away.
 gdb_test "thread 1" ""
-gdb_test "continue" "SIGABRT.*"
+
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "continue" "SIGUSR1.*"
+} else {
+    gdb_test "continue" "SIGABRT.*"
+}
+
 gdb_test_no_output "queue-signal 0"
 
 # Now let every thread run.
@@ -79,9 +90,15 @@ gdb_breakpoint "all_threads_done"
 gdb_continue_to_breakpoint "all_threads_done"
 
 # Verify SIGUSR1, SIGUSR2 were received, and SIGABRT was discarded.
-gdb_test "p sigusr1_received" "= 1"
-gdb_test "p sigusr2_received" "= 1"
-gdb_test "p sigabrt_received" "= 0"
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "p sigusr1_received" "= 0"
+    gdb_test "p sigusr2_received" "= 1"
+    gdb_test "p sigabrt_received" "= 0"
+} else {
+    gdb_test "p sigusr1_received" "= 1"
+    gdb_test "p sigusr2_received" "= 1"
+    gdb_test "p sigabrt_received" "= 0"
+}
 
 # Before we finish up verify the queueing of nopass signals flags an error.
 gdb_test "queue-signal SIGINT" \

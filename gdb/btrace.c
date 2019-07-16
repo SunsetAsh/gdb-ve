@@ -18,6 +18,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "btrace.h"
@@ -2508,6 +2509,7 @@ btrace_maint_update_pt_packets (struct btrace_thread_info *btinfo)
 
 #endif /* !defined (HAVE_LIBIPT)  */
 
+#ifndef VE_CUSTOMIZATION
 /* Update the packet maintenance information for BTINFO and store the
    low and high bounds into BEGIN and END, respectively.
    Store the current iterator state into FROM and TO.  */
@@ -2917,6 +2919,7 @@ show_maint_btrace_pt_skip_pad  (struct ui_file *file, int from_tty,
 {
   fprintf_filtered (file, _("Skip PAD packets is %s.\n"), value);
 }
+#endif
 
 
 /* Initialize btrace maintenance commands.  */
@@ -2925,6 +2928,7 @@ void _initialize_btrace (void);
 void
 _initialize_btrace (void)
 {
+#ifndef VE_CUSTOMIZATION
   add_cmd ("btrace", class_maintenance, maint_info_btrace_cmd,
 	   _("Info about branch tracing data."), &maintenanceinfolist);
 
@@ -2986,5 +2990,6 @@ Discards the raw branch tracing data and the execution history data.\n\
 The next 'record' command will fetch the branch tracing data anew.\n\
 "),
 	   &maint_btrace_cmdlist);
+#endif
 
 }

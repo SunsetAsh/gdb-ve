@@ -141,14 +141,22 @@ int main ()
                120,
                7, 8, 12,
                10, 13, 9,
+#ifdef VEOS
+               11, (char)162, 17);
+#else
                11, 162, 17);
+#endif
   fill_run (iso_8859_1_string, 7, 26, 65);
   fill_run (iso_8859_1_string, 33, 26, 97);
   fill_run (iso_8859_1_string, 59, 10, 48);
 
   /* Initialize ebcdic_us_string.  */
   init_string (ebcdic_us_string,
+#ifdef VEOS
+               (char)167,
+#else
                167,
+#endif
                47, 22, 12,
                37, 13, 5,
                11, 74, 17);
@@ -165,7 +173,11 @@ int main ()
 
   /* Initialize ibm1047_string.  */
   init_string (ibm1047_string,
+#ifdef VEOS
+               (char)167,
+#else
                167,
+#endif
                47, 22, 12,
                37, 13, 5,
                11, 74, 17);

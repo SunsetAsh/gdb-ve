@@ -40,7 +40,13 @@ gdb_test "b [gdb_get_line_number "breakpoint here"]" \
 
 gdb_test "continue" ".*breakpoint here.*" "continue to exec"
 
-gdb_test "info threads" "1 *Thread.*2 *Thread.*3 *Thread.*" "info threads before exec"
+gdb_test "info threads" "1 *LWP.*2 *LWP.*3 *LWP.*" "info threads before exec"
+
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "continue" ".* received signal SIGTRAP.*"
+    unsupported "infomation can not be upload when using execl"
+    return
+}
 
 # When continuing from this point we'll hit the breakpoint in main()
 # again, this time in the exec'd process.

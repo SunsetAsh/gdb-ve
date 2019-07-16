@@ -16,6 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+/* Changes by NEC Corporation for the VE port, 2017-2018 */
 
 #include "defs.h"
 #include "serial.h"
@@ -362,6 +363,7 @@ ser_tcp_send_break (struct serial *scb)
   return (serial_write (scb, "\377\363", 2));
 }
 
+#ifndef VE_CUSTOMIZATION
 /* Support for "set tcp" and "show tcp" commands.  */
 
 static void
@@ -375,6 +377,7 @@ show_tcp_cmd (char *args, int from_tty)
 {
   help_list (tcp_show_cmdlist, "show tcp ", all_commands, gdb_stdout);
 }
+#endif
 
 #ifndef USE_WIN32API
 
@@ -418,6 +421,7 @@ _initialize_ser_tcp (void)
   serial_add_interface (&tcp_ops);
 #endif /* USE_WIN32API */
 
+#ifndef VE_CUSTOMIZATION
   add_prefix_cmd ("tcp", class_maintenance, set_tcp_cmd, _("\
 TCP protocol specific variables\n\
 Configure variables specific to remote TCP connections"),
@@ -445,4 +449,5 @@ connection forever, unless interrupted with Ctrl-c.\n\
 The default is 15 seconds."),
 			    NULL, NULL,
 			    &tcp_set_cmdlist, &tcp_show_cmdlist);
+#endif
 }

@@ -57,7 +57,13 @@ if ![target_info exists gdb,noinferiorio] {
     gdb_test_no_output "set dprintf-style call"
 
     # Also test with dprintf since the original bug was noticed using dprintf.
+  if { [istarget ve-nec-linux*] } {
+    unsupported "dprintf $dp_location,\"testdprintf\\n\""
+
+    gdb_test_stdio "continue" ""
+  } else {
     gdb_test "dprintf $dp_location,\"testdprintf\\n\"" "Dprintf .*"
 
     gdb_test_stdio "continue" "testdprintf"
+  }
 }

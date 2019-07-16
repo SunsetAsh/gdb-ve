@@ -22,7 +22,9 @@
 # static executable would just keep running and never catch the fork.
 
 if { [is_remote target] || ![isnative] } then {
+  if { ![istarget ve-nec-linux*] } {
     continue
+  }
 }
 
 # Until "catch fork" is implemented on other targets...

@@ -17,6 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Changes by NEC Corporation for the VE port, 2017-2018
+#
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -208,6 +211,11 @@ INTL_CFLAGS = @INCINTL@
 
 # Where is the ICONV library?  This will be empty if in libc or not available.
 LIBICONV = @LIBICONV@
+
+VEOS_PREFIX = @VEOS_PREFIX@
+VEOS_LIB64_DIR = $(VEOS_PREFIX)/lib64
+EXPORT_SYM = -Wl,-export-dynamic
+LIBVEPTRACE = $(EXPORT_SYM) -L $(VEOS_LIB64_DIR) -lveptrace -Wl,-rpath=$(VEOS_LIB64_DIR)
 
 # Did the user give us a --with-gdb-datadir option?
 GDB_DATADIR = @GDB_DATADIR@
@@ -608,7 +616,8 @@ CLIBS = $(SIM) $(READLINE) $(OPCODES) $(BFD) $(ZLIB) $(INTL) $(LIBIBERTY) $(LIBD
 	$(XM_CLIBS) $(NAT_CLIBS) $(GDBTKLIBS) \
 	@LIBS@ @GUILE_LIBS@ @PYTHON_LIBS@ \
 	$(LIBEXPAT) $(LIBLZMA) $(LIBBABELTRACE) $(LIBIPT) \
-	$(LIBIBERTY) $(WIN32LIBS) $(LIBGNU) $(LIBICONV)
+	$(LIBIBERTY) $(WIN32LIBS) $(LIBGNU) $(LIBICONV) \
+	$(LIBVEPTRACE)
 CDEPS = $(XM_CDEPS) $(NAT_CDEPS) $(SIM) $(BFD) $(READLINE_DEPS) \
 	$(OPCODES) $(INTL_DEPS) $(LIBIBERTY) $(CONFIG_DEPS) $(LIBGNU)
 
@@ -732,7 +741,8 @@ ALL_TARGET_OBS = \
 	symfile-mem.o \
 	windows-tdep.o \
 	linux-record.o \
-	ravenscar-thread.o
+	ravenscar-thread.o \
+	ve-tdep.o
 
 # Host-dependent makefile fragment comes in here.
 @host_makefile_frag@
@@ -1788,7 +1798,8 @@ ALLDEPFILES = \
 	xcoffread.c \
 	xstormy16-tdep.c \
 	xtensa-tdep.c xtensa-config.c \
-	xtensa-linux-tdep.c xtensa-linux-nat.c xtensa-xtregs.c
+	xtensa-linux-tdep.c xtensa-linux-nat.c xtensa-xtregs.c \
+	ve-tdep.c
 
 # Some files need explicit build rules (due to -Werror problems) or due
 # to sub-directory fun 'n' games.
@@ -2404,6 +2415,10 @@ aarch64-linux-hw-point.o: ${srcdir}/nat/aarch64-linux-hw-point.c
 
 aarch64-linux.o: ${srcdir}/nat/aarch64-linux.c
 	$(COMPILE) $(srcdir)/nat/aarch64-linux.c
+	$(POSTCOMPILE)
+
+ve-linux-procfs.o: $(srcdir)/nat/ve-linux-procfs.c
+	$(COMPILE) $(srcdir)/nat/ve-linux-procfs.c
 	$(POSTCOMPILE)
 
 # gdb/arch/ dependencies

@@ -45,7 +45,8 @@ if [target_info exists gdb,nointerrupts] {
 
 # For this to work we must be sure to consume the "Continuing."
 # message first, or GDB's signal handler may not be in place.
-after 500 {send_gdb "\003"}
+#after 500 {send_gdb "\003"}
+after 1000 {send_gdb "\003"}
 
 # Make sure we do not get an internal error from hitting Control-C
 # while many signals are flying back and forth.

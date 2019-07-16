@@ -33,7 +33,7 @@ gdb_test "break break_me" \
          "breakpoint on break_me"
 
 gdb_test "continue" \
-         ".*Breakpoint 2, break_me ().*" \
+         ".*Breakpoint 2,.*break_me ().*" \
          "run to break_me"
 
 # 

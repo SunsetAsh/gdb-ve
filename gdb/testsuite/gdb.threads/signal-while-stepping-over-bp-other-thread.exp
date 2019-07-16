@@ -64,50 +64,72 @@ gdb_test "info threads" "" "info threads with thread 3"
 
 gdb_test "set scheduler-locking on"
 
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "set scheduler-locking on is unsupported"
+}
+
 gdb_breakpoint [gdb_get_line_number "set breakpoint child_two here"]
 gdb_breakpoint [gdb_get_line_number "set breakpoint child_one here"]
 
 gdb_test "thread 3" "" "switch to thread 3 to run to its breakpoint"
-gdb_continue_to_breakpoint "run to breakpoint in thread 3"
-
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "continue" "" "run to breakpoint in thread 3" 
+} else {
+    gdb_continue_to_breakpoint "run to breakpoint in thread 3"
+}
 gdb_test "thread 2" "" "switch to thread 2 to run to its breakpoint"
 gdb_continue_to_breakpoint "run to breakpoint in thread 2"
-
 delete_breakpoints
 
 gdb_test "b *\$pc" "" "set breakpoint to be stepped over"
+gdb_test "info threads"
 # Make sure the first loop breaks without hitting the breakpoint
 # again.
-gdb_test "p *myp = 0" " = 0" "force loop break in thread 2"
-
+if {![istarget "ve-nec-linux*"]} {
+    gdb_test "p *myp = 0" " = 0" "force loop break in thread 2"
+}
 # We want "print" to make sure the target reports the signal to the
 # core.
 gdb_test "handle SIGUSR1 print nostop pass" "" ""
 
 gdb_test "thread 1" "" "switch to thread 1 to queue signal in thread 2"
-gdb_test "next 2" "pthread_join .*" "queue signal in thread 2"
-
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "next 2" "" "queue signal in thread 2"
+} else {
+    gdb_test "next 2" "pthread_join .*" "queue signal in thread 2"
+}
 gdb_test "thread 3" "" "switch to thread 3 for stepping"
 set my_number [get_value "my_number" "get my_number"]
-set cnt_before [get_value "args\[$my_number\]" "get count before step"]
+gdb_test "info threads"
+if {![istarget "ve-nec-linux*"]} {
+    set cnt_before [get_value "args\[$my_number\]" "get count before step"]
+}
 gdb_test "set scheduler-locking off"
+
+if {[istarget "ve-nec-linux*"]} {
+    unsupported "set scheduler-locking on is unsupported"
+}
 
 # Make sure we're exercising the paths we want to.
 gdb_test "set debug infrun 1"
 
 set test "step"
-gdb_test_sequence $test $test {
-    "need to step-over"
-    "resume \\(step=1"
-    "signal arrived while stepping over breakpoint"
-    "(restart threads|switching back to stepped thread)"
-    "stepped to a different line"
-    "callme"
+if {[istarget "ve-nec-linux*"]} {
+    gdb_test "step" ""
+} else {
+    gdb_test_sequence $test $test {
+        "need to step-over"
+        "resume \\(step=1"
+        "signal arrived while stepping over breakpoint"
+        "(restart threads|switching back to stepped thread)"
+        "stepped to a different line"
+        "callme"
+    }
 }
-
+if {![istarget "ve-nec-linux*"]} {
 set cnt_after [get_value "args\[$my_number\]" "get count after step"]
 
 # Test that GDB doesn't inadvertently resume the stepped thread when a
 # signal arrives while stepping over a breakpoint in another thread.
-
-gdb_assert { $cnt_before + 1 == $cnt_after } "stepped thread under control"
+    gdb_assert { $cnt_before + 1 == $cnt_after } "stepped thread under control"
+}

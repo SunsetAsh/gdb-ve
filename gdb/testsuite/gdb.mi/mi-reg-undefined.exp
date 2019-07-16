@@ -23,6 +23,9 @@ if {![dwarf2_support]} {
 
 # This test can only be run on x86_64 targets.
 if {![istarget "x86_64-*-*"] || ![is_lp64_target]} {
+    if {[istarget "ve-nec-linux*"]} {
+        unsupported "veos unsupport this test"
+    }
     return 0
 }
 
